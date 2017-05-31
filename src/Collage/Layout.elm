@@ -24,6 +24,17 @@ module Collage.Layout
         , showEnvelope
         )
 
+{-| TODO
+
+@docs Direction, envelope
+
+@docs spacer, empty
+@docs before, after, above, below, horizontal, vertical, stack
+@docs north, northeast, east, southeast, south, southwest, west, northwest, center
+@docs showOrigin, showEnvelope
+
+-}
+
 import Tuple exposing (first, second)
 import Maybe.Extra exposing ((?))
 import Color
@@ -47,6 +58,7 @@ type Direction
 -- Envelopes -------------------------------------------------------------------
 
 
+{-| -}
 envelope : Direction -> Collage msg -> Float
 envelope dir form =
     let
@@ -86,6 +98,10 @@ basicEnvelope dir basic =
 
         Core.Image _ w h ->
             boxEnvelope dir w h 0
+
+        --FIXME: calculate envelope for Text
+        Core.Text _ text ->
+            0
 
         Core.Group forms ->
             --FIXME: correct with translation...

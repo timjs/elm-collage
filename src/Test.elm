@@ -1,7 +1,8 @@
 module Main exposing (..)
 
-import Html exposing (..)
+import Html exposing (Html)
 import Color exposing (..)
+import Text exposing (..)
 import Collage exposing (..)
 import Collage.Layout exposing (..)
 import Collage.Events exposing (onClick)
@@ -38,6 +39,10 @@ update msg model =
 
 -- View ------------------------------------------------------------------------
 
+txt : Collage Msg
+txt =
+    fromString "Hallo"
+        |> centered
 
 circ : Model -> Collage Msg
 circ model =
@@ -55,8 +60,8 @@ circ model =
         --|> showOrigin
 
 
-rect : Model -> Collage Msg
-rect model =
+rect : Collage Msg
+rect =
     rectangle 100 100
         |> styled (uniform lightOrange) border
         |> translate ( 25, -25 )
@@ -64,8 +69,8 @@ rect model =
         --|> showOrigin
 
 
-tria : Model -> Collage msg
-tria model =
+tria : Collage msg
+tria =
     triangle 50
         |> styled (uniform lightGreen) border
         --|> showEnvelope
@@ -79,7 +84,7 @@ border =
 
 view : Model -> Html Msg
 view model =
-    vertical [ rect model, circ model, tria model ]
+    vertical [ rect, stack [txt, circ model], tria ]
     -- ==
     --rect model
     --    |> above (circ model)

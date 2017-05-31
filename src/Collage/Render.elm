@@ -6,15 +6,19 @@ module Collage.Render exposing (svg)
 
 -}
 
+import String
+import List
+import Tuple exposing (first, second)
 import Html exposing (Html)
 import Svg exposing (Svg, Attribute)
 import Svg.Attributes as Svg exposing (style)
 import Svg.Events as Svg
-import String
-import Tuple exposing (first, second)
 import Color exposing (Color)
-import List
+import Text exposing (Text)
+
+
 -- NOTE: Render should only depend on Core, not Collage itself
+
 import Collage.Core exposing (..)
 import Collage.Layout exposing (northwest)
 
@@ -38,9 +42,9 @@ svg width height form =
         ]
 
 
---FIXME: why use ids?
 render : Collage msg -> Int -> ( Int, List (Svg msg) )
 render form id =
+    --FIXME: why use ids?
     case form.basic of
         Path style path ->
             case path of
@@ -59,7 +63,7 @@ render form id =
             case shape of
                 Polygon ps ->
                     ( id + 1
-                    , evalTexture style.fill id
+                    , evalFillStyle style.fill id
                         ++ [ Svg.polygon
                                 ((Svg.points <| decodePoints ps)
                                     :: attrs form id
@@ -71,7 +75,7 @@ render form id =
 
                 Ellipse rx ry ->
                     ( id + 1
-                    , evalTexture style.fill id
+                    , evalFillStyle style.fill id
                         ++ [ Svg.ellipse
                                 (attrs form id
                                     ++ events form
@@ -83,15 +87,13 @@ render form id =
                            ]
                     )
 
-        {- Text text align ->
-           case text of
-               Text t style ->
-                   ( id
-                   , [ Svg.text_ (attrs form id ++ events form)
-                           [ Svg.text t ]
-                     ]
-                   )
-        -}
+        Text _ (Text.Text style str) ->
+            ( id
+            , [ Svg.text_ (attrs form id ++ events form)
+                    [ Svg.text str ]
+              ]
+            )
+
         Image url width height ->
             ( id
             , [ Svg.image
@@ -142,8 +144,8 @@ attrs : Collage msg -> Int -> List (Attribute msg)
 attrs form id =
     case form.basic of
         Path style _ ->
-            [ Svg.stroke <| decodeTexture style.fill id
-            , Svg.strokeOpacity <| decodeTextureAlpha style.fill
+            [ Svg.stroke <| decodeFill style.fill id
+            , Svg.strokeOpacity <| decodeFillAlpha style.fill
             , Svg.strokeWidth <| toString style.thickness
             , Svg.strokeLinecap <| decodeCap style.cap
             , Svg.strokeLinejoin <| decodeJoin style.join
@@ -154,10 +156,10 @@ attrs form id =
             ]
 
         Shape style _ ->
-            [ Svg.fill <| decodeTexture style.fill id
-            , Svg.fillOpacity <| decodeTextureAlpha style.fill
-            , Svg.stroke <| decodeTexture style.line.fill id
-            , Svg.strokeOpacity <| decodeTextureAlpha style.line.fill
+            [ Svg.fill <| decodeFill style.fill id
+            , Svg.fillOpacity <| decodeFillAlpha style.fill
+            , Svg.stroke <| decodeFill style.line.fill id
+            , Svg.strokeOpacity <| decodeFillAlpha style.line.fill
             , Svg.strokeWidth <| toString style.line.thickness
             , Svg.strokeLinecap <| decodeCap style.line.cap
             , Svg.strokeLinejoin <| decodeJoin style.line.join
@@ -167,48 +169,63 @@ attrs form id =
             , Svg.strokeDasharray <| decodeDashing style.line.dashing
             ]
 
-        {- Text text align ->
-           let
-               style =
-                   case text of
-                       Text _ s ->
-                           s
+        Text anchor (Text.Text style str) ->
+            let
+                align_ =
+                    case anchor of
+                        Start ->
+                            "start"
 
-               align_ =
-                   case align of
-                       Center ->
-                           "middle"
+                        Middle ->
+                            "middle"
 
-                       Left ->
-                           "start"
+                        End ->
+                            "end"
+            in
+                [ Svg.fill <| decodeFill (Uniform style.color) id
+                , Svg.fontFamily <|
+                    case style.family of
+                        Text.Roman ->
+                            "serif"
 
-                       Right ->
-                           "end"
-           in
-               [ Svg.fill <| decodeTexture style.stroke id
-               , Svg.fontFamily style.font
-               , Svg.fontSize <| toString style.size
-               , Svg.fontWeight <|
-                   if style.bold then
-                       "bold"
-                   else
-                       "normal"
-               , Svg.fontStyle <|
-                   if style.italic then
-                       "oblique"
-                   else
-                       "normal"
-               , Svg.textDecoration <|
-                   if style.underlined then
-                       "underline"
-                   else
-                       "none"
-               , Svg.textAnchor <| align_
-               , Svg.dominantBaseline "middle"
-               , Svg.evalTransform <| evalTransform form
-               ]
+                        Text.Sansserif ->
+                            "sans-serif"
 
-        -}
+                        Text.Monospace ->
+                            "monospace"
+
+                        Text.Font name ->
+                            name
+                , Svg.fontSize <| toString style.size
+                , Svg.fontWeight <|
+                    case style.weight of
+                        Text.Bold ->
+                            "bold"
+
+                        --FIXME: add more
+                        _ ->
+                            "normal"
+                , Svg.fontStyle <|
+                    case style.shape of
+                        Text.Italic ->
+                            "italic"
+
+                        --FIXME: add more
+                        _ ->
+                            "normal"
+                , Svg.textDecoration <|
+                    case style.line of
+                        Just Text.Under ->
+                            "underline"
+
+                        --FIXME: add more
+                        _ ->
+                            "none"
+                , Svg.textAnchor <| align_
+                , Svg.dominantBaseline "middle"
+                , Svg.transform <| evalTransform form
+                ]
+
         _ ->
             [ Svg.transform <| evalTransform form ]
 
@@ -263,8 +280,9 @@ evalTransform obj =
             [ "translate(", x, ",", y, ") rotate(", theta, ") scale(", scale, ")" ]
 
 
-evalTexture : FillStyle -> Int -> List (Svg msg)
-evalTexture fs id =
+evalFillStyle : FillStyle -> Int -> List (Svg msg)
+evalFillStyle fs id =
+    --FIXME: change name
     case fs of
         {- Pattern w h url a ->
                [ Svg.defs []
@@ -312,8 +330,8 @@ evalTexture fs id =
             []
 
 
-decodeTexture : FillStyle -> Int -> String
-decodeTexture fs id =
+decodeFill : FillStyle -> Int -> String
+decodeFill fs id =
     case fs of
         Uniform c ->
             decodeColor c
@@ -322,8 +340,8 @@ decodeTexture fs id =
             "none"
 
 
-decodeTextureAlpha : FillStyle -> String
-decodeTextureAlpha fs =
+decodeFillAlpha : FillStyle -> String
+decodeFillAlpha fs =
     case fs of
         Uniform c ->
             decodeAlpha c

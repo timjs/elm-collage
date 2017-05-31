@@ -6,6 +6,7 @@ module Collage.Core
         , Path(..)
         , Shape(..)
         , ShapeStyle
+        , TextAnchor(..)
         , FillStyle(..)
         , LineStyle
         , LineCap(..)
@@ -14,6 +15,7 @@ module Collage.Core
 
 import Html exposing (Html)
 import Color exposing (Color)
+import Text exposing (Text)
 import Json.Decode as Json
 
 
@@ -34,7 +36,7 @@ type alias Collage msg =
 type BasicCollage msg
     = Shape ShapeStyle Shape
     | Path LineStyle Path
-      -- | Text Text TextAlign
+    | Text TextAnchor Text
     | Image String Float Float
     | Group (List (Collage msg))
     | Element (Html msg)
@@ -53,6 +55,11 @@ type alias ShapeStyle =
 
 type Path
     = Polyline (List Point)
+
+type TextAnchor
+    = Start
+    | Middle
+    | End
 
 
 type FillStyle

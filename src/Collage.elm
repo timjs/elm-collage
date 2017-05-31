@@ -23,6 +23,9 @@ module Collage
         , segment
         , path
         , traced
+        , left
+        , centered
+        , right
         , image
         , html
         , FillStyle
@@ -87,14 +90,9 @@ the only backend supported at present is SVG.
 @docs traced
 
 
-# Images
+# Other Content
 
-@docs image
-
-
-# Raw Content
-
-@docs html
+@docs left, centered, right, image, html
 
 
 # Styling
@@ -113,6 +111,7 @@ the only backend supported at present is SVG.
 
 import Html exposing (Html)
 import Color exposing (Color)
+import Text exposing (Text)
 import Collage.Core as Core
 
 
@@ -422,6 +421,28 @@ segment a b =
 traced : LineStyle -> Path -> Collage msg
 traced style path =
     form <| Core.Path style path
+
+
+
+-- Text ------------------------------------------------------------------------
+
+
+{-| -}
+left : Text -> Collage msg
+left =
+    form << Core.Text Core.Start
+
+
+{-| -}
+centered : Text -> Collage msg
+centered =
+    form << Core.Text Core.Middle
+
+
+{-| -}
+right : Text -> Collage msg
+right =
+    form << Core.Text Core.End
 
 
 

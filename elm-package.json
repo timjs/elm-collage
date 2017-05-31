@@ -8,8 +8,10 @@
     ],
     "exposed-modules": [
         "Collage",
-        "Collage.Svg",
-        "Collage.Events"
+        "Collage.Render",
+        "Collage.Events",
+        "Collage.Layout",
+        "Text"
     ],
     "dependencies": {
         "elm-community/maybe-extra": "4.0.0 <= v < 5.0.0",

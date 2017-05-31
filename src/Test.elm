@@ -41,7 +41,10 @@ update msg model =
 
 drawing : Model -> Form Msg
 drawing model =
-    circ model |> above (rect model)-- |> translate ( 100, 100 )
+    -- horizontal [ rect model, circ model ] ==
+    before (rect model) (circ model)
+        |> showEnvelope
+        |> showOrigin
 
 
 circ : Model -> Form Msg
@@ -50,9 +53,9 @@ circ model =
         |> styled
             (uniform <|
                 if model.active then
-                    red
+                    lightRed
                 else
-                    blue
+                    lightBlue
             )
             (solid 5 (uniform black))
         |> onClick Switch
@@ -64,12 +67,11 @@ rect model =
         |> styled
             (uniform <|
                 if model.active then
-                    orange
+                    lightOrange
                 else
-                    purple
+                    lightPurple
             )
             (solid 5 (uniform black))
-
 
 view : Model -> Html Msg
 view model =

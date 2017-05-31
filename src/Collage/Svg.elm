@@ -15,6 +15,7 @@ import Tuple exposing (first, second)
 import Color exposing (Color)
 import List
 import Collage exposing (Point, Form, BasicForm(..), Path(..), Shape(..), FillStyle(..), LineStyle, LineCap(..), LineJoin(..))
+import Collage.Layout exposing (northwest)
 
 
 {-| Takes a `Form` and renders it to usable HTML, in this case
@@ -32,10 +33,11 @@ svg width height form =
             ]
           <|
             second <|
-                render form 0
+                render (northwest form) 0
         ]
 
 
+--FIXME: why use ids?
 render : Form msg -> Int -> ( Int, List (Svg msg) )
 render form id =
     case form.basic of

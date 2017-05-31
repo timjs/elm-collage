@@ -189,7 +189,10 @@ group forms =
 
 
 
--- Manipulating Forms -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -
+-- Transforming Forms -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -
+-- TODO:
+-- * add scale in x and in y with nice names: widen/broaden and lengthen/stretch ???
+-- * add skew in x and y with nice names: slant and tilt ???
 
 
 {-| Move a form by the given amount (x, y). This is a relative translation so
@@ -230,6 +233,8 @@ opacity a form =
 
 
 -- Shapes ----------------------------------------------------------------------
+-- TODO:
+-- * add more primitive shapes: <circle>, <rect>
 
 
 {-| A polygon or an ellipse. Only describes the size and shape of the figure.
@@ -362,6 +367,8 @@ styled texture stroke shape =
 
 
 -- Paths -----------------------------------------------------------------------
+-- TODO:
+-- * add more primitive paths: <line>, <path>
 
 
 {-| A segment of a line or curve. Only describes the shape of the line.

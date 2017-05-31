@@ -4,20 +4,29 @@ module Collage.Layout
         , envelope
         , spacer
         , empty
+        , before
+        , after
         , above
-        , beside
+        , below
         , horizontal
         , vertical
-        , layer
+        , stack
         , north
+        , northeast
         , east
+        , southeast
         , south
+        , southwest
         , west
+        , northwest
         , center
+        , showOrigin
+        , showEnvelope
         )
 
 import Tuple exposing (first, second)
 import Maybe.Extra exposing ((?))
+import Color
 import Collage exposing (..)
 
 
@@ -29,8 +38,8 @@ import Collage exposing (..)
 type Direction
     = Up
     | Down
-    | Left
     | Right
+    | Left
 
 
 
@@ -56,10 +65,10 @@ envelope dir form =
                     max 0 (env - ty)
 
                 Right ->
-                    max 0 (env + tx)
+                    max 0 (env - tx)
 
                 Left ->
-                    max 0 (env - tx)
+                    max 0 (env + tx)
 
 
 basicEnvelope : Direction -> BasicForm msg -> Float
@@ -95,11 +104,13 @@ pathEnvelope dir ps =
             List.map second ps
     in
         case dir of
+            -- NOTE: be aware of the switched vertical coordinate system of Svg
             Up ->
-                List.maximum ys ? 0
-
-            Down ->
                 -(List.minimum ys ? 0)
+
+            -- NOTE: be aware of the switched vertical coordinate system of Svg
+            Down ->
+                List.maximum ys ? 0
 
             Right ->
                 List.maximum xs ? 0
@@ -127,111 +138,244 @@ boxEnvelope dir width height thickness =
 
 
 -- Layouts ---------------------------------------------------------------------
+{-
+   These functions are subject to change! Practise will show if they work well in
+   production code. These kind of definitions are always confusing...
+-}
 
 
+{-| Create an empty Form.
+This is useful for getting your spacing right and for making borders.
+-}
 spacer : Float -> Float -> Form msg
 spacer w h =
     rectangle w h |> styled transparent invisible
 
 
+{-| An Element that takes up no space. Good for things that appear conditionally:
+
+    flow down [ img1, if showMore then img2 else empty ]
+
+-}
 empty : Form msg
 empty =
     spacer 0 0
 
 
-{-| Given two diagrams a and b, place b to the right of a, such that their origins
-are on a horizontal line and their envelopes touch. The origin of the new diagram
-is the center of top and bot.FIXME
+{-| Given two diagrams a and b, place b to the **left** of a,
+such that their origins are on a horizontal line and their envelopes touch.
+The origin of the new Form is the origin of a. FIXME: true?
+Sumarised:
 
-    top
-        |> above bot
+    before a b -- read: before a, put b
+
+Which is equivallent to:
+
+    b
+        |> before a
+
+-}
+before : Form msg -> Form msg -> Form msg
+before a b =
+    let
+        tx =
+            (envelope Left a) + (envelope Right b)
+    in
+        stack [ a, translate ( -tx, 0 ) b ]
+
+
+{-| Given two diagrams a and b, place b to the **right** of a,
+such that their origins are on a horizontal line and their envelopes touch.
+The origin of the new Form is the origin of a. FIXME: true?
+Sumarised:
+
+    after a b -- read: after a, put b
+
+  - Warning: The `(|>)` doesn't read well, don't use it!
+  - Note: This is called `beside` in the Diagrams library.
+
+-}
+after : Form msg -> Form msg -> Form msg
+after a b =
+    let
+        tx =
+            (envelope Right a) + (envelope Left b)
+    in
+        stack [ a, translate ( tx, 0 ) b ]
+
+
+{-| Given two forms a and b, place b **above** a,
+such that their origins are on a vertical line and their envelopes touch.
+The origin of the new Form is the center of a and b. FIXME: true?
+Summarised:
+
+    above a b -- read: above a, put b
+
+Which is equivallent to
+
+    b
+        |> above a
 
 -}
 above : Form msg -> Form msg -> Form msg
-above bot top =
+above a b =
     let
         ty =
-            (envelope Down top) + (envelope Up bot)
+            (envelope Up a) + (envelope Down b)
     in
-        layer [ top, translate ( 0, -ty ) bot ]
+        -- NOTE: translate b up means **minus** because of switched vertical axis
+        stack [ a, translate ( 0, -ty ) b ]
 
 
-{-| Given two diagrams a and b, place b to the right of a, such that their origins
-are on a horizontal line and their envelopes touch. The origin of the new diagram
-is the origin of a.
+{-| Given two forms a and b, place b **below** a,
+such that their origins are on a vertical line and their envelopes touch.
+The origin of the new Form is the center of a and b. FIXME: true?
+Summarised:
 
-    left
-        |> beside right
+    below a b -- read: below a, put b
+
+  - Warning: The `(|>)` doesn't read well, don't use it!
 
 -}
-beside : Form msg -> Form msg -> Form msg
-beside right left =
+below : Form msg -> Form msg -> Form msg
+below a b =
     let
-        tx =
-            (envelope Right left) + (envelope Left right)
+        ty =
+            (envelope Down a) + (envelope Up b)
     in
-        layer [ right, translate ( tx, 0 ) left ]
+        -- NOTE: translate b up means **plus** because of switched vertical axis
+        stack [ a, translate ( 0, ty ) b ]
 
 
-{-| Have a list of elements flow in a particular direction.
-The `Direction` starts from the first element in the list.
+{-| Place a list of Forms next to each other,
+such that their origins are along a horizontal line.
+The first element in the list will be on the left, the last on the right.
 
-flow Right [a,b,c]
+    horizontal [a, b, c]
 
        +---+---+---+
        | a | b | c |
        +---+---+---+
 
 -}
-vertical : List (Form msg) -> Form msg
-vertical =
-    List.foldr (flip above) empty
-
-
 horizontal : List (Form msg) -> Form msg
 horizontal =
-    List.foldr (flip beside) empty
+    List.foldr after empty
 
 
-layer : List (Form msg) -> Form msg
-layer =
-    -- LOL
-    Collage.group
+{-| Place a list of Diagrams next to each other,
+such that their origins are along a vertical line.
+The first element in the list will be on the top, the last on the bottom.
+
+    vertical [a, b, c]
+
+       +---+
+       | a |
+       +---+
+       | b |
+       +---+
+       | c |
+       +---+
+
+-}
+vertical : List (Form msg) -> Form msg
+vertical =
+    List.foldr above empty
+
+
+{-| Place a list of diagrams on top of each other,
+with their origin points stacked on the "out of page" axis.
+The first Form in the list is on top.
+This is the same as the `group` operation in the Collage module.
+
+    stack [a, b, c]
+
+        +---+
+        | a |
+        +---+
+
+-}
+stack : List (Form msg) -> Form msg
+stack =
+    --FIXME: why reverse needed? change renderer?
+    Collage.group << List.reverse
+
+
+
+-- Queries ---------------------------------------------------------------------
+
+
+width : Form msg -> Float
+width form =
+    envelope Left form + envelope Right form
+
+
+height : Form msg -> Float
+height form =
+    envelope Up form + envelope Down form
 
 
 
 -- Anchors ---------------------------------------------------------------------
 
 
-{-| Translate a diagram such that the origin is on the top edge of the bounding box
+{-| Translate a Form such that the origin is on the top edge of the bounding box.
 -}
 north : Form msg -> Form msg
 north form =
-    translate ( 0, -(envelope Up form) ) form
+    translate ( 0, envelope Up form ) form
 
 
-{-| Translate a diagram such that the origin is on the right edge of the bounding box
+{-| -}
+northeast : Form msg -> Form msg
+northeast =
+    north << east
+
+
+{-| Translate a Form such that the origin is on the right edge of the bounding box.
 -}
 east : Form msg -> Form msg
 east form =
     translate ( -(envelope Right form), 0 ) form
 
 
-{-| Translate a diagram such that the origin is on the bottom edge of the bounding box
+{-| -}
+southeast : Form msg -> Form msg
+southeast =
+    south << east
+
+
+{-| Translate a Form such that the origin is on the bottom edge of the bounding box.
 -}
 south : Form msg -> Form msg
 south form =
-    translate ( 0, envelope Down form ) form
+    translate ( 0, -(envelope Down form) ) form
 
 
-{-| Translate a diagram such that the origin is on the left edge of the bounding box
+{-| -}
+southwest : Form msg -> Form msg
+southwest =
+    south << west
+
+
+{-| Translate a Form such that the origin is on the left edge of the bounding box.
 -}
 west : Form msg -> Form msg
 west form =
     translate ( envelope Left form, 0 ) form
 
 
-{-| Translate a diagram such that the envelope in all directions is equal
+{-| -}
+northwest : Form msg -> Form msg
+northwest =
+    north << west
+
+
+{-| Translate a Form such that the envelope in all directions is equal.
+
+  - Note: The anchor of every Form defaults to this.
+    Only use this function to "correct" previous translations of the origin.
+
 -}
 center : Form msg -> Form msg
 center form =
@@ -255,3 +399,33 @@ center form =
             (down - up) / 2
     in
         translate ( -tx, ty ) form
+
+
+
+-- Debuging --------------------------------------------------------------------
+
+
+{-| Draw a red dot at `(0, 0)` in the diagram's local vector space.
+-}
+showOrigin : Form msg -> Form msg
+showOrigin form =
+    let
+        origin =
+            circle 3
+                |> filled (uniform Color.red)
+                |> translate form.origin
+    in
+        stack [ origin, form ]
+
+
+{-| Draw a red dot box around a diagram.
+-}
+showEnvelope : Form msg -> Form msg
+showEnvelope form =
+    let
+        outline =
+            rectangle (width form) (height form)
+                |> outlined (dot 2 (uniform Color.red))
+                |> translate form.origin
+    in
+        stack [ outline, form ]

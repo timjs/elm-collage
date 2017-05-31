@@ -87,6 +87,7 @@ basicEnvelope dir basic =
             boxEnvelope dir w h 0
 
         Group forms ->
+            --FIXME: correct with translation...
             (List.maximum <| List.map (envelope dir) forms) ? 0
 
         --FIXME: calculate envelope for Element
@@ -280,7 +281,7 @@ The first element in the list will be on the top, the last on the bottom.
 -}
 vertical : List (Form msg) -> Form msg
 vertical =
-    List.foldr above empty
+    List.foldr below empty
 
 
 {-| Place a list of diagrams on top of each other,

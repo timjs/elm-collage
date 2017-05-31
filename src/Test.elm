@@ -39,14 +39,6 @@ update msg model =
 -- View ------------------------------------------------------------------------
 
 
-drawing : Model -> Form Msg
-drawing model =
-    -- horizontal [ rect model, circ model ] ==
-    before (rect model) (circ model)
-        |> showEnvelope
-        |> showOrigin
-
-
 circ : Model -> Form Msg
 circ model =
     circle 50
@@ -59,8 +51,8 @@ circ model =
             )
             border
         |> onClick Switch
-        |> showEnvelope
-        |> showOrigin
+        --|> showEnvelope
+        --|> showOrigin
 
 
 rect : Model -> Form Msg
@@ -68,16 +60,16 @@ rect model =
     rectangle 100 100
         |> styled (uniform lightOrange) border
         |> translate ( 25, -25 )
-        |> showEnvelope
-        |> showOrigin
+        --|> showEnvelope
+        --|> showOrigin
 
 
 tria : Model -> Form msg
 tria model =
     triangle 50
         |> styled (uniform lightGreen) border
-        |> showEnvelope
-        |> showOrigin
+        --|> showEnvelope
+        --|> showOrigin
 
 
 border : LineStyle
@@ -87,11 +79,13 @@ border =
 
 view : Model -> Html Msg
 view model =
-    rect model
-        |> above (circ model)
-        |> above (tria model)
-        |> showEnvelope
-        |> showOrigin
+    vertical [ rect model, circ model, tria model ]
+    -- ==
+    --rect model
+    --    |> above (circ model)
+    --    |> above (tria model)
+        --|> showEnvelope
+        --|> showOrigin
         |> svg 500 500
 
 

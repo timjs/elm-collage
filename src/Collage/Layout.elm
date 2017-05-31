@@ -59,16 +59,16 @@ envelope dir form =
         form.scale
             * case dir of
                 Up ->
-                    max 0 (env + ty)
-
-                Down ->
                     max 0 (env - ty)
 
+                Down ->
+                    max 0 (env + ty)
+
                 Right ->
-                    max 0 (env - tx)
+                    max 0 (env + tx)
 
                 Left ->
-                    max 0 (env + tx)
+                    max 0 (env - tx)
 
 
 basicEnvelope : Direction -> BasicForm msg -> Float

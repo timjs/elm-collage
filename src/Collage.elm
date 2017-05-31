@@ -11,6 +11,7 @@ module Collage
         , Shape(..)
         , polygon
         , ngon
+        , triangle
         , rectangle
         , square
         , ellipse
@@ -69,7 +70,7 @@ the only backend supported at present is SVG.
 
 # Shapes
 
-@docs Shape, polygon, ngon, rectangle, square, ellipse, circle
+@docs Shape, polygon, ngon, triangle, rectangle, square, ellipse, circle
 
 
 ## Turning Shapes into Forms
@@ -288,6 +289,12 @@ ngon n r =
         Polygon <| List.map f (List.range 0 n)
 
 
+{-| -}
+triangle : Float -> Shape
+triangle =
+    ngon 3
+
+
 {-| A rectangle. The arguments specify thickness and height, respectively.
 -}
 rectangle : Float -> Float -> Shape
@@ -316,7 +323,6 @@ square n =
 
 
 -- TODO: add roundedRect and roundedSquare
--- TODO: add triangle
 
 
 {-| An ellipse. The arugments specify the horizontal and vertical radii,

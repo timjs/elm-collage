@@ -57,25 +57,41 @@ circ model =
                 else
                     lightBlue
             )
-            (solid 5 (uniform black))
+            border
         |> onClick Switch
+        |> showEnvelope
+        |> showOrigin
 
 
 rect : Model -> Form Msg
 rect model =
     rectangle 100 100
-        |> styled
-            (uniform <|
-                if model.active then
-                    lightOrange
-                else
-                    lightPurple
-            )
-            (solid 5 (uniform black))
+        |> styled (uniform lightOrange) border
+        |> translate ( 25, -25 )
+        |> showEnvelope
+        |> showOrigin
+
+
+tria : Model -> Form msg
+tria model =
+    triangle 50
+        |> styled (uniform lightGreen) border
+        |> showEnvelope
+        |> showOrigin
+
+
+border : LineStyle
+border =
+    solid 5 <| uniform black
+
 
 view : Model -> Html Msg
 view model =
-    drawing model
+    rect model
+        |> above (circ model)
+        |> above (tria model)
+        |> showEnvelope
+        |> showOrigin
         |> svg 500 500
 
 

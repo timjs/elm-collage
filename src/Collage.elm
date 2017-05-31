@@ -15,7 +15,7 @@ module Collage
         , square
         , ellipse
         , circle
-        , Style
+        , ShapeStyle
         , filled
         , outlined
         , styled
@@ -74,7 +74,7 @@ the only backend supported at present is SVG.
 
 ## Turning Shapes into Forms
 
-@docs Style, filled, outlined, styled
+@docs ShapeStyle, filled, outlined, styled
 
 
 # Paths
@@ -159,8 +159,8 @@ type alias Form msg =
 {-| Basic form type. Public to support multiple rendering enginges.
 -}
 type BasicForm msg
-    = Shape Shape Style
-    | Path Path LineStyle
+    = Shape ShapeStyle Shape
+    | Path LineStyle Path
       -- | Text Text TextAlign
     | Image String Float Float
     | Group (List (Form msg))
@@ -242,7 +242,7 @@ type Shape
 
 {-| Specifies the styling (color, line, etc.) of a shape.
 -}
-type alias Style =
+type alias ShapeStyle =
     { fill : FillStyle
     , line : LineStyle
     }
@@ -357,7 +357,7 @@ specify the line thickness and texture, respectively.
 -}
 styled : FillStyle -> LineStyle -> Shape -> Form msg
 styled texture stroke shape =
-    form <| Shape shape { fill = texture, line = stroke }
+    form <| Shape { fill = texture, line = stroke } shape
 
 
 
@@ -428,8 +428,8 @@ segment a b =
 {-| Trace a path with a given line style.
 -}
 traced : LineStyle -> Path -> Form msg
-traced stroke path =
-    form <| Path path stroke
+traced style path =
+    form <| Path style path
 
 
 

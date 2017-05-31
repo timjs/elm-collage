@@ -41,10 +41,11 @@ update msg model =
 
 drawing : Model -> Form Msg
 drawing model =
-    beside (part1 model) (part2 model)
+    circ model |> above (rect model)-- |> translate ( 100, 100 )
 
 
-part1 model =
+circ : Model -> Form Msg
+circ model =
     circle 50
         |> styled
             (uniform <|
@@ -57,8 +58,9 @@ part1 model =
         |> onClick Switch
 
 
-part2 model =
-    rectangle 100 50
+rect : Model -> Form Msg
+rect model =
+    rectangle 100 100
         |> styled
             (uniform <|
                 if model.active then

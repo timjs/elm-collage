@@ -39,8 +39,8 @@ svg width height form =
 render : Form msg -> Int -> ( Int, List (Svg msg) )
 render form id =
     case form.basic of
-        Path line style ->
-            case line of
+        Path style path ->
+            case path of
                 Polyline ps ->
                     ( id
                     , [ Svg.polyline
@@ -52,7 +52,7 @@ render form id =
                       ]
                     )
 
-        Shape shape style ->
+        Shape style shape ->
             case shape of
                 Polygon ps ->
                     ( id + 1
@@ -138,7 +138,7 @@ events { handlers } =
 attrs : Form msg -> Int -> List (Attribute msg)
 attrs form id =
     case form.basic of
-        Path line style ->
+        Path style _ ->
             [ Svg.stroke <| decodeTexture style.fill id
             , Svg.strokeOpacity <| decodeTextureAlpha style.fill
             , Svg.strokeWidth <| toString style.thickness
@@ -150,7 +150,7 @@ attrs form id =
             , Svg.strokeDasharray <| decodeDashing style.dashing
             ]
 
-        Shape shape style ->
+        Shape style _ ->
             [ Svg.fill <| decodeTexture style.fill id
             , Svg.fillOpacity <| decodeTextureAlpha style.fill
             , Svg.stroke <| decodeTexture style.line.fill id

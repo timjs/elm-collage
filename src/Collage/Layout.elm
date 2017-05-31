@@ -43,39 +43,39 @@ envelope dir form =
         env =
             basicEnvelope dir form.basic
 
-        ( x, y ) =
+        ( tx, ty ) =
             form.origin
     in
         --TODO: rotation
         form.scale
             * case dir of
                 Up ->
-                    max 0 (env + x)
+                    max 0 (env + ty)
 
                 Down ->
-                    max 0 (env - y)
+                    max 0 (env - ty)
 
                 Right ->
-                    max 0 (env + x)
+                    max 0 (env + tx)
 
                 Left ->
-                    max 0 (env - x)
+                    max 0 (env - tx)
 
 
 basicEnvelope : Direction -> BasicForm msg -> Float
 basicEnvelope dir basic =
     case basic of
-        Shape (Polygon ps) _ ->
+        Shape _ (Polygon ps) ->
             pathEnvelope dir ps
 
-        Shape (Ellipse rx ry) _ ->
-            boxEnvelope dir rx ry
+        Shape style (Ellipse rx ry) ->
+            boxEnvelope dir (2 * rx) (2 * ry) style.line.thickness
 
-        Path (Polyline ps) _ ->
+        Path _ (Polyline ps) ->
             pathEnvelope dir ps
 
         Image _ w h ->
-            boxEnvelope dir w h
+            boxEnvelope dir w h 0
 
         Group forms ->
             (List.maximum <| List.map (envelope dir) forms) ? 0
@@ -108,20 +108,21 @@ pathEnvelope dir ps =
                 -(List.minimum xs ? 0)
 
 
-boxEnvelope : Direction -> Float -> Float -> Float
-boxEnvelope dir w h =
-    case dir of
-        Up ->
-            h / 2
+boxEnvelope : Direction -> Float -> Float -> Float -> Float
+boxEnvelope dir width height thickness =
+    thickness
+        + case dir of
+            Up ->
+                height / 2
 
-        Down ->
-            h / 2
+            Down ->
+                height / 2
 
-        Right ->
-            w / 2
+            Right ->
+                width / 2
 
-        Left ->
-            w / 2
+            Left ->
+                width / 2
 
 
 
@@ -141,8 +142,10 @@ empty =
 {-| Given two diagrams a and b, place b to the right of a, such that their origins
 are on a horizontal line and their envelopes touch. The origin of the new diagram
 is the center of top and bot.FIXME
-a |>
-above b
+
+    top
+        |> above bot
+
 -}
 above : Form msg -> Form msg -> Form msg
 above bot top =
@@ -156,6 +159,10 @@ above bot top =
 {-| Given two diagrams a and b, place b to the right of a, such that their origins
 are on a horizontal line and their envelopes touch. The origin of the new diagram
 is the origin of a.
+
+    left
+        |> beside right
+
 -}
 beside : Form msg -> Form msg -> Form msg
 beside right left =

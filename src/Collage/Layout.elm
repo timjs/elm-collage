@@ -42,21 +42,24 @@ envelope dir form =
     let
         env =
             basicEnvelope dir form.basic
+
+        ( x, y ) =
+            form.origin
     in
         --TODO: rotation
         form.scale
             * case dir of
                 Up ->
-                    max 0 (env + form.y)
+                    max 0 (env + x)
 
                 Down ->
-                    max 0 (env - form.y)
+                    max 0 (env - y)
 
                 Right ->
-                    max 0 (env + form.x)
+                    max 0 (env + x)
 
                 Left ->
-                    max 0 (env - form.x)
+                    max 0 (env - x)
 
 
 basicEnvelope : Direction -> BasicForm msg -> Float
@@ -127,7 +130,7 @@ boxEnvelope dir w h =
 
 spacer : Float -> Float -> Form msg
 spacer w h =
-    rectangle w h |> filledAndStroked transparent (solid 0 transparent)
+    rectangle w h |> styled transparent invisible
 
 
 empty : Form msg
@@ -147,7 +150,7 @@ above bot top =
         ty =
             (envelope Down top) + (envelope Up bot)
     in
-        layer [ top, moveY -ty bot ]
+        layer [ top, translate ( 0, -ty ) bot ]
 
 
 {-| Given two diagrams a and b, place b to the right of a, such that their origins
@@ -160,7 +163,7 @@ beside right left =
         tx =
             (envelope Right left) + (envelope Left right)
     in
-        layer [ right, moveX tx left ]
+        layer [ right, translate ( tx, 0 ) left ]
 
 
 {-| Have a list of elements flow in a particular direction.
@@ -197,28 +200,28 @@ layer =
 -}
 north : Form msg -> Form msg
 north form =
-    moveY -(envelope Up form) form
+    translate ( 0, -(envelope Up form) ) form
 
 
 {-| Translate a diagram such that the origin is on the right edge of the bounding box
 -}
 east : Form msg -> Form msg
 east form =
-    moveX -(envelope Right form) form
+    translate ( -(envelope Right form), 0 ) form
 
 
 {-| Translate a diagram such that the origin is on the bottom edge of the bounding box
 -}
 south : Form msg -> Form msg
 south form =
-    moveY (envelope Down form) form
+    translate ( 0, envelope Down form ) form
 
 
 {-| Translate a diagram such that the origin is on the left edge of the bounding box
 -}
 west : Form msg -> Form msg
 west form =
-    moveX (envelope Left form) form
+    translate ( envelope Left form, 0 ) form
 
 
 {-| Translate a diagram such that the envelope in all directions is equal
@@ -244,4 +247,4 @@ center form =
         ty =
             (down - up) / 2
     in
-        move ( -tx, ty ) form
+        translate ( -tx, ty ) form

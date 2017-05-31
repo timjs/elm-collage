@@ -14,7 +14,7 @@ import String
 import Tuple exposing (first, second)
 import Color exposing (Color)
 import List
-import Collage exposing (Point, Form, BasicForm(..), Path(..), Shape(..), Texture(..), Stroke, LineCap(..), LineJoin(..))
+import Collage exposing (Point, Form, BasicForm(..), Path(..), Shape(..), FillStyle(..), LineStyle, LineCap(..), LineJoin(..))
 
 
 {-| Takes a `Form` and renders it to usable HTML, in this case
@@ -139,8 +139,8 @@ attrs : Form msg -> Int -> List (Attribute msg)
 attrs form id =
     case form.basic of
         Path line style ->
-            [ Svg.stroke <| decodeTexture style.texture id
-            , Svg.strokeOpacity <| decodeTextureAlpha style.texture
+            [ Svg.stroke <| decodeTexture style.fill id
+            , Svg.strokeOpacity <| decodeTextureAlpha style.fill
             , Svg.strokeWidth <| toString style.thickness
             , Svg.strokeLinecap <| decodeCap style.cap
             , Svg.strokeLinejoin <| decodeJoin style.join
@@ -153,8 +153,8 @@ attrs form id =
         Shape shape style ->
             [ Svg.fill <| decodeTexture style.fill id
             , Svg.fillOpacity <| decodeTextureAlpha style.fill
-            , Svg.stroke <| decodeTexture style.line.texture id
-            , Svg.strokeOpacity <| decodeTextureAlpha style.line.texture
+            , Svg.stroke <| decodeTexture style.line.fill id
+            , Svg.strokeOpacity <| decodeTextureAlpha style.line.fill
             , Svg.strokeWidth <| toString style.line.thickness
             , Svg.strokeLinecap <| decodeCap style.line.cap
             , Svg.strokeLinejoin <| decodeJoin style.line.join
@@ -241,21 +241,14 @@ decodePoints ps =
     ps |> List.map (\( x, y ) -> [ toString x, toString y ]) |> List.concat |> String.join " "
 
 
-evalTransform :
-    { r
-        | x : Float
-        , y : Float
-        , theta : Float
-        , scale : Float
-    }
-    -> String
+evalTransform : Form msg -> String
 evalTransform obj =
     let
         x =
-            toString <| obj.x
+            toString <| first obj.origin
 
         y =
-            toString <| obj.y
+            toString <| second obj.origin
 
         theta =
             toString <| obj.theta / 2 / pi * 360
@@ -267,7 +260,7 @@ evalTransform obj =
             [ "translate(", x, ",", y, ") rotate(", theta, ") scale(", scale, ")" ]
 
 
-evalTexture : Texture -> Int -> List (Svg msg)
+evalTexture : FillStyle -> Int -> List (Svg msg)
 evalTexture fs id =
     case fs of
         {- Pattern w h url a ->
@@ -316,7 +309,7 @@ evalTexture fs id =
             []
 
 
-decodeTexture : Texture -> Int -> String
+decodeTexture : FillStyle -> Int -> String
 decodeTexture fs id =
     case fs of
         Uniform c ->
@@ -326,7 +319,7 @@ decodeTexture fs id =
             "none"
 
 
-decodeTextureAlpha : Texture -> String
+decodeTextureAlpha : FillStyle -> String
 decodeTextureAlpha fs =
     case fs of
         Uniform c ->

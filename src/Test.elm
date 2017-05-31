@@ -41,12 +41,12 @@ update msg model =
 
 drawing : Model -> Form Msg
 drawing model =
-    beside (part1 model) (part2 model) 
+    beside (part1 model) (part2 model)
 
 
 part1 model =
     circle 50
-        |> filledAndStroked
+        |> styled
             (uniform <|
                 if model.active then
                     red
@@ -59,12 +59,12 @@ part1 model =
 
 part2 model =
     rectangle 100 50
-        |> filledAndStroked
+        |> styled
             (uniform <|
                 if model.active then
                     orange
                 else
-                    green
+                    purple
             )
             (solid 5 (uniform black))
 

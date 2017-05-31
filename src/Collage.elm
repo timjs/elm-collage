@@ -4,12 +4,10 @@ module Collage
         , Form
         , BasicForm(..)
         , group
-        , move
-        , moveX
-        , moveY
+        , translate
         , scale
         , rotate
-        , alpha
+        , opacity
         , Shape(..)
         , polygon
         , ngon
@@ -19,8 +17,7 @@ module Collage
         , circle
         , Style
         , filled
-        , stroked
-        , filledAndStroked
+        , outlined
         , styled
         , Path(..)
         , segment
@@ -28,11 +25,12 @@ module Collage
         , traced
         , image
         , html
-        , Texture(..)
+        , FillStyle(..)
         , uniform
         , transparent
-        , Stroke
+        , LineStyle
         , solid
+        , invisible
         , dot
         , dash
         , longdash
@@ -66,7 +64,7 @@ the only backend supported at present is SVG.
 
 ## Manipulating Forms
 
-@docs move, moveX, moveY, scale, rotate, alpha
+@docs translate, scale, rotate, opacity
 
 
 # Shapes
@@ -76,7 +74,7 @@ the only backend supported at present is SVG.
 
 ## Turning Shapes into Forms
 
-@docs Style, filled, stroked, filledAndStroked, styled
+@docs Style, filled, outlined, styled
 
 
 # Paths
@@ -104,12 +102,12 @@ the only backend supported at present is SVG.
 
 ## Textures
 
-@docs Texture, uniform, transparent
+@docs FillStyle, uniform, transparent
 
 
 ## Strokes
 
-@docs Stroke, solid, dot, dash, longdash, dotdash, broken, LineCap, LineJoin
+@docs LineStyle, solid, invisible, dot, dash, longdash, dotdash, broken, LineCap, LineJoin
 
 -}
 
@@ -149,8 +147,7 @@ red circle, a line of text, or an arbitrary HTML element.
 
 -}
 type alias Form msg =
-    { x : Float
-    , y : Float
+    { origin : Point
     , theta : Float
     , scale : Float
     , alpha : Float
@@ -163,7 +160,7 @@ type alias Form msg =
 -}
 type BasicForm msg
     = Shape Shape Style
-    | Path Path Stroke
+    | Path Path LineStyle
       -- | Text Text TextAlign
     | Image String Float Float
     | Group (List (Form msg))
@@ -176,7 +173,7 @@ type BasicForm msg
 
 form : BasicForm msg -> Form msg
 form basic =
-    Form 0 0 0 1 1 basic []
+    Form ( 0, 0 ) 0 1 1 basic []
 
 
 
@@ -198,25 +195,13 @@ group forms =
 {-| Move a form by the given amount (x, y). This is a relative translation so
 `(move (5,10) form)` would move `form` five pixels to the right and ten pixels up.
 -}
-move : ( Float, Float ) -> Form msg -> Form msg
-move ( x, y ) form =
-    { form | x = form.x + x, y = form.y + y }
-
-
-{-| Move a shape in the x direction. This is relative so `(moveX 10 form)` moves
-`form` 10 pixels to the right.
--}
-moveX : Float -> Form msg -> Form msg
-moveX x =
-    move ( x, 0 )
-
-
-{-| Move a shape in the y direction. This is relative so `(moveY 10 form)` moves
-`form` upwards by 10 pixels.
--}
-moveY : Float -> Form msg -> Form msg
-moveY y =
-    move ( 0, y )
+translate : ( Float, Float ) -> Form msg -> Form msg
+translate ( tx, ty ) form =
+    let
+        ( x, y ) =
+            form.origin
+    in
+        { form | origin = ( x + tx, y + ty ) }
 
 
 {-| Scale a form by a given factor. Scaling by 2 doubles both dimensions,
@@ -238,8 +223,8 @@ rotate t form =
 
 {-| Set the alpha of a `Form msg`. The default is 1, and 0 is totally transparent.
 -}
-alpha : Float -> Form msg -> Form msg
-alpha a form =
+opacity : Float -> Form msg -> Form msg
+opacity a form =
     { form | alpha = a }
 
 
@@ -258,8 +243,8 @@ type Shape
 {-| Specifies the styling (color, line, etc.) of a shape.
 -}
 type alias Style =
-    { fill : Texture
-    , line : Stroke
+    { fill : FillStyle
+    , line : LineStyle
     }
 
 
@@ -352,35 +337,27 @@ circle r =
 {-| Fills in a shape, making it into a 'Form'. The argument
 specifies the texture of the fill. The line is left transparent.
 -}
-filled : Texture -> Shape -> Form msg
-filled texture =
-    styled { fill = texture, line = solid 1 (uniform Color.black) }
+filled : FillStyle -> Shape -> Form msg
+filled style =
+    styled style invisible
 
 
 {-| Adds a line to a shape, making it into a 'Form'. The arguments
 specify the thickness and texture of the line, respectiverly. The fill is
 left transparent.
 -}
-stroked : Stroke -> Shape -> Form msg
-stroked stroke =
-    styled { fill = transparent, line = stroke }
+outlined : LineStyle -> Shape -> Form msg
+outlined style =
+    styled transparent style
 
 
 {-| Adds a fill and line to a 'Shape', making it into a 'Form'. The
 first argument specifies the fill texture, and the second two arguments
 specify the line thickness and texture, respectively.
 -}
-filledAndStroked : Texture -> Stroke -> Shape -> Form msg
-filledAndStroked texture stroke =
-    styled { fill = texture, line = stroke }
-
-
-{-| Takes a `Shape` and *any* `Style` and converts them into
-a `Form`, giving you total control over the styling of the shape.
--}
-styled : Style -> Shape -> Form msg
-styled style shape =
-    form <| Shape shape style
+styled : FillStyle -> LineStyle -> Shape -> Form msg
+styled texture stroke shape =
+    form <| Shape shape { fill = texture, line = stroke }
 
 
 
@@ -441,16 +418,16 @@ segment a b =
    rectangle 4 5
        |> filled (uniform red)
        AND
-       |> stroked (solid 1) (uniform red)
+       |> outlined (solid 1) (uniform red)
        OR
-       |> stroked (solid 1 (uniform red))
+       |> outlined (solid 1 (uniform red))
 
 -}
 
 
 {-| Trace a path with a given line style.
 -}
-traced : Stroke -> Path -> Form msg
+traced : LineStyle -> Path -> Form msg
 traced stroke path =
     form <| Path path stroke
 
@@ -482,13 +459,13 @@ html elem =
 
 
 -- Styling ---------------------------------------------------------------------
--- Textures -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
+-- Fill Styles -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
 
 
 {-| Describes the texture of a shape or line. It can be a uniform color,
 gradient, or tiled texture.
 -}
-type Texture
+type FillStyle
     = Transparent
     | Uniform Color
 
@@ -496,25 +473,25 @@ type Texture
 
 -- | Gradient Gradient
 -- | Pattern Float Float String Float
--- | Texture String
+-- | FillStyle String
 
 
 {-| Uniform color fill
 -}
-uniform : Color -> Texture
+uniform : Color -> FillStyle
 uniform =
     Uniform
 
 
 {-| Transparent texture
 -}
-transparent : Texture
+transparent : FillStyle
 transparent =
     Transparent
 
 
 
--- Strokes -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
+-- Line Styles -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
 
 
 {-| Speficies the styling (color, thickness, dashing, etc.) of a line.
@@ -529,8 +506,8 @@ transparent =
     }
 
 -}
-type alias Stroke =
-    { texture : Texture
+type alias LineStyle =
+    { fill : FillStyle
     , thickness : Float
     , cap : LineCap
     , join : LineJoin
@@ -544,14 +521,21 @@ type alias Stroke =
 thickness and the second argument specifies the texture
 to use for the line stroke.
 -}
-solid : Float -> Texture -> Stroke
+solid : Float -> FillStyle -> LineStyle
 solid =
     broken []
 
 
+{-| Invisible line
+-}
+invisible : LineStyle
+invisible =
+    solid 0 transparent
+
+
 {-| The same as `solid`, except the line is dots.
 -}
-dot : Float -> Texture -> Stroke
+dot : Float -> FillStyle -> LineStyle
 dot thickness =
     let
         d =
@@ -562,7 +546,7 @@ dot thickness =
 
 {-| The same as `solid`, except the line is dashed.
 -}
-dash : Float -> Texture -> Stroke
+dash : Float -> FillStyle -> LineStyle
 dash thickness =
     let
         d =
@@ -573,7 +557,7 @@ dash thickness =
 
 {-| Define a dashed line type with the given thickness, where the dashes are longer than normal.
 -}
-longdash : Float -> Texture -> Stroke
+longdash : Float -> FillStyle -> LineStyle
 longdash thickness =
     let
         d =
@@ -584,7 +568,7 @@ longdash thickness =
 
 {-| Define a line type with the given thickness, including alternating dots and dashes.
 -}
-dotdash : Float -> Texture -> Stroke
+dotdash : Float -> FillStyle -> LineStyle
 dotdash thickness =
     let
         d =
@@ -597,9 +581,9 @@ dotdash thickness =
 broken [(10,5)] 5 -- a line that with dashes 10 long and spaces 5 long
 broken [(10,5),(20,5)] -- on for 10, off 5, on 20, off 5
 -}
-broken : List ( Int, Int ) -> Float -> Texture -> Stroke
+broken : List ( Int, Int ) -> Float -> FillStyle -> LineStyle
 broken dash thickness texture =
-    Stroke texture thickness Flat Sharp dash 0
+    LineStyle texture thickness Flat Sharp dash 0
 
 
 {-| Describes the cap style of a line. `Flat` capped lines have

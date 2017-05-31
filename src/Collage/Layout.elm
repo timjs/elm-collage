@@ -46,7 +46,7 @@ type Direction
 -- Envelopes -------------------------------------------------------------------
 
 
-envelope : Direction -> Form msg -> Float
+envelope : Direction -> Collage msg -> Float
 envelope dir form =
     let
         env =
@@ -71,7 +71,7 @@ envelope dir form =
                     max 0 (env - tx)
 
 
-basicEnvelope : Direction -> BasicForm msg -> Float
+basicEnvelope : Direction -> BasicCollage msg -> Float
 basicEnvelope dir basic =
     case basic of
         Shape _ (Polygon ps) ->
@@ -145,10 +145,10 @@ boxEnvelope dir width height thickness =
 -}
 
 
-{-| Create an empty Form.
+{-| Create an empty Collage.
 This is useful for getting your spacing right and for making borders.
 -}
-spacer : Float -> Float -> Form msg
+spacer : Float -> Float -> Collage msg
 spacer w h =
     rectangle w h |> styled transparent invisible
 
@@ -158,14 +158,14 @@ spacer w h =
     flow down [ img1, if showMore then img2 else empty ]
 
 -}
-empty : Form msg
+empty : Collage msg
 empty =
     spacer 0 0
 
 
 {-| Given two diagrams a and b, place b to the **left** of a,
 such that their origins are on a horizontal line and their envelopes touch.
-The origin of the new Form is the origin of a. FIXME: true?
+The origin of the new Collage is the origin of a. FIXME: true?
 Sumarised:
 
     before a b -- read: before a, put b
@@ -176,7 +176,7 @@ Which is equivallent to:
         |> before a
 
 -}
-before : Form msg -> Form msg -> Form msg
+before : Collage msg -> Collage msg -> Collage msg
 before a b =
     let
         tx =
@@ -187,7 +187,7 @@ before a b =
 
 {-| Given two diagrams a and b, place b to the **right** of a,
 such that their origins are on a horizontal line and their envelopes touch.
-The origin of the new Form is the origin of a. FIXME: true?
+The origin of the new Collage is the origin of a. FIXME: true?
 Sumarised:
 
     after a b -- read: after a, put b
@@ -196,7 +196,7 @@ Sumarised:
   - Note: This is called `beside` in the Diagrams library.
 
 -}
-after : Form msg -> Form msg -> Form msg
+after : Collage msg -> Collage msg -> Collage msg
 after a b =
     let
         tx =
@@ -207,7 +207,7 @@ after a b =
 
 {-| Given two forms a and b, place b **above** a,
 such that their origins are on a vertical line and their envelopes touch.
-The origin of the new Form is the center of a and b. FIXME: true?
+The origin of the new Collage is the center of a and b. FIXME: true?
 Summarised:
 
     above a b -- read: above a, put b
@@ -218,7 +218,7 @@ Which is equivallent to
         |> above a
 
 -}
-above : Form msg -> Form msg -> Form msg
+above : Collage msg -> Collage msg -> Collage msg
 above a b =
     let
         ty =
@@ -230,7 +230,7 @@ above a b =
 
 {-| Given two forms a and b, place b **below** a,
 such that their origins are on a vertical line and their envelopes touch.
-The origin of the new Form is the center of a and b. FIXME: true?
+The origin of the new Collage is the center of a and b. FIXME: true?
 Summarised:
 
     below a b -- read: below a, put b
@@ -238,7 +238,7 @@ Summarised:
   - Warning: The `(|>)` doesn't read well, don't use it!
 
 -}
-below : Form msg -> Form msg -> Form msg
+below : Collage msg -> Collage msg -> Collage msg
 below a b =
     let
         ty =
@@ -248,7 +248,7 @@ below a b =
         stack [ a, translate ( 0, ty ) b ]
 
 
-{-| Place a list of Forms next to each other,
+{-| Place a list of Collages next to each other,
 such that their origins are along a horizontal line.
 The first element in the list will be on the left, the last on the right.
 
@@ -259,7 +259,7 @@ The first element in the list will be on the left, the last on the right.
        +---+---+---+
 
 -}
-horizontal : List (Form msg) -> Form msg
+horizontal : List (Collage msg) -> Collage msg
 horizontal =
     List.foldr after empty
 
@@ -279,14 +279,14 @@ The first element in the list will be on the top, the last on the bottom.
        +---+
 
 -}
-vertical : List (Form msg) -> Form msg
+vertical : List (Collage msg) -> Collage msg
 vertical =
     List.foldr below empty
 
 
 {-| Place a list of diagrams on top of each other,
 with their origin points stacked on the "out of page" axis.
-The first Form in the list is on top.
+The first Collage in the list is on top.
 This is the same as the `group` operation in the Collage module.
 
     stack [a, b, c]
@@ -296,7 +296,7 @@ This is the same as the `group` operation in the Collage module.
         +---+
 
 -}
-stack : List (Form msg) -> Form msg
+stack : List (Collage msg) -> Collage msg
 stack =
     --FIXME: why reverse needed? change renderer?
     Collage.group << List.reverse
@@ -306,12 +306,12 @@ stack =
 -- Queries ---------------------------------------------------------------------
 
 
-width : Form msg -> Float
+width : Collage msg -> Float
 width form =
     envelope Left form + envelope Right form
 
 
-height : Form msg -> Float
+height : Collage msg -> Float
 height form =
     envelope Up form + envelope Down form
 
@@ -320,65 +320,65 @@ height form =
 -- Anchors ---------------------------------------------------------------------
 
 
-{-| Translate a Form such that the origin is on the top edge of the bounding box.
+{-| Translate a Collage such that the origin is on the top edge of the bounding box.
 -}
-north : Form msg -> Form msg
+north : Collage msg -> Collage msg
 north form =
     translate ( 0, envelope Up form ) form
 
 
 {-| -}
-northeast : Form msg -> Form msg
+northeast : Collage msg -> Collage msg
 northeast =
     north << east
 
 
-{-| Translate a Form such that the origin is on the right edge of the bounding box.
+{-| Translate a Collage such that the origin is on the right edge of the bounding box.
 -}
-east : Form msg -> Form msg
+east : Collage msg -> Collage msg
 east form =
     translate ( -(envelope Right form), 0 ) form
 
 
 {-| -}
-southeast : Form msg -> Form msg
+southeast : Collage msg -> Collage msg
 southeast =
     south << east
 
 
-{-| Translate a Form such that the origin is on the bottom edge of the bounding box.
+{-| Translate a Collage such that the origin is on the bottom edge of the bounding box.
 -}
-south : Form msg -> Form msg
+south : Collage msg -> Collage msg
 south form =
     translate ( 0, -(envelope Down form) ) form
 
 
 {-| -}
-southwest : Form msg -> Form msg
+southwest : Collage msg -> Collage msg
 southwest =
     south << west
 
 
-{-| Translate a Form such that the origin is on the left edge of the bounding box.
+{-| Translate a Collage such that the origin is on the left edge of the bounding box.
 -}
-west : Form msg -> Form msg
+west : Collage msg -> Collage msg
 west form =
     translate ( envelope Left form, 0 ) form
 
 
 {-| -}
-northwest : Form msg -> Form msg
+northwest : Collage msg -> Collage msg
 northwest =
     north << west
 
 
-{-| Translate a Form such that the envelope in all directions is equal.
+{-| Translate a Collage such that the envelope in all directions is equal.
 
-  - Note: The anchor of every Form defaults to this.
+  - Note: The anchor of every Collage defaults to this.
     Only use this function to "correct" previous translations of the origin.
 
 -}
-center : Form msg -> Form msg
+center : Collage msg -> Collage msg
 center form =
     let
         left =
@@ -408,7 +408,7 @@ center form =
 
 {-| Draw a red dot at `(0, 0)` in the diagram's local vector space.
 -}
-showOrigin : Form msg -> Form msg
+showOrigin : Collage msg -> Collage msg
 showOrigin form =
     let
         origin =
@@ -421,7 +421,7 @@ showOrigin form =
 
 {-| Draw a red dot box around a diagram.
 -}
-showEnvelope : Form msg -> Form msg
+showEnvelope : Collage msg -> Collage msg
 showEnvelope form =
     let
         outline =

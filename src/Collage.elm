@@ -1,8 +1,8 @@
 module Collage
     exposing
         ( Point
-        , Form
-        , BasicForm(..)
+        , Collage
+        , BasicCollage(..)
         , group
         , translate
         , scale
@@ -58,12 +58,12 @@ the only backend supported at present is SVG.
 @docs Point
 
 
-# Forms
+# Collages
 
-@docs Form, BasicForm, group
+@docs Collage, BasicCollage, group
 
 
-## Manipulating Forms
+## Manipulating Collages
 
 @docs translate, scale, rotate, opacity
 
@@ -73,7 +73,7 @@ the only backend supported at present is SVG.
 @docs Shape, polygon, ngon, triangle, rectangle, square, ellipse, circle
 
 
-## Turning Shapes into Forms
+## Turning Shapes into Collages
 
 @docs ShapeStyle, filled, outlined, styled
 
@@ -83,7 +83,7 @@ the only backend supported at present is SVG.
 @docs Path, segment, path
 
 
-## Turning Paths into Forms
+## Turning Paths into Collages
 
 @docs traced
 
@@ -128,69 +128,69 @@ type alias Point =
 
 
 
--- Forms -----------------------------------------------------------------------
+-- Collages -----------------------------------------------------------------------
 
 
-{-| Anything that can be rendered on the screen. A `Form` could be a
+{-| Anything that can be rendered on the screen. A `Collage` could be a
 red circle, a line of text, or an arbitrary HTML element.
 
-    redCircle : Form
+    redCircle : Collage
     redCircle =
         circle 10 |> solidFill (rgb 255 0 0) |> position ( -20, 0 )
 
-    blueCircle : Form
+    blueCircle : Collage
     blueCircle =
         circle 10 |> solidFill (rgb 0 0 255)
 
-    circles : Form
+    circles : Collage
     circles =
         group [ redCircle, blueCircle ]
 
 -}
-type alias Form msg =
+type alias Collage msg =
     { origin : Point
     , theta : Float
     , scale : Float
     , alpha : Float
-    , basic : BasicForm msg
+    , basic : BasicCollage msg
     , handlers : List ( String, Json.Decoder msg )
     }
 
 
 {-| Basic form type. Public to support multiple rendering enginges.
 -}
-type BasicForm msg
+type BasicCollage msg
     = Shape ShapeStyle Shape
     | Path LineStyle Path
       -- | Text Text TextAlign
     | Image String Float Float
-    | Group (List (Form msg))
+    | Group (List (Collage msg))
     | Element (Html msg)
 
 
 
--- Creating Forms -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
+-- Creating Collages -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
 
 
-form : BasicForm msg -> Form msg
+form : BasicCollage msg -> Collage msg
 form basic =
-    Form ( 0, 0 ) 0 1 1 basic []
+    Collage ( 0, 0 ) 0 1 1 basic []
 
 
 
--- Grouping Forms -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
+-- Grouping Collages -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
 
 
-{-| Takes a list of `Form`s and combines them into a single
-`Form`.
+{-| Takes a list of `Collage`s and combines them into a single
+`Collage`.
 -}
-group : List (Form msg) -> Form msg
+group : List (Collage msg) -> Collage msg
 group forms =
     form <| Group forms
 
 
 
--- Transforming Forms -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -
+-- Transforming Collages -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -
 -- TODO:
 -- * add scale in x and in y with nice names: widen/broaden and lengthen/stretch ???
 -- * add skew in x and y with nice names: slant and tilt ???
@@ -199,7 +199,7 @@ group forms =
 {-| Move a form by the given amount (x, y). This is a relative translation so
 `(move (5,10) form)` would move `form` five pixels to the right and ten pixels up.
 -}
-translate : ( Float, Float ) -> Form msg -> Form msg
+translate : ( Float, Float ) -> Collage msg -> Collage msg
 translate ( tx, ty ) form =
     let
         ( x, y ) =
@@ -211,7 +211,7 @@ translate ( tx, ty ) form =
 {-| Scale a form by a given factor. Scaling by 2 doubles both dimensions,
 and quadruples the area.
 -}
-scale : Float -> Form msg -> Form msg
+scale : Float -> Collage msg -> Collage msg
 scale s form =
     { form | scale = form.scale * s }
 
@@ -220,14 +220,14 @@ scale s form =
 and turns things counterclockwise. So to turn `form` 30&deg; to the left
 you would say, `(rotate (degrees 30) form)`.
 -}
-rotate : Float -> Form msg -> Form msg
+rotate : Float -> Collage msg -> Collage msg
 rotate t form =
     { form | theta = form.theta + t }
 
 
-{-| Set the alpha of a `Form msg`. The default is 1, and 0 is totally transparent.
+{-| Set the alpha of a `Collage msg`. The default is 1, and 0 is totally transparent.
 -}
-opacity : Float -> Form msg -> Form msg
+opacity : Float -> Collage msg -> Collage msg
 opacity a form =
     { form | alpha = a }
 
@@ -342,31 +342,31 @@ circle r =
 
 
 
--- Turning Shapes into Forms -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
+-- Turning Shapes into Collages -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
 
 
-{-| Fills in a shape, making it into a 'Form'. The argument
+{-| Fills in a shape, making it into a 'Collage'. The argument
 specifies the texture of the fill. The line is left transparent.
 -}
-filled : FillStyle -> Shape -> Form msg
+filled : FillStyle -> Shape -> Collage msg
 filled style =
     styled style invisible
 
 
-{-| Adds a line to a shape, making it into a 'Form'. The arguments
+{-| Adds a line to a shape, making it into a 'Collage'. The arguments
 specify the thickness and texture of the line, respectiverly. The fill is
 left transparent.
 -}
-outlined : LineStyle -> Shape -> Form msg
+outlined : LineStyle -> Shape -> Collage msg
 outlined style =
     styled transparent style
 
 
-{-| Adds a fill and line to a 'Shape', making it into a 'Form'. The
+{-| Adds a fill and line to a 'Shape', making it into a 'Collage'. The
 first argument specifies the fill texture, and the second two arguments
 specify the line thickness and texture, respectively.
 -}
-styled : FillStyle -> LineStyle -> Shape -> Form msg
+styled : FillStyle -> LineStyle -> Shape -> Collage msg
 styled texture stroke shape =
     form <| Shape { fill = texture, line = stroke } shape
 
@@ -408,7 +408,7 @@ segment a b =
 
 
 
--- Turning Paths into Forms -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -
+-- Turning Paths into Collages -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -
 {-
    -- ORIG
    segment (0,0) (1,1)
@@ -440,7 +440,7 @@ segment a b =
 
 {-| Trace a path with a given line style.
 -}
-traced : LineStyle -> Path -> Form msg
+traced : LineStyle -> Path -> Collage msg
 traced style path =
     form <| Path style path
 
@@ -451,7 +451,7 @@ traced style path =
 
 {-| An image. The arguments specify the image's thickness, height and url.
 -}
-image : Float -> Float -> String -> Form msg
+image : Float -> Float -> String -> Collage msg
 image w h url =
     form <| Image url w h
 
@@ -460,12 +460,12 @@ image w h url =
 -- Raw Content -----------------------------------------------------------------
 
 
-{-| Creates a `Form` from an arbitrary `Html` element. The
+{-| Creates a `Collage` from an arbitrary `Html` element. The
 resulting form is subject to all of the regular manipulations.
 Note that if you are compiling to SVG, then this functionality
 is not supported in Internet Explorer.
 -}
-html : Html msg -> Form msg
+html : Html msg -> Collage msg
 html elem =
     form <| Element elem
 
@@ -529,7 +529,7 @@ type alias LineStyle =
     }
 
 
-{-| Creates a Form representing a solid line from a
+{-| Creates a Collage representing a solid line from a
 'Path' object. The first argument specifies the line
 thickness and the second argument specifies the texture
 to use for the line stroke.

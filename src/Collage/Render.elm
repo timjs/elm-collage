@@ -14,15 +14,15 @@ import String
 import Tuple exposing (first, second)
 import Color exposing (Color)
 import List
-import Collage exposing (Point, Form, BasicForm(..), Path(..), Shape(..), FillStyle(..), LineStyle, LineCap(..), LineJoin(..))
+import Collage exposing (Point, Collage, BasicCollage(..), Path(..), Shape(..), FillStyle(..), LineStyle, LineCap(..), LineJoin(..))
 import Collage.Layout exposing (northwest)
 
 
-{-| Takes a `Form` and renders it to usable HTML, in this case
+{-| Takes a `Collage` and renders it to usable HTML, in this case
 in the form of an SVG element. The first two arguments determine
 the height and width of the SVG viewbox in pixels.
 -}
-svg : Float -> Float -> Form msg -> Html msg
+svg : Float -> Float -> Collage msg -> Html msg
 svg width height form =
     Html.div
         []
@@ -38,7 +38,7 @@ svg width height form =
 
 
 --FIXME: why use ids?
-render : Form msg -> Int -> ( Int, List (Svg msg) )
+render : Collage msg -> Int -> ( Int, List (Svg msg) )
 render form id =
     case form.basic of
         Path style path ->
@@ -132,12 +132,12 @@ render form id =
                 ( id_, [ Svg.g (attrs form id ++ events form) <| forms_ ] )
 
 
-events : Form msg -> List (Attribute msg)
+events : Collage msg -> List (Attribute msg)
 events { handlers } =
     List.map (uncurry Svg.on) handlers
 
 
-attrs : Form msg -> Int -> List (Attribute msg)
+attrs : Collage msg -> Int -> List (Attribute msg)
 attrs form id =
     case form.basic of
         Path style _ ->
@@ -243,7 +243,7 @@ decodePoints ps =
     ps |> List.map (\( x, y ) -> [ toString x, toString y ]) |> List.concat |> String.join " "
 
 
-evalTransform : Form msg -> String
+evalTransform : Collage msg -> String
 evalTransform obj =
     let
         x =

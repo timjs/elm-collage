@@ -39,7 +39,7 @@ update msg model =
 -- View ------------------------------------------------------------------------
 
 
-circ : Model -> Form Msg
+circ : Model -> Collage Msg
 circ model =
     circle 50
         |> styled
@@ -55,7 +55,7 @@ circ model =
         --|> showOrigin
 
 
-rect : Model -> Form Msg
+rect : Model -> Collage Msg
 rect model =
     rectangle 100 100
         |> styled (uniform lightOrange) border
@@ -64,7 +64,7 @@ rect model =
         --|> showOrigin
 
 
-tria : Model -> Form msg
+tria : Model -> Collage msg
 tria model =
     triangle 50
         |> styled (uniform lightGreen) border

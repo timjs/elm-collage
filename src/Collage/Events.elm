@@ -33,35 +33,35 @@ module Collage.Events
 -}
 
 import Json.Decode as Json exposing (field)
-import Collage exposing (Point, Form)
+import Collage exposing (Point, Collage)
 
 
 -- Events ----------------------------------------------------------------------
 
 
-{-| Adds a custom event handler to a `Form`. The first
+{-| Adds a custom event handler to a `Collage`. The first
 argument specifies the event name (as you would give it
 to JavaScript's `addEventListener`). The second argument
 will be used to decode the JSON response from the event
 listener. If the decoder succeeds, the resulting message
 will be passed along to your `update` function.
 
-    onClick : msg -> Form msg -> Form msg
+    onClick : msg -> Collage msg -> Collage msg
     onClick msg =
         on "click" (Json.succeed msg)
 
 -}
-on : String -> Json.Decoder msg -> Form msg -> Form msg
+on : String -> Json.Decoder msg -> Collage msg -> Collage msg
 on event decoder f =
     { f | handlers = ( event, decoder ) :: f.handlers }
 
 
-simpleOn : String -> msg -> Form msg -> Form msg
+simpleOn : String -> msg -> Collage msg -> Collage msg
 simpleOn event =
     on event << Json.succeed
 
 
-mouseOn : String -> (Point -> msg) -> Form msg -> Form msg
+mouseOn : String -> (Point -> msg) -> Collage msg -> Collage msg
 mouseOn event msg =
     on event <|
         Json.map msg <|
@@ -72,48 +72,48 @@ mouseOn event msg =
 
 
 {-| -}
-onClick : msg -> Form msg -> Form msg
+onClick : msg -> Collage msg -> Collage msg
 onClick =
     simpleOn "click"
 
 
 {-| -}
-onMouseDown : (Point -> msg) -> Form msg -> Form msg
+onMouseDown : (Point -> msg) -> Collage msg -> Collage msg
 onMouseDown =
     mouseOn "mousedown"
 
 
 {-| -}
-onMouseUp : (Point -> msg) -> Form msg -> Form msg
+onMouseUp : (Point -> msg) -> Collage msg -> Collage msg
 onMouseUp =
     mouseOn "mouseup"
 
 
 {-| -}
-onMouseMove : (Point -> msg) -> Form msg -> Form msg
+onMouseMove : (Point -> msg) -> Collage msg -> Collage msg
 onMouseMove =
     mouseOn "mousemove"
 
 
 {-| -}
-onMouseOver : (Point -> msg) -> Form msg -> Form msg
+onMouseOver : (Point -> msg) -> Collage msg -> Collage msg
 onMouseOver =
     mouseOn "mouseover"
 
 
 {-| -}
-onMouseOut : (Point -> msg) -> Form msg -> Form msg
+onMouseOut : (Point -> msg) -> Collage msg -> Collage msg
 onMouseOut =
     mouseOn "mouseout"
 
 
 {-| -}
-onFocusIn : msg -> Form msg -> Form msg
+onFocusIn : msg -> Collage msg -> Collage msg
 onFocusIn =
     simpleOn "focusin"
 
 
 {-| -}
-onFocusOut : msg -> Form msg -> Form msg
+onFocusOut : msg -> Collage msg -> Collage msg
 onFocusOut =
     simpleOn "focusout"

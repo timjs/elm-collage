@@ -13,7 +13,7 @@ module Collage
         , Shape(..)
         , polygon
         , ngon
-        , rect
+        , rectangle
         , square
         , ellipse
         , circle
@@ -71,7 +71,7 @@ the only backend supported at present is SVG.
 
 # Shapes
 
-@docs Shape, polygon, ngon, rect, square, ellipse, circle
+@docs Shape, polygon, ngon, rectangle, square, ellipse, circle
 
 
 ## Turning Shapes into Forms
@@ -154,7 +154,7 @@ type alias Form msg =
     , theta : Float
     , scale : Float
     , alpha : Float
-    , form : BasicForm msg
+    , basic : BasicForm msg
     , handlers : List ( String, Json.Decoder msg )
     }
 
@@ -300,8 +300,8 @@ ngon n r =
 
 {-| A rectangle. The arguments specify thickness and height, respectively.
 -}
-rect : Float -> Float -> Shape
-rect w h =
+rectangle : Float -> Float -> Shape
+rectangle w h =
     let
         halfW =
             w / 2
@@ -321,7 +321,7 @@ rect w h =
 -}
 square : Float -> Shape
 square n =
-    rect n n
+    rectangle n n
 
 
 
@@ -423,7 +423,7 @@ segment a b =
    -- ORIG
    segment (0,0) (1,1)
        |> traced (dashed red)
-   rect 4 5
+   rectangle 4 5
        |> filled red
        AND
        |> outlined (solid red)
@@ -438,7 +438,7 @@ segment a b =
        |> traced (dash 2 (uniform red))
        OR
        |> dashed 2 (uniform red)
-   rect 4 5
+   rectangle 4 5
        |> filled (uniform red)
        AND
        |> stroked (solid 1) (uniform red)

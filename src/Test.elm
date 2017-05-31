@@ -3,6 +3,7 @@ module Main exposing (..)
 import Html exposing (..)
 import Color exposing (..)
 import Collage exposing (..)
+import Collage.Layout exposing (..)
 import Collage.Events exposing (onClick)
 import Collage.Svg exposing (svg)
 
@@ -40,18 +41,32 @@ update msg model =
 
 drawing : Model -> Form Msg
 drawing model =
-    circle 150
+    beside (part1 model) (part2 model) 
+
+
+part1 model =
+    circle 50
         |> filledAndStroked
-            (uniform
-                (if model.active then
+            (uniform <|
+                if model.active then
                     red
-                 else
+                else
                     blue
-                )
             )
             (solid 5 (uniform black))
-        |> move ( 200, 200 )
         |> onClick Switch
+
+
+part2 model =
+    rectangle 100 50
+        |> filledAndStroked
+            (uniform <|
+                if model.active then
+                    orange
+                else
+                    green
+            )
+            (solid 5 (uniform black))
 
 
 view : Model -> Html Msg

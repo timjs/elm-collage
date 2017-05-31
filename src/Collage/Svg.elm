@@ -38,7 +38,7 @@ svg width height form =
 
 render : Form msg -> Int -> ( Int, List (Svg msg) )
 render form id =
-    case form.form of
+    case form.basic of
         Path line style ->
             case line of
                 Polyline ps ->
@@ -137,7 +137,7 @@ events { handlers } =
 
 attrs : Form msg -> Int -> List (Attribute msg)
 attrs form id =
-    case form.form of
+    case form.basic of
         Path line style ->
             [ Svg.stroke <| decodeTexture style.texture id
             , Svg.strokeOpacity <| decodeTextureAlpha style.texture

@@ -1,4 +1,4 @@
-module Collage.Svg exposing (svg)
+module Collage.Render exposing (svg)
 
 {-| TODO
 

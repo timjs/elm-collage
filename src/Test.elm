@@ -5,7 +5,7 @@ import Color exposing (..)
 import Collage exposing (..)
 import Collage.Layout exposing (..)
 import Collage.Events exposing (onClick)
-import Collage.Svg exposing (svg)
+import Collage.Render exposing (svg)
 
 
 -- Model -----------------------------------------------------------------------

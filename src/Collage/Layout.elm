@@ -28,6 +28,7 @@ import Tuple exposing (first, second)
 import Maybe.Extra exposing ((?))
 import Color
 import Collage exposing (..)
+import Collage.Core as Core
 
 
 -- Directions ------------------------------------------------------------------
@@ -74,24 +75,24 @@ envelope dir form =
 basicEnvelope : Direction -> BasicCollage msg -> Float
 basicEnvelope dir basic =
     case basic of
-        Shape _ (Polygon ps) ->
+        Core.Shape _ (Core.Polygon ps) ->
             pathEnvelope dir ps
 
-        Shape style (Ellipse rx ry) ->
+        Core.Shape style (Core.Ellipse rx ry) ->
             boxEnvelope dir (2 * rx) (2 * ry) style.line.thickness
 
-        Path _ (Polyline ps) ->
+        Core.Path _ (Core.Polyline ps) ->
             pathEnvelope dir ps
 
-        Image _ w h ->
+        Core.Image _ w h ->
             boxEnvelope dir w h 0
 
-        Group forms ->
+        Core.Group forms ->
             --FIXME: correct with translation...
             (List.maximum <| List.map (envelope dir) forms) ? 0
 
         --FIXME: calculate envelope for Element
-        Element _ ->
+        Core.Element _ ->
             0
 
 

@@ -2,13 +2,13 @@ module Collage
     exposing
         ( Point
         , Collage
-        , BasicCollage(..)
+        , BasicCollage
         , group
         , translate
         , scale
         , rotate
         , opacity
-        , Shape(..)
+        , Shape
         , polygon
         , ngon
         , triangle
@@ -16,17 +16,16 @@ module Collage
         , square
         , ellipse
         , circle
-        , ShapeStyle
         , filled
         , outlined
         , styled
-        , Path(..)
+        , Path
         , segment
         , path
         , traced
         , image
         , html
-        , FillStyle(..)
+        , FillStyle
         , uniform
         , transparent
         , LineStyle
@@ -37,8 +36,8 @@ module Collage
         , longdash
         , dotdash
         , broken
-        , LineCap(..)
-        , LineJoin(..)
+        , LineCap
+        , LineJoin
         )
 
 {-| This library provides a toolkit for rendering and manipulating
@@ -75,7 +74,7 @@ the only backend supported at present is SVG.
 
 ## Turning Shapes into Collages
 
-@docs ShapeStyle, filled, outlined, styled
+@docs filled, outlined, styled
 
 
 # Paths
@@ -113,8 +112,8 @@ the only backend supported at present is SVG.
 -}
 
 import Html exposing (Html)
-import Color exposing (Color, Gradient)
-import Json.Decode as Json
+import Color exposing (Color)
+import Collage.Core as Core
 
 
 -- Basics ----------------------------------------------------------------------
@@ -148,24 +147,13 @@ red circle, a line of text, or an arbitrary HTML element.
 
 -}
 type alias Collage msg =
-    { origin : Point
-    , theta : Float
-    , scale : Float
-    , alpha : Float
-    , basic : BasicCollage msg
-    , handlers : List ( String, Json.Decoder msg )
-    }
+    Core.Collage msg
 
 
 {-| Basic form type. Public to support multiple rendering enginges.
 -}
-type BasicCollage msg
-    = Shape ShapeStyle Shape
-    | Path LineStyle Path
-      -- | Text Text TextAlign
-    | Image String Float Float
-    | Group (List (Collage msg))
-    | Element (Html msg)
+type alias BasicCollage msg =
+    Core.BasicCollage msg
 
 
 
@@ -174,7 +162,7 @@ type BasicCollage msg
 
 form : BasicCollage msg -> Collage msg
 form basic =
-    Collage ( 0, 0 ) 0 1 1 basic []
+    Core.Collage ( 0, 0 ) 0 1 1 basic []
 
 
 
@@ -186,7 +174,7 @@ form basic =
 -}
 group : List (Collage msg) -> Collage msg
 group forms =
-    form <| Group forms
+    form <| Core.Group forms
 
 
 
@@ -241,17 +229,8 @@ opacity a form =
 {-| A polygon or an ellipse. Only describes the size and shape of the figure.
 Position, color, thickness, etc. are all specified later.
 -}
-type Shape
-    = Polygon (List Point)
-    | Ellipse Float Float
-
-
-{-| Specifies the styling (color, line, etc.) of a shape.
--}
-type alias ShapeStyle =
-    { fill : FillStyle
-    , line : LineStyle
-    }
+type alias Shape =
+    Core.Shape
 
 
 
@@ -262,7 +241,7 @@ type alias ShapeStyle =
 -}
 polygon : List Point -> Shape
 polygon =
-    Polygon
+    Core.Polygon
 
 
 {-| Create a regular polygon with a given number of sides and radius.
@@ -286,7 +265,7 @@ ngon n r =
         f i =
             ( r * cos (t * toFloat i), r * sin (t * toFloat i) )
     in
-        Polygon <| List.map f (List.range 0 n)
+        Core.Polygon <| List.map f (List.range 0 n)
 
 
 {-| -}
@@ -331,7 +310,7 @@ NOTE: called `oval` in original lib
 -}
 ellipse : Float -> Float -> Shape
 ellipse =
-    Ellipse
+    Core.Ellipse
 
 
 {-| A circle. The argument specifies the radius.
@@ -368,7 +347,7 @@ specify the line thickness and texture, respectively.
 -}
 styled : FillStyle -> LineStyle -> Shape -> Collage msg
 styled texture stroke shape =
-    form <| Shape { fill = texture, line = stroke } shape
+    form <| Core.Shape { fill = texture, line = stroke } shape
 
 
 
@@ -380,8 +359,8 @@ styled texture stroke shape =
 {-| A segment of a line or curve. Only describes the shape of the line.
 Position, color, thickness, etc. are all specified later.
 -}
-type Path
-    = Polyline (List Point)
+type alias Path =
+    Core.Path
 
 
 
@@ -395,7 +374,7 @@ line segments. It can be thought of as drawing a
 -}
 path : List Point -> Path
 path =
-    Polyline
+    Core.Polyline
 
 
 {-| `segment (x1,y1) (x2,y2)` is a line segment with
@@ -442,7 +421,7 @@ segment a b =
 -}
 traced : LineStyle -> Path -> Collage msg
 traced style path =
-    form <| Path style path
+    form <| Core.Path style path
 
 
 
@@ -453,7 +432,7 @@ traced style path =
 -}
 image : Float -> Float -> String -> Collage msg
 image w h url =
-    form <| Image url w h
+    form <| Core.Image url w h
 
 
 
@@ -467,7 +446,7 @@ is not supported in Internet Explorer.
 -}
 html : Html msg -> Collage msg
 html elem =
-    form <| Element elem
+    form <| Core.Element elem
 
 
 
@@ -478,9 +457,8 @@ html elem =
 {-| Describes the texture of a shape or line. It can be a uniform color,
 gradient, or tiled texture.
 -}
-type FillStyle
-    = Transparent
-    | Uniform Color
+type alias FillStyle =
+    Core.FillStyle
 
 
 
@@ -493,14 +471,14 @@ type FillStyle
 -}
 uniform : Color -> FillStyle
 uniform =
-    Uniform
+    Core.Uniform
 
 
 {-| Transparent texture
 -}
 transparent : FillStyle
 transparent =
-    Transparent
+    Core.Transparent
 
 
 
@@ -520,13 +498,7 @@ transparent =
 
 -}
 type alias LineStyle =
-    { fill : FillStyle
-    , thickness : Float
-    , cap : LineCap
-    , join : LineJoin
-    , dashing : List ( Int, Int )
-    , dashOffset : Int
-    }
+    Core.LineStyle
 
 
 {-| Creates a Collage representing a solid line from a
@@ -596,7 +568,7 @@ broken [(10,5),(20,5)] -- on for 10, off 5, on 20, off 5
 -}
 broken : List ( Int, Int ) -> Float -> FillStyle -> LineStyle
 broken dash thickness texture =
-    LineStyle texture thickness Flat Sharp dash 0
+    Core.LineStyle texture thickness Core.Flat Core.Sharp dash 0
 
 
 {-| Describes the cap style of a line. `Flat` capped lines have
@@ -604,15 +576,11 @@ no endings, `Padded` capped lines have flat endings that extend
 slightly past the end of the line, and `Round` capped lines have
 hemispherical endings.
 -}
-type LineCap
-    = Flat
-    | Round
-    | Padded
+type alias LineCap =
+    Core.LineCap
 
 
 {-| Describes the join style of a line.
 -}
-type LineJoin
-    = Smooth
-    | Sharp
-    | Clipped
+type alias LineJoin =
+    Core.LineJoin

@@ -14,7 +14,8 @@ import String
 import Tuple exposing (first, second)
 import Color exposing (Color)
 import List
-import Collage exposing (Point, Collage, BasicCollage(..), Path(..), Shape(..), FillStyle(..), LineStyle, LineCap(..), LineJoin(..))
+-- NOTE: Render should only depend on Core, not Collage itself
+import Collage.Core exposing (..)
 import Collage.Layout exposing (northwest)
 
 

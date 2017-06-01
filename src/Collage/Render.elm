@@ -184,7 +184,7 @@ attrs form id =
             in
                 [ Svg.fill <| decodeFill (Uniform style.color) id
                 , Svg.fontFamily <|
-                    case style.family of
+                    case style.face of
                         Text.Roman ->
                             "serif"
 

@@ -4,8 +4,8 @@ module Text
         , fromString
         , empty
         , Style
-        , Family(..)
-        , family
+        , Face(..)
+        , face
         , monospace
         , size
         , color
@@ -25,7 +25,7 @@ module Text
 
 @docs Style
 
-@docs Family, family, monospace, size, color
+@docs Face, face, monospace, size, color
 
 @docs Shape, italic, Weight, bold, Line, line
 
@@ -71,7 +71,7 @@ empty =
 {-| Specifies the styling (color, font, weight, etc.) of text
 -}
 type alias Style =
-    { family : Family
+    { face : Face
     , size : Maybe Int
     , color : Color
     , shape : Shape
@@ -88,11 +88,11 @@ styled =
 
 
 
--- Family and Size -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -
+-- Face and Size -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -
 
 
 {-| -}
-type Family
+type Face
     = Roman
     | Sansserif
     | Monospace
@@ -101,15 +101,15 @@ type Family
     | Font String
 
 
-{-| Sets the font family of `Text`.
+{-| Sets the font face of `Text`.
 -}
-family : Family -> Text -> Text
-family family (Text style str) =
-    Text { style | family = family } str
+face : Face -> Text -> Text
+face face (Text style str) =
+    Text { style | face = face } str
 
 {-|-}
 monospace : Text -> Text
-monospace = family Monospace
+monospace = face Monospace
 
 {-| -}
 size : Int -> Text -> Text

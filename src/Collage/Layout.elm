@@ -19,7 +19,7 @@ module Collage.Layout
         , southwest
         , west
         , northwest
-        , center
+        , base
         , showOrigin
         , showEnvelope
         )
@@ -30,7 +30,7 @@ module Collage.Layout
 
 @docs spacer, empty
 @docs before, after, above, below, horizontal, vertical, stack
-@docs north, northeast, east, southeast, south, southwest, west, northwest, center
+@docs north, northeast, east, southeast, south, southwest, west, northwest, base
 @docs showOrigin, showEnvelope
 
 -}
@@ -224,7 +224,7 @@ after a b =
 
 {-| Given two forms a and b, place b **above** a,
 such that their origins are on a vertical line and their envelopes touch.
-The origin of the new Collage is the center of a and b. FIXME: true?
+The origin of the new Collage is the base of a and b. FIXME: true?
 Summarised:
 
     above a b -- read: above a, put b
@@ -247,7 +247,7 @@ above a b =
 
 {-| Given two forms a and b, place b **below** a,
 such that their origins are on a vertical line and their envelopes touch.
-The origin of the new Collage is the center of a and b. FIXME: true?
+The origin of the new Collage is the base of a and b. FIXME: true?
 Summarised:
 
     below a b -- read: below a, put b
@@ -395,8 +395,8 @@ northwest =
     Only use this function to "correct" previous translations of the origin.
 
 -}
-center : Collage msg -> Collage msg
-center form =
+base : Collage msg -> Collage msg
+base form =
     let
         left =
             envelope Left form

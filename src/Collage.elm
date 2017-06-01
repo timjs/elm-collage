@@ -385,6 +385,9 @@ segment a b =
     path [ a, b ]
 
 
+-- TODO: add curves (aka Bezier paths), arcs (part of Bezier paths)
+-- TODO: add way to close a path so it can be filled?
+--       something like `close : Path -> Shape`
 
 -- Turning Paths into Collages -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -
 {-

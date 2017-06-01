@@ -5,13 +5,16 @@ module Collage.Core
         , BasicCollage(..)
         , Path(..)
         , Shape(..)
-        , ShapeStyle
         , TextAnchor(..)
         , FillStyle(..)
         , LineStyle
         , LineCap(..)
         , LineJoin(..)
         )
+
+{-| This module contains internal types used accross multiple modules in this packages.
+Constructors are however not exposed to the user.
+-}
 
 import Html exposing (Html)
 import Color exposing (Color)
@@ -34,7 +37,7 @@ type alias Collage msg =
 
 
 type BasicCollage msg
-    = Shape ShapeStyle Shape
+    = Shape ( FillStyle, LineStyle ) Shape
     | Path LineStyle Path
     | Text TextAnchor Text
     | Image String Float Float
@@ -47,14 +50,9 @@ type Shape
     | Ellipse Float Float
 
 
-type alias ShapeStyle =
-    { fill : FillStyle
-    , line : LineStyle
-    }
-
-
 type Path
     = Polyline (List Point)
+
 
 type TextAnchor
     = Start

@@ -90,8 +90,8 @@ basicEnvelope dir basic =
         Core.Shape _ (Core.Polygon ps) ->
             pathEnvelope dir ps
 
-        Core.Shape style (Core.Ellipse rx ry) ->
-            boxEnvelope dir (2 * rx) (2 * ry) style.line.thickness
+        Core.Shape (fill, line) (Core.Ellipse rx ry) ->
+            boxEnvelope dir (2 * rx) (2 * ry) line.thickness
 
         Core.Path _ (Core.Polyline ps) ->
             pathEnvelope dir ps
@@ -167,7 +167,7 @@ This is useful for getting your spacing right and for making borders.
 -}
 spacer : Float -> Float -> Collage msg
 spacer w h =
-    rectangle w h |> styled transparent invisible
+    rectangle w h |> styled (transparent, invisible)
 
 
 {-| An Element that takes up no space. Good for things that appear conditionally:

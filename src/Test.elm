@@ -39,42 +39,53 @@ update msg model =
 
 -- View ------------------------------------------------------------------------
 
+
 txt : Collage Msg
 txt =
     fromString "Hallo"
         |> centered
 
+
 circ : Model -> Collage Msg
 circ model =
     circle 50
         |> styled
-            (uniform <|
+            ( uniform <|
                 if model.active then
                     lightRed
                 else
                     lightBlue
+            , border
             )
-            border
         |> onClick Switch
-        --|> showEnvelope
-        --|> showOrigin
+
+
+
+--|> showEnvelope
+--|> showOrigin
 
 
 rect : Collage Msg
 rect =
     rectangle 100 100
-        |> styled (uniform lightOrange) border
+        |> styled ( uniform lightOrange, border )
         |> translate ( 25, -25 )
-        --|> showEnvelope
-        --|> showOrigin
+
+
+
+--|> showEnvelope
+--|> showOrigin
 
 
 tria : Collage msg
 tria =
     triangle 50
-        |> styled (uniform lightGreen) border
-        --|> showEnvelope
-        --|> showOrigin
+        |> styled ( uniform lightGreen, border )
+
+
+
+--|> showEnvelope
+--|> showOrigin
 
 
 border : LineStyle
@@ -84,11 +95,11 @@ border =
 
 view : Model -> Html Msg
 view model =
-    vertical [ rect, stack [txt, circ model], tria ]
-    -- ==
-    --rect model
-    --    |> above (circ model)
-    --    |> above (tria model)
+    vertical [ rect, stack [ txt, circ model ], tria ]
+        -- ==
+        --rect model
+        --    |> above (circ model)
+        --    |> above (tria model)
         --|> showEnvelope
         --|> showOrigin
         |> svg 500 500

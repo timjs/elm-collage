@@ -59,11 +59,11 @@ render form id =
                       ]
                     )
 
-        Shape style shape ->
+        Shape (fill, line) shape ->
             case shape of
                 Polygon ps ->
                     ( id + 1
-                    , evalFillStyle style.fill id
+                    , evalFillStyle fill id
                         ++ [ Svg.polygon
                                 ((Svg.points <| decodePoints ps)
                                     :: attrs form id
@@ -75,7 +75,7 @@ render form id =
 
                 Ellipse rx ry ->
                     ( id + 1
-                    , evalFillStyle style.fill id
+                    , evalFillStyle fill id
                         ++ [ Svg.ellipse
                                 (attrs form id
                                     ++ events form
@@ -155,18 +155,18 @@ attrs form id =
             , Svg.strokeDasharray <| decodeDashing style.dashing
             ]
 
-        Shape style _ ->
-            [ Svg.fill <| decodeFill style.fill id
-            , Svg.fillOpacity <| decodeFillAlpha style.fill
-            , Svg.stroke <| decodeFill style.line.fill id
-            , Svg.strokeOpacity <| decodeFillAlpha style.line.fill
-            , Svg.strokeWidth <| toString style.line.thickness
-            , Svg.strokeLinecap <| decodeCap style.line.cap
-            , Svg.strokeLinejoin <| decodeJoin style.line.join
+        Shape (fill, line) _ ->
+            [ Svg.fill <| decodeFill fill id
+            , Svg.fillOpacity <| decodeFillAlpha fill
+            , Svg.stroke <| decodeFill line.fill id
+            , Svg.strokeOpacity <| decodeFillAlpha line.fill
+            , Svg.strokeWidth <| toString line.thickness
+            , Svg.strokeLinecap <| decodeCap line.cap
+            , Svg.strokeLinejoin <| decodeJoin line.join
             , Svg.opacity <| toString form.alpha
             , Svg.transform <| evalTransform form
-            , Svg.strokeDashoffset <| toString style.line.dashOffset
-            , Svg.strokeDasharray <| decodeDashing style.line.dashing
+            , Svg.strokeDashoffset <| toString line.dashOffset
+            , Svg.strokeDasharray <| decodeDashing line.dashing
             ]
 
         Text anchor (Text.Text style str) ->

@@ -327,8 +327,8 @@ circle r =
 specifies the texture of the fill. The line is left transparent.
 -}
 filled : FillStyle -> Shape -> Collage msg
-filled style =
-    styled style invisible
+filled fill =
+    styled ( fill, invisible )
 
 
 {-| Adds a line to a shape, making it into a 'Collage'. The arguments
@@ -336,17 +336,17 @@ specify the thickness and texture of the line, respectiverly. The fill is
 left transparent.
 -}
 outlined : LineStyle -> Shape -> Collage msg
-outlined style =
-    styled transparent style
+outlined line =
+    styled ( transparent, line )
 
 
 {-| Adds a fill and line to a 'Shape', making it into a 'Collage'. The
 first argument specifies the fill texture, and the second two arguments
 specify the line thickness and texture, respectively.
 -}
-styled : FillStyle -> LineStyle -> Shape -> Collage msg
-styled texture stroke shape =
-    form <| Core.Shape { fill = texture, line = stroke } shape
+styled : ( FillStyle, LineStyle ) -> Shape -> Collage msg
+styled style =
+    form << Core.Shape style
 
 
 

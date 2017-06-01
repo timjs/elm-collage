@@ -20,6 +20,7 @@ module Collage
         , outlined
         , styled
         , Path
+        , line
         , segment
         , path
         , traced
@@ -32,13 +33,20 @@ module Collage
         , uniform
         , transparent
         , LineStyle
-        , solid
         , invisible
+        , solid
+        , broken
         , dot
         , dash
         , longdash
-        , dotdash
-        , broken
+        , dashdot
+        , ultrathin
+        , verythin
+        , thin
+        , semithick
+        , thick
+        , verythick
+        , ultrathick
         , LineCap
         , LineJoin
         )
@@ -82,7 +90,7 @@ the only backend supported at present is SVG.
 
 # Paths
 
-@docs Path, segment, path
+@docs Path, line, segment, path
 
 
 ## Turning Paths into Collages
@@ -98,14 +106,24 @@ the only backend supported at present is SVG.
 # Styling
 
 
-## Textures
+## Fill Styles
 
 @docs FillStyle, uniform, transparent
 
 
-## Strokes
+## Line Styles
 
-@docs LineStyle, solid, invisible, dot, dash, longdash, dotdash, broken, LineCap, LineJoin
+@docs LineStyle, invisible, solid, broken, dot, dash, longdash, dashdot
+
+
+### Line Thickness
+
+@docs ultrathin, verythin, thin, semithick, thick, verythick, ultrathick
+
+
+### Caps and Joins
+
+@docs LineCap, LineJoin
 
 -}
 
@@ -364,6 +382,24 @@ type alias Path =
 
 
 -- Creating Paths -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
+-- TODO: add curves (aka Bezier paths), arcs (part of Bezier paths)
+-- TODO: add way to close a path so it can be filled?
+--       something like `close : Path -> Shape`
+
+
+{-| A line with a given length
+-}
+line : Float -> Path
+line l =
+    path [ ( 0, 0 ), ( l, 0 ) ]
+
+
+{-| `segment (x1,y1) (x2,y2)` is a line segment with
+endpoints at `(x1,y1)` and `(x2,y2)`.
+-}
+segment : Point -> Point -> Path
+segment a b =
+    path [ a, b ]
 
 
 {-| `polyline points` is a polyline with vertices
@@ -376,18 +412,6 @@ path =
     Core.Polyline
 
 
-{-| `segment (x1,y1) (x2,y2)` is a line segment with
-endpoints at `(x1,y1)` and `(x2,y2)`.
-FIXME: rename to `line`?
--}
-segment : Point -> Point -> Path
-segment a b =
-    path [ a, b ]
-
-
--- TODO: add curves (aka Bezier paths), arcs (part of Bezier paths)
--- TODO: add way to close a path so it can be filled?
---       something like `close : Path -> Shape`
 
 -- Turning Paths into Collages -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -
 {-
@@ -485,12 +509,6 @@ type alias FillStyle =
     Core.FillStyle
 
 
-
--- | Gradient Gradient
--- | Pattern Float Float String Float
--- | FillStyle String
-
-
 {-| Uniform color fill
 -}
 uniform : Color -> FillStyle
@@ -525,6 +543,13 @@ type alias LineStyle =
     Core.LineStyle
 
 
+{-| Invisible line
+-}
+invisible : LineStyle
+invisible =
+    solid 0 transparent
+
+
 {-| Creates a Collage representing a solid line from a
 'Path' object. The first argument specifies the line
 thickness and the second argument specifies the texture
@@ -535,11 +560,17 @@ solid =
     broken []
 
 
-{-| Invisible line
+{-| A custom line defined by a list of (on,off):
+broken [(10,5)] 5 -- a line that with dashes 10 long and spaces 5 long
+broken [(10,5),(20,5)] -- on for 10, off 5, on 20, off 5
 -}
-invisible : LineStyle
-invisible =
-    solid 0 transparent
+broken : List ( Int, Int ) -> Float -> FillStyle -> LineStyle
+broken dash thickness texture =
+    Core.LineStyle texture thickness Core.Flat Core.Sharp dash 0
+
+
+
+--FIXME: good idea to calculate lenght based on thickness?
 
 
 {-| The same as `solid`, except the line is dots.
@@ -577,22 +608,63 @@ longdash thickness =
 
 {-| Define a line type with the given thickness, including alternating dots and dashes.
 -}
-dotdash : Float -> FillStyle -> LineStyle
-dotdash thickness =
+dashdot : Float -> FillStyle -> LineStyle
+dashdot thickness =
     let
         d =
             round thickness
     in
-        broken [ ( d, d ), ( d * 5, d ) ] thickness
+        broken [ ( d * 5, d ), ( d, d ) ] thickness
 
 
-{-| A custom line defined by a list of (on,off):
-broken [(10,5)] 5 -- a line that with dashes 10 long and spaces 5 long
-broken [(10,5),(20,5)] -- on for 10, off 5, on 20, off 5
--}
-broken : List ( Int, Int ) -> Float -> FillStyle -> LineStyle
-broken dash thickness texture =
-    Core.LineStyle texture thickness Core.Flat Core.Sharp dash 0
+
+-- Line Thickness -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
+
+
+{-| -}
+ultrathin : Float
+ultrathin =
+    0.5
+
+
+{-| -}
+verythin : Float
+verythin =
+    1.0
+
+
+{-| -}
+thin : Float
+thin =
+    2.0
+
+
+{-| -}
+semithick : Float
+semithick =
+    4.0
+
+
+{-| -}
+thick : Float
+thick =
+    6.0
+
+
+{-| -}
+verythick : Float
+verythick =
+    10.0
+
+
+{-| -}
+ultrathick : Float
+ultrathick =
+    16.0
+
+
+
+-- Line Caps and Joins -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
 
 
 {-| Describes the cap style of a line. `Flat` capped lines have

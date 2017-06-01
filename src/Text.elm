@@ -6,13 +6,18 @@ module Text
         , Style
         , Face(..)
         , face
-        , monospace
-        , size
         , color
+        , size
+        , tiny
+        , small
+        , normal
+        , large
+        , huge
+        , enormous
         , Shape(..)
-        , italic
+        , shape
         , Weight(..)
-        , bold
+        , weight
         , Line(..)
         , line
         , Alignment(..)
@@ -25,9 +30,11 @@ module Text
 
 @docs Style
 
-@docs Face, face, monospace, size, color
+@docs Face, face, color
 
-@docs Shape, italic, Weight, bold, Line, line
+@docs size, tiny, small, normal, large, huge, enormous
+
+@docs Shape, shape, Weight, weight, Line, line
 
 @docs Alignment, align
 
@@ -43,6 +50,21 @@ import Color exposing (Color)
 -}
 type Text
     = Text Style String
+
+
+{-| Specifies the styling (color, font, weight, etc.) of text
+-}
+type alias Style =
+    { face : Face
+    , size : Maybe Int
+    , color : Color
+    , shape : Shape
+    , weight : Weight
+
+    --FIXME: should be Set Line
+    , line : Maybe Line
+    , align : Alignment
+    }
 
 
 
@@ -68,27 +90,13 @@ empty =
 -- Styling ---------------------------------------------------------------------
 
 
-{-| Specifies the styling (color, font, weight, etc.) of text
--}
-type alias Style =
-    { face : Face
-    , size : Maybe Int
-    , color : Color
-    , shape : Shape
-    , weight : Weight
-
-    --FIXME: should be Set Line
-    , line : Maybe Line
-    , align : Alignment
-    }
-
 styled : Style -> String -> Text
 styled =
     Text
 
 
 
--- Face and Size -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -
+-- Face and Color -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -
 
 
 {-| -}
@@ -102,23 +110,11 @@ type Face
 
 
 {-| Sets the font face of `Text`.
+FIXME: rename?
 -}
 face : Face -> Text -> Text
 face face (Text style str) =
     Text { style | face = face } str
-
-{-|-}
-monospace : Text -> Text
-monospace = face Monospace
-
-{-| -}
-size : Int -> Text -> Text
-size size (Text style str) =
-    Text { style | size = Just size } str
-
-
-
--- Color -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
 
 
 {-| Gives a `Text` element a solid color.
@@ -126,6 +122,52 @@ size size (Text style str) =
 color : Color -> Text -> Text
 color clr (Text style str) =
     Text { style | color = clr } str
+
+
+
+-- Size -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
+
+
+{-| -}
+size : Int -> Text -> Text
+size size (Text style str) =
+    Text { style | size = Just size } str
+
+
+{-| -}
+tiny : Int
+tiny =
+    8
+
+
+{-| -}
+small : Int
+small =
+    11
+
+
+{-| -}
+normal : Int
+normal =
+    16
+
+
+{-| -}
+large : Int
+large =
+    23
+
+
+{-| -}
+huge : Int
+huge =
+    32
+
+
+{-| -}
+enormous : Int
+enormous =
+    45
 
 
 
@@ -142,9 +184,9 @@ type Shape
 
 {-| Italicizes `Text`.
 -}
-italic : Text -> Text
-italic (Text style str) =
-    Text { style | shape = Italic } str
+shape : Shape -> Text -> Text
+shape shape (Text style str) =
+    Text { style | shape = shape } str
 
 
 {-| -}
@@ -158,9 +200,9 @@ type Weight
 
 {-| Makes `Text` bold.
 -}
-bold : Text -> Text
-bold (Text style str) =
-    Text { style | weight = Bold } str
+weight : Weight -> Text -> Text
+weight weight (Text style str) =
+    Text { style | weight = weight } str
 
 
 

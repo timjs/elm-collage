@@ -151,8 +151,8 @@ attrs form id =
             , Svg.strokeLinejoin <| decodeJoin style.join
             , Svg.opacity <| toString form.alpha
             , Svg.transform <| evalTransform form
-            , Svg.strokeDashoffset <| toString style.dashOffset
-            , Svg.strokeDasharray <| decodeDashing style.dashing
+            , Svg.strokeDashoffset <| toString style.dashPhase
+            , Svg.strokeDasharray <| decodeDashing style.dashPattern
             ]
 
         Shape (fill, line) _ ->
@@ -165,8 +165,8 @@ attrs form id =
             , Svg.strokeLinejoin <| decodeJoin line.join
             , Svg.opacity <| toString form.alpha
             , Svg.transform <| evalTransform form
-            , Svg.strokeDashoffset <| toString line.dashOffset
-            , Svg.strokeDasharray <| decodeDashing line.dashing
+            , Svg.strokeDashoffset <| toString line.dashPhase
+            , Svg.strokeDasharray <| decodeDashing line.dashPattern
             ]
 
         Text anchor (Text.Text style str) ->

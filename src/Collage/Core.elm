@@ -62,6 +62,9 @@ type TextAnchor
 
 type FillStyle
     = Transparent
+      -- | Gradient Gradient
+      -- | Pattern Float Float String Float
+      -- | FillStyle String
     | Uniform Color
 
 
@@ -70,18 +73,32 @@ type alias LineStyle =
     , thickness : Float
     , cap : LineCap
     , join : LineJoin
-    , dashing : List ( Int, Int )
-    , dashOffset : Int
+    , dashPattern : List ( Int, Int )
+    , dashPhase : Int
     }
 
 
+{-| In Tikz and Svg:
+
+    = Butt
+    | Round
+    | Rect
+
+-}
 type LineCap
     = Flat
     | Round
     | Padded
 
 
+{-| In Tikz and Svg:
+
+    = Round
+    | Bevel
+    | Miter
+
+-}
 type LineJoin
     = Smooth
-    | Sharp
     | Clipped
+    | Sharp

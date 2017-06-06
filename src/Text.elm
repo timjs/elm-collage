@@ -126,6 +126,7 @@ color clr (Text style str) =
 
 
 -- Size -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
+--FIXME: not rendered
 
 
 {-| -}

@@ -5,7 +5,6 @@ module Collage.Core
         , BasicCollage(..)
         , Path(..)
         , Shape(..)
-        , TextAnchor(..)
         , FillStyle(..)
         , LineStyle
         , LineCap(..)
@@ -39,10 +38,10 @@ type alias Collage msg =
 type BasicCollage msg
     = Shape ( FillStyle, LineStyle ) Shape
     | Path LineStyle Path
-    | Text TextAnchor Text
-    | Image String Float Float
+    | Text Text
+    | Image Float Float String
+    | Element Float Float (Html msg)
     | Group (List (Collage msg))
-    | Element (Html msg)
 
 
 type Shape
@@ -52,12 +51,6 @@ type Shape
 
 type Path
     = Polyline (List Point)
-
-
-type TextAnchor
-    = Start
-    | Middle
-    | End
 
 
 type FillStyle

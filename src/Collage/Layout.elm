@@ -60,16 +60,16 @@ type Direction
 
 {-| -}
 envelope : Direction -> Collage msg -> Float
-envelope dir form =
+envelope dir col =
     let
         env =
-            basicEnvelope dir form.basic
+            handleBasic dir col.basic
 
         ( tx, ty ) =
-            form.origin
+            col.origin
     in
         --TODO: rotation
-        form.scale
+        col.scale
             * case dir of
                 Up ->
                     max 0 (env - ty)
@@ -84,36 +84,36 @@ envelope dir form =
                     max 0 (env - tx)
 
 
-basicEnvelope : Direction -> BasicCollage msg -> Float
-basicEnvelope dir basic =
+handleBasic : Direction -> BasicCollage msg -> Float
+handleBasic dir basic =
     case basic of
         Core.Shape _ (Core.Polygon ps) ->
-            pathEnvelope dir ps
+            handlePath dir ps
 
-        Core.Shape (fill, line) (Core.Ellipse rx ry) ->
-            boxEnvelope dir (2 * rx) (2 * ry) line.thickness
+        Core.Shape ( fill, line ) (Core.Ellipse rx ry) ->
+            handleBox dir (2 * rx) (2 * ry) line.thickness
 
         Core.Path _ (Core.Polyline ps) ->
-            pathEnvelope dir ps
-
-        Core.Image _ w h ->
-            boxEnvelope dir w h 0
+            handlePath dir ps
 
         --FIXME: calculate envelope for Text
-        Core.Text _ text ->
+        Core.Text text ->
+            0
+
+        Core.Image width height _ ->
+            handleBox dir width height 0
+
+        --FIXME: calculate envelope for Element
+        Core.Element width height _ ->
             0
 
         Core.Group forms ->
             --FIXME: correct with translation...
             (List.maximum <| List.map (envelope dir) forms) ? 0
 
-        --FIXME: calculate envelope for Element
-        Core.Element _ ->
-            0
 
-
-pathEnvelope : Direction -> List Point -> Float
-pathEnvelope dir ps =
+handlePath : Direction -> List Point -> Float
+handlePath dir ps =
     let
         xs =
             List.map first ps
@@ -137,8 +137,8 @@ pathEnvelope dir ps =
                 -(List.minimum xs ? 0)
 
 
-boxEnvelope : Direction -> Float -> Float -> Float -> Float
-boxEnvelope dir width height thickness =
+handleBox : Direction -> Float -> Float -> Float -> Float
+handleBox dir width height thickness =
     thickness
         + case dir of
             Up ->
@@ -167,7 +167,7 @@ This is useful for getting your spacing right and for making borders.
 -}
 spacer : Float -> Float -> Collage msg
 spacer w h =
-    rectangle w h |> styled (transparent, invisible)
+    rectangle w h |> styled ( transparent, invisible )
 
 
 {-| An Element that takes up no space. Good for things that appear conditionally:
@@ -315,8 +315,7 @@ This is the same as the `group` operation in the Collage module.
 -}
 stack : List (Collage msg) -> Collage msg
 stack =
-    --FIXME: why reverse needed? change renderer?
-    Collage.group << List.reverse
+    Collage.group
 
 
 
@@ -324,13 +323,13 @@ stack =
 
 
 width : Collage msg -> Float
-width form =
-    envelope Left form + envelope Right form
+width col =
+    envelope Left col + envelope Right col
 
 
 height : Collage msg -> Float
-height form =
-    envelope Up form + envelope Down form
+height col =
+    envelope Up col + envelope Down col
 
 
 
@@ -340,8 +339,8 @@ height form =
 {-| Translate a Collage such that the origin is on the top edge of the bounding box.
 -}
 north : Collage msg -> Collage msg
-north form =
-    translate ( 0, envelope Up form ) form
+north col =
+    translate ( 0, envelope Up col ) col
 
 
 {-| -}
@@ -353,8 +352,8 @@ northeast =
 {-| Translate a Collage such that the origin is on the right edge of the bounding box.
 -}
 east : Collage msg -> Collage msg
-east form =
-    translate ( -(envelope Right form), 0 ) form
+east col =
+    translate ( -(envelope Right col), 0 ) col
 
 
 {-| -}
@@ -366,8 +365,8 @@ southeast =
 {-| Translate a Collage such that the origin is on the bottom edge of the bounding box.
 -}
 south : Collage msg -> Collage msg
-south form =
-    translate ( 0, -(envelope Down form) ) form
+south col =
+    translate ( 0, -(envelope Down col) ) col
 
 
 {-| -}
@@ -379,8 +378,8 @@ southwest =
 {-| Translate a Collage such that the origin is on the left edge of the bounding box.
 -}
 west : Collage msg -> Collage msg
-west form =
-    translate ( envelope Left form, 0 ) form
+west col =
+    translate ( envelope Left col, 0 ) col
 
 
 {-| -}
@@ -396,27 +395,27 @@ northwest =
 
 -}
 base : Collage msg -> Collage msg
-base form =
+base col =
     let
         left =
-            envelope Left form
+            envelope Left col
 
         right =
-            envelope Right form
+            envelope Right col
 
         tx =
             (right - left) / 2
 
         up =
-            envelope Up form
+            envelope Up col
 
         down =
-            envelope Down form
+            envelope Down col
 
         ty =
             (down - up) / 2
     in
-        translate ( -tx, ty ) form
+        translate ( -tx, ty ) col
 
 
 
@@ -426,24 +425,27 @@ base form =
 {-| Draw a red dot at `(0, 0)` in the diagram's local vector space.
 -}
 showOrigin : Collage msg -> Collage msg
-showOrigin form =
+showOrigin col =
     let
         origin =
             circle 3
                 |> filled (uniform Color.red)
-                |> translate form.origin
     in
-        stack [ origin, form ]
+        stack [ origin, col ]
 
 
 {-| Draw a red dot box around a diagram.
 -}
 showEnvelope : Collage msg -> Collage msg
-showEnvelope form =
+showEnvelope col =
+    --FIXME: add
+    -- OR
+    --  |> translate col.origin
+    -- after stacking to fix frame drawing
     let
         outline =
-            rectangle (width form) (height form)
+            rectangle (width col) (height col)
                 |> outlined (dot 2 (uniform Color.red))
-                |> translate form.origin
+                |> translate col.origin
     in
-        stack [ outline, form ]
+        stack [ outline, col ]

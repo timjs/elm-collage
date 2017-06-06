@@ -1,7 +1,7 @@
 {
     "version": "0.1.0",
     "summary": "Lightweight graphics similar to original Elm librarary but backed by SVG",
-    "repository": "https://github.com/timjs/elm-collage-svg.git",
+    "repository": "https://github.com/timjs/elm-collage.git",
     "license": "MIT",
     "source-directories": [
         "src"

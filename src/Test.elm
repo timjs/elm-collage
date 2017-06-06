@@ -38,12 +38,25 @@ update msg model =
 
 
 -- View ------------------------------------------------------------------------
+-- Styles --
+
+
+border : LineStyle
+border =
+    solid verythin <| uniform black
+
+
+
+-- Text --
 
 
 txt : Collage Msg
 txt =
-    fromString "Hallo"
-        |> centered
+    text <| fromString "Hallo"
+
+
+
+-- Shapes --
 
 
 circ : Model -> Collage Msg
@@ -52,29 +65,19 @@ circ model =
         |> styled
             ( uniform <|
                 if model.active then
-                    lightRed
+                    lightPurple
                 else
                     lightBlue
             , border
             )
+        |> translate ( 20, 30 )
         |> onClick Switch
-
-
-
---|> showEnvelope
---|> showOrigin
 
 
 rect : Collage Msg
 rect =
     rectangle 100 100
         |> styled ( uniform lightOrange, border )
-        |> translate ( 25, -25 )
-
-
-
---|> showEnvelope
---|> showOrigin
 
 
 tria : Collage msg
@@ -84,8 +87,7 @@ tria =
 
 
 
---|> showEnvelope
---|> showOrigin
+-- Lines --
 
 
 hline : Float -> Collage msg
@@ -94,40 +96,30 @@ hline t =
         |> traced (solid t (uniform black))
 
 
-lines1 : Collage msg
-lines1 =
+lines : Collage msg
+lines =
     vertical <|
         List.intersperse (spacer 50 50) <|
             List.map hline [ ultrathin, verythin, thin, semithick, thick, verythick, ultrathick ]
 
 
-lines2 : Collage msg
-lines2 =
-    vertical <|
-        List.intersperse (spacer 50 50) <|
-            List.map hline [ 0.5, 1, 2, 4, 6, 8, 12, 16 ]
 
-
-border : LineStyle
-border =
-    solid verythin <| uniform black
+-- Main ------------------------------------------------------------------------
 
 
 view : Model -> Html Msg
 view model =
-    horizontal [ lines1, lines2 ]
+    circ model
+        --vertical [ debug (circ model), debug rect ]
+        --horizontal [ lines1, lines2 ]
+        --vertical [ rect, stack [ txt, circ model ], tria ]
+        -- ==
+        --rect model
+        --    |> above (circ model)
+        --    |> above (tria model)
+        -- |> showEnvelope
+        -- |> showOrigin
         |> svg 500 500
-
-
-
---vertical [ rect, stack [ txt, circ model ], tria ]
--- ==
---rect model
---    |> above (circ model)
---    |> above (tria model)
---|> showEnvelope
---|> showOrigin
--- Main ------------------------------------------------------------------------
 
 
 main : Program Never Model Msg

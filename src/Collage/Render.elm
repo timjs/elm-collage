@@ -59,7 +59,7 @@ render form id =
                       ]
                     )
 
-        Shape (fill, line) shape ->
+        Shape ( fill, line ) shape ->
             case shape of
                 Polygon ps ->
                     ( id + 1
@@ -87,14 +87,14 @@ render form id =
                            ]
                     )
 
-        Text _ (Text.Text style str) ->
+        Text (Text.Text style str) ->
             ( id
             , [ Svg.text_ (attrs form id ++ events form)
                     [ Svg.text str ]
               ]
             )
 
-        Image url width height ->
+        Image width height url ->
             ( id
             , [ Svg.image
                     (attrs form id
@@ -108,12 +108,27 @@ render form id =
               ]
             )
 
-        Element elem ->
-            ( id
-            , [ Svg.foreignObject (attrs form id ++ events form)
-                    [ elem ]
-              ]
-            )
+        Element width height elem ->
+            let
+                tx =
+                    toString <| -(width / 2)
+
+                ty =
+                    toString <| -(height / 2)
+
+                w =
+                    toString width
+
+                h =
+                    toString height
+            in
+                ( id
+                , [ Svg.g [ Svg.transform <| String.concat [ "translate(", tx, ",", ty, ")" ] ]
+                        [ Svg.foreignObject ([ Svg.width w, Svg.height h ] ++ attrs form id ++ events form)
+                            [ elem ]
+                        ]
+                  ]
+                )
 
         Group forms ->
             let
@@ -155,7 +170,7 @@ attrs form id =
             , Svg.strokeDasharray <| decodeDashing style.dashPattern
             ]
 
-        Shape (fill, line) _ ->
+        Shape ( fill, line ) _ ->
             [ Svg.fill <| decodeFill fill id
             , Svg.fillOpacity <| decodeFillAlpha fill
             , Svg.stroke <| decodeFill line.fill id
@@ -169,62 +184,50 @@ attrs form id =
             , Svg.strokeDasharray <| decodeDashing line.dashPattern
             ]
 
-        Text anchor (Text.Text style str) ->
-            let
-                align_ =
-                    case anchor of
-                        Start ->
-                            "start"
+        Text (Text.Text style str) ->
+            [ Svg.fill <| decodeFill (Uniform style.color) id
+            , Svg.fontFamily <|
+                case style.face of
+                    Text.Roman ->
+                        "serif"
 
-                        Middle ->
-                            "middle"
+                    Text.Sansserif ->
+                        "sans-serif"
 
-                        End ->
-                            "end"
-            in
-                [ Svg.fill <| decodeFill (Uniform style.color) id
-                , Svg.fontFamily <|
-                    case style.face of
-                        Text.Roman ->
-                            "serif"
+                    Text.Monospace ->
+                        "monospace"
 
-                        Text.Sansserif ->
-                            "sans-serif"
+                    Text.Font name ->
+                        name
+            , Svg.fontSize <| toString style.size
+            , Svg.fontWeight <|
+                case style.weight of
+                    Text.Bold ->
+                        "bold"
 
-                        Text.Monospace ->
-                            "monospace"
+                    --FIXME: add more
+                    _ ->
+                        "normal"
+            , Svg.fontStyle <|
+                case style.shape of
+                    Text.Italic ->
+                        "italic"
 
-                        Text.Font name ->
-                            name
-                , Svg.fontSize <| toString style.size
-                , Svg.fontWeight <|
-                    case style.weight of
-                        Text.Bold ->
-                            "bold"
+                    --FIXME: add more
+                    _ ->
+                        "normal"
+            , Svg.textDecoration <|
+                case style.line of
+                    Just Text.Under ->
+                        "underline"
 
-                        --FIXME: add more
-                        _ ->
-                            "normal"
-                , Svg.fontStyle <|
-                    case style.shape of
-                        Text.Italic ->
-                            "italic"
-
-                        --FIXME: add more
-                        _ ->
-                            "normal"
-                , Svg.textDecoration <|
-                    case style.line of
-                        Just Text.Under ->
-                            "underline"
-
-                        --FIXME: add more
-                        _ ->
-                            "none"
-                , Svg.textAnchor <| align_
-                , Svg.dominantBaseline "middle"
-                , Svg.transform <| evalTransform form
-                ]
+                    --FIXME: add more
+                    _ ->
+                        "none"
+            , Svg.textAnchor <| "middle"
+            , Svg.dominantBaseline "middle"
+            , Svg.transform <| evalTransform form
+            ]
 
         _ ->
             [ Svg.transform <| evalTransform form ]

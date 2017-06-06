@@ -1,6 +1,7 @@
 module Collage
     exposing
         ( Point
+        , opposite
         , Collage
         , BasicCollage
         , group
@@ -24,9 +25,7 @@ module Collage
         , segment
         , path
         , traced
-        , left
-        , centered
-        , right
+        , text
         , image
         , html
         , FillStyle
@@ -65,7 +64,7 @@ the only backend supported at present is SVG.
 
 # Basics
 
-@docs Point
+@docs Point, opposite
 
 
 # Collages
@@ -100,7 +99,7 @@ the only backend supported at present is SVG.
 
 # Other Content
 
-@docs left, centered, right, image, html
+@docs text, image, html
 
 
 # Styling
@@ -141,6 +140,12 @@ a point in the center of the viewport.
 -}
 type alias Point =
     ( Float, Float )
+
+
+{-| -}
+opposite : Point -> Point
+opposite ( x, y ) =
+    ( -x, -y )
 
 
 
@@ -190,8 +195,9 @@ form basic =
 `Collage`.
 -}
 group : List (Collage msg) -> Collage msg
-group forms =
-    form <| Core.Group forms
+group =
+    --FIXME: change renderer instead of using `List.reverse`. Svg draws last element in list on top!
+    form << Core.Group << List.reverse
 
 
 
@@ -201,8 +207,17 @@ group forms =
 -- * add skew in x and y with nice names: slant and tilt ???
 
 
-{-| Move a form by the given amount (x, y). This is a relative translation so
-`(move (5,10) form)` would move `form` five pixels to the right and ten pixels up.
+{-| | Translate a collage by the given amount (x,y) *within its local space*.
+
+Translating a collage by, for example `(5,10)` will move the collage
+*five pixels right* and
+*ten pixels down*,
+which is consistent with te coordinate system used by Svg.
+This is equivalent of moving its local origin with `(-5,-10)`.
+
+Note that this influences the way collages are composed with the `Collage.Layout` module,
+since collages are always composed with respect to their local origins.
+
 -}
 translate : ( Float, Float ) -> Collage msg -> Collage msg
 translate ( tx, ty ) form =
@@ -455,21 +470,9 @@ traced style path =
 
 
 {-| -}
-left : Text -> Collage msg
-left =
-    form << Core.Text Core.Start
-
-
-{-| -}
-centered : Text -> Collage msg
-centered =
-    form << Core.Text Core.Middle
-
-
-{-| -}
-right : Text -> Collage msg
-right =
-    form << Core.Text Core.End
+text : Text -> Collage msg
+text =
+    form << Core.Text
 
 
 
@@ -479,8 +482,8 @@ right =
 {-| An image. The arguments specify the image's thickness, height and url.
 -}
 image : Float -> Float -> String -> Collage msg
-image w h url =
-    form <| Core.Image url w h
+image width height =
+    form << Core.Image width height
 
 
 
@@ -492,9 +495,9 @@ resulting form is subject to all of the regular manipulations.
 Note that if you are compiling to SVG, then this functionality
 is not supported in Internet Explorer.
 -}
-html : Html msg -> Collage msg
-html elem =
-    form <| Core.Element elem
+html : Float -> Float -> Html msg -> Collage msg
+html width height =
+    form << Core.Element width height
 
 
 

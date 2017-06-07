@@ -22,17 +22,17 @@ import Tuple exposing (first, second)
 
 
 {-| Takes a `Collage` and renders it to usable HTML, in this case
-in the col of an SVG element. The first two arguments determine
+in the collage of an SVG element. The first two arguments determine
 the height and width of the SVG viewbox in pixels.
 -}
 svg : Collage msg -> Html msg
-svg col =
+svg collage =
     let
         w =
-            toString <| Layout.width col
+            toString <| Layout.width collage
 
         h =
-            toString <| Layout.height col
+            toString <| Layout.height collage
     in
     Html.div
         []
@@ -43,22 +43,22 @@ svg col =
             ]
           <|
             second <|
-                render (Layout.northwest col) 0
+                render (Layout.northwest collage) 0
         ]
 
 
 render : Collage msg -> Int -> ( Int, List (Svg msg) )
-render col id =
+render collage id =
     --FIXME: why use ids?
-    case col.basic of
+    case collage.basic of
         Path style path ->
             case path of
                 Polyline ps ->
                     ( id
                     , [ Svg.polyline
                             ((Svg.points <| decodePoints ps)
-                                :: attrs col id
-                                ++ events col
+                                :: attrs collage id
+                                ++ events collage
                             )
                             []
                       ]
@@ -71,8 +71,8 @@ render col id =
                     , evalFillStyle fill id
                         ++ [ Svg.polygon
                                 ((Svg.points <| decodePoints ps)
-                                    :: attrs col id
-                                    ++ events col
+                                    :: attrs collage id
+                                    ++ events collage
                                 )
                                 []
                            ]
@@ -82,8 +82,8 @@ render col id =
                     ( id + 1
                     , evalFillStyle fill id
                         ++ [ Svg.ellipse
-                                (attrs col id
-                                    ++ events col
+                                (attrs collage id
+                                    ++ events collage
                                     ++ [ Svg.rx <| toString rx
                                        , Svg.ry <| toString ry
                                        ]
@@ -94,7 +94,7 @@ render col id =
 
         Text (Text.Text style str) ->
             ( id
-            , [ Svg.text_ (attrs col id ++ events col)
+            , [ Svg.text_ (attrs collage id ++ events collage)
                     [ Svg.text str ]
               ]
             )
@@ -102,8 +102,8 @@ render col id =
         Image width height url ->
             ( id
             , [ Svg.image
-                    (attrs col id
-                        ++ events col
+                    (attrs collage id
+                        ++ events collage
                         ++ [ Svg.width <| toString width
                            , Svg.height <| toString height
                            , Svg.xlinkHref url
@@ -129,7 +129,7 @@ render col id =
             in
             ( id
             , [ Svg.g [ Svg.transform <| String.concat [ "translate(", tx, ",", ty, ")" ] ]
-                    [ Svg.foreignObject ([ Svg.width w, Svg.height h ] ++ attrs col id ++ events col)
+                    [ Svg.foreignObject ([ Svg.width w, Svg.height h ] ++ attrs collage id ++ events collage)
                         [ elem ]
                     ]
               ]
@@ -152,7 +152,7 @@ render col id =
                 ( id_, forms_ ) =
                     go ( id, [] ) forms
             in
-            ( id_, [ Svg.g (attrs col id ++ events col) <| forms_ ] )
+            ( id_, [ Svg.g (attrs collage id ++ events collage) <| forms_ ] )
 
 
 events : Collage msg -> List (Attribute msg)
@@ -161,16 +161,16 @@ events { handlers } =
 
 
 attrs : Collage msg -> Int -> List (Attribute msg)
-attrs col id =
-    case col.basic of
+attrs collage id =
+    case collage.basic of
         Path style _ ->
             [ Svg.stroke <| decodeFill style.fill id
             , Svg.strokeOpacity <| decodeFillAlpha style.fill
             , Svg.strokeWidth <| toString style.thickness
             , Svg.strokeLinecap <| decodeCap style.cap
             , Svg.strokeLinejoin <| decodeJoin style.join
-            , Svg.opacity <| toString col.alpha
-            , Svg.transform <| evalTransform col
+            , Svg.opacity <| toString collage.alpha
+            , Svg.transform <| evalTransform collage
             , Svg.strokeDashoffset <| toString style.dashPhase
             , Svg.strokeDasharray <| decodeDashing style.dashPattern
             ]
@@ -183,8 +183,8 @@ attrs col id =
             , Svg.strokeWidth <| toString line.thickness
             , Svg.strokeLinecap <| decodeCap line.cap
             , Svg.strokeLinejoin <| decodeJoin line.join
-            , Svg.opacity <| toString col.alpha
-            , Svg.transform <| evalTransform col
+            , Svg.opacity <| toString collage.alpha
+            , Svg.transform <| evalTransform collage
             , Svg.strokeDashoffset <| toString line.dashPhase
             , Svg.strokeDasharray <| decodeDashing line.dashPattern
             ]
@@ -231,11 +231,11 @@ attrs col id =
                         "none"
             , Svg.textAnchor <| "middle"
             , Svg.dominantBaseline "middle"
-            , Svg.transform <| evalTransform col
+            , Svg.transform <| evalTransform collage
             ]
 
         _ ->
-            [ Svg.transform <| evalTransform col ]
+            [ Svg.transform <| evalTransform collage ]
 
 
 decodeCap : LineCap -> String
@@ -321,11 +321,11 @@ evalFillStyle fs id =
                        ]
                      <|
                        List.map
-                           (\( off, col ) ->
+                           (\( off, collage ) ->
                                Svg.stop
                                    [ Svg.offset <| toString off
-                                   , Svg.stopColor <| decodeColor col
-                                   , Svg.stopOpacity <| decodeAlpha col
+                                   , Svg.stopColor <| decodeColor collage
+                                   , Svg.stopOpacity <| decodeAlpha collage
                                    ]
                                    []
                            )

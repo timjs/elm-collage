@@ -80,15 +80,15 @@ opposite dir =
 
 {-| -}
 envelope : Direction -> Collage msg -> Float
-envelope dir col =
+envelope dir collage =
     let
         env =
-            handleBasic dir col.theta col.basic
+            handleBasic dir collage.theta collage.basic
 
         ( tx, ty ) =
-            col.origin
+            collage.origin
     in
-    col.scale
+    collage.scale
         * (case dir of
             Up ->
                 max 0 (env - ty)
@@ -408,14 +408,14 @@ vertical =
 
 {-| -}
 width : Collage msg -> Float
-width col =
-    envelope Left col + envelope Right col
+width collage =
+    envelope Left collage + envelope Right collage
 
 
 {-| -}
 height : Collage msg -> Float
-height col =
-    envelope Up col + envelope Down col
+height collage =
+    envelope Up collage + envelope Down collage
 
 
 
@@ -426,8 +426,8 @@ height col =
 {-| Shift a Collage such that the origin is on the top edge of the bounding box.
 -}
 north : Collage msg -> Collage msg
-north col =
-    shift ( 0, envelope Up col ) col
+north collage =
+    shift ( 0, envelope Up collage ) collage
 
 
 {-| -}
@@ -439,8 +439,8 @@ northeast =
 {-| Shift a Collage such that the origin is on the right edge of the bounding box.
 -}
 east : Collage msg -> Collage msg
-east col =
-    shift ( -(envelope Right col), 0 ) col
+east collage =
+    shift ( -(envelope Right collage), 0 ) collage
 
 
 {-| -}
@@ -452,8 +452,8 @@ southeast =
 {-| Shift a Collage such that the origin is on the bottom edge of the bounding box.
 -}
 south : Collage msg -> Collage msg
-south col =
-    shift ( 0, -(envelope Down col) ) col
+south collage =
+    shift ( 0, -(envelope Down collage) ) collage
 
 
 {-| -}
@@ -465,8 +465,8 @@ southwest =
 {-| Shift a Collage such that the origin is on the left edge of the bounding box.
 -}
 west : Collage msg -> Collage msg
-west col =
-    shift ( envelope Left col, 0 ) col
+west collage =
+    shift ( envelope Left collage, 0 ) collage
 
 
 {-| -}
@@ -482,27 +482,27 @@ northwest =
 
 -}
 base : Collage msg -> Collage msg
-base col =
+base collage =
     let
         left =
-            envelope Left col
+            envelope Left collage
 
         right =
-            envelope Right col
+            envelope Right collage
 
         tx =
             (right - left) / 2
 
         up =
-            envelope Up col
+            envelope Up collage
 
         down =
-            envelope Down col
+            envelope Down collage
 
         ty =
             (down - up) / 2
     in
-    shift ( -tx, ty ) col
+    shift ( -tx, ty ) collage
 
 
 
@@ -512,27 +512,27 @@ base col =
 {-| Draw a red dot at `(0, 0)` in the diagram's local vector space.
 -}
 showOrigin : Collage msg -> Collage msg
-showOrigin col =
+showOrigin collage =
     let
         origin =
             circle 3
                 |> filled (uniform Color.red)
     in
-    stack origin col
+    stack origin collage
 
 
 {-| Draw a red dot box around a diagram.
 -}
 showEnvelope : Collage msg -> Collage msg
-showEnvelope col =
+showEnvelope collage =
     --FIXME: add
     -- OR
-    --  |> shift col.origin
+    --  |> shift collage.origin
     -- after stacking to fix frame drawing
     let
         outline =
-            rectangle (width col) (height col)
+            rectangle (width collage) (height collage)
                 |> outlined (dot 2 (uniform Color.red))
-                |> shift col.origin
+                |> shift collage.origin
     in
-    stack outline col
+    stack outline collage

@@ -172,7 +172,7 @@ type alias Collage msg =
     Core.Collage msg
 
 
-{-| Basic form type. Public to support multiple rendering enginges.
+{-| Basic collage type. Public to support multiple rendering enginges.
 -}
 type alias BasicCollage msg =
     Core.BasicCollage msg
@@ -182,8 +182,8 @@ type alias BasicCollage msg =
 -- Creating Collages -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
 
 
-form : BasicCollage msg -> Collage msg
-form basic =
+collage : BasicCollage msg -> Collage msg
+collage basic =
     Core.Collage ( 0, 0 ) 0 1 1 basic []
 
 
@@ -196,7 +196,7 @@ form basic =
 group : List (Collage msg) -> Collage msg
 group =
     --FIXME: change renderer instead of using `List.reverse`. Svg draws last element in list on top!
-    form << Core.Group << List.reverse
+    collage << Core.Group << List.reverse
 
 
 
@@ -219,36 +219,36 @@ since collages are always composed with respect to their local origins.
 
 -}
 shift : ( Float, Float ) -> Collage msg -> Collage msg
-shift ( tx, ty ) form =
+shift ( tx, ty ) collage =
     let
         ( x, y ) =
-            form.origin
+            collage.origin
     in
-    { form | origin = ( x + tx, y + ty ) }
+    { collage | origin = ( x + tx, y + ty ) }
 
 
-{-| Scale a form by a given factor. Scaling by 2 doubles both dimensions,
+{-| Scale a collage by a given factor. Scaling by 2 doubles both dimensions,
 and quadruples the area.
 -}
 scale : Float -> Collage msg -> Collage msg
-scale s form =
-    { form | scale = form.scale * s }
+scale s collage =
+    { collage | scale = collage.scale * s }
 
 
-{-| Rotate a form by a given angle. Rotate takes standard Elm angles (radians)
-and turns things counterclockwise. So to turn `form` 30&deg; to the left
-you would say, `(rotate (degrees 30) form)`.
+{-| Rotate a collage by a given angle. Rotate takes standard Elm angles (radians)
+and turns things counterclockwise. So to turn `collage` 30&deg; to the left
+you would say, `(rotate (degrees 30) collage)`.
 -}
 rotate : Float -> Collage msg -> Collage msg
-rotate t form =
-    { form | theta = form.theta + t }
+rotate t collage =
+    { collage | theta = collage.theta + t }
 
 
 {-| Set the alpha of a `Collage msg`. The default is 1, and 0 is totally transparent.
 -}
 opacity : Float -> Collage msg -> Collage msg
-opacity a form =
-    { form | alpha = a }
+opacity a collage =
+    { collage | alpha = a }
 
 
 
@@ -378,7 +378,7 @@ specify the line thickness and texture, respectively.
 -}
 styled : ( FillStyle, LineStyle ) -> Shape -> Collage msg
 styled style =
-    form << Core.Shape style
+    collage << Core.Shape style
 
 
 
@@ -464,7 +464,7 @@ path =
 -}
 traced : LineStyle -> Path -> Collage msg
 traced style path =
-    form <| Core.Path style path
+    collage <| Core.Path style path
 
 
 
@@ -474,7 +474,7 @@ traced style path =
 {-| -}
 text : Text -> Collage msg
 text =
-    form << Core.Text
+    collage << Core.Text
 
 
 
@@ -485,7 +485,7 @@ text =
 -}
 image : Float -> Float -> String -> Collage msg
 image width height =
-    form << Core.Image width height
+    collage << Core.Image width height
 
 
 
@@ -493,13 +493,13 @@ image width height =
 
 
 {-| Creates a `Collage` from an arbitrary `Html` element. The
-resulting form is subject to all of the regular manipulations.
+resulting collage is subject to all of the regular manipulations.
 Note that if you are compiling to SVG, then this functionality
 is not supported in Internet Explorer.
 -}
 html : Float -> Float -> Html msg -> Collage msg
 html width height =
-    form << Core.Element width height
+    collage << Core.Element width height
 
 
 

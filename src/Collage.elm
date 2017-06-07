@@ -1,53 +1,53 @@
 module Collage
     exposing
-        ( Point
-        , opposite
+        ( BasicCollage
         , Collage
-        , BasicCollage
-        , group
-        , translate
-        , scale
-        , rotate
-        , opacity
-        , Shape
-        , polygon
-        , ngon
-        , triangle
-        , rectangle
-        , square
-        , ellipse
-        , circle
-        , filled
-        , outlined
-        , styled
-        , Path
-        , line
-        , segment
-        , path
-        , traced
-        , text
-        , image
-        , html
         , FillStyle
-        , uniform
-        , transparent
-        , LineStyle
-        , invisible
-        , solid
-        , broken
-        , dot
-        , dash
-        , longdash
-        , dashdot
-        , ultrathin
-        , verythin
-        , thin
-        , semithick
-        , thick
-        , verythick
-        , ultrathick
         , LineCap
         , LineJoin
+        , LineStyle
+        , Path
+        , Point
+        , Shape
+        , broken
+        , circle
+        , dash
+        , dashdot
+        , dot
+        , ellipse
+        , filled
+        , group
+        , html
+        , image
+        , invisible
+        , line
+        , longdash
+        , ngon
+        , opacity
+        , opposite
+        , outlined
+        , path
+        , polygon
+        , rectangle
+        , rotate
+        , scale
+        , segment
+        , semithick
+        , solid
+        , square
+        , styled
+        , text
+        , thick
+        , thin
+        , traced
+        , translate
+        , transparent
+        , triangle
+        , ultrathick
+        , ultrathin
+        , uniform
+        , verythick
+        , verythin
         )
 
 {-| This library provides a toolkit for rendering and manipulating
@@ -126,10 +126,10 @@ the only backend supported at present is SVG.
 
 -}
 
-import Html exposing (Html)
-import Color exposing (Color)
-import Text exposing (Text)
 import Collage.Core as Core
+import Color exposing (Color)
+import Html exposing (Html)
+import Text exposing (Text)
 
 
 -- Basics ----------------------------------------------------------------------
@@ -207,11 +207,11 @@ group =
 -- * add skew in x and y with nice names: slant and tilt ???
 
 
-{-| | Translate a collage by the given amount (x,y) *within its local space*.
+{-| | Translate a collage by the given amount (x,y) _within its local space_.
 
 Translating a collage by, for example `(5,10)` will move the collage
-*five pixels right* and
-*ten pixels down*,
+_five pixels right_ and
+_ten pixels down_,
 which is consistent with te coordinate system used by Svg.
 This is equivalent of moving its local origin with `(-5,-10)`.
 
@@ -225,7 +225,7 @@ translate ( tx, ty ) form =
         ( x, y ) =
             form.origin
     in
-        { form | origin = ( x + tx, y + ty ) }
+    { form | origin = ( x + tx, y + ty ) }
 
 
 {-| Scale a form by a given factor. Scaling by 2 doubles both dimensions,
@@ -297,7 +297,7 @@ ngon n r =
         f i =
             ( r * cos (t * toFloat i), r * sin (t * toFloat i) )
     in
-        Core.Polygon <| List.map f (List.range 0 n)
+    Core.Polygon <| List.map f (List.range 0 n)
 
 
 {-| -}
@@ -317,12 +317,12 @@ rectangle w h =
         halfH =
             h / 2
     in
-        polygon
-            [ ( 0 - halfW, halfH )
-            , ( halfW, halfH )
-            , ( halfW, 0 - halfH )
-            , ( 0 - halfW, 0 - halfH )
-            ]
+    polygon
+        [ ( 0 - halfW, halfH )
+        , ( halfW, halfH )
+        , ( halfW, 0 - halfH )
+        , ( 0 - halfW, 0 - halfH )
+        ]
 
 
 {-| A square with a given edge length.
@@ -587,7 +587,7 @@ dot thickness =
         d =
             round thickness
     in
-        broken [ ( d, d ) ] thickness
+    broken [ ( d, d ) ] thickness
 
 
 {-| The same as `solid`, except the line is dashed.
@@ -598,7 +598,7 @@ dash thickness =
         d =
             round thickness
     in
-        broken [ ( d * 5, d * 2 ) ] thickness
+    broken [ ( d * 5, d * 2 ) ] thickness
 
 
 {-| Define a dashed line type with the given thickness, where the dashes are longer than normal.
@@ -609,7 +609,7 @@ longdash thickness =
         d =
             round thickness
     in
-        broken [ ( d * 12, d * 6 ) ] thickness
+    broken [ ( d * 12, d * 6 ) ] thickness
 
 
 {-| Define a line type with the given thickness, including alternating dots and dashes.
@@ -620,7 +620,7 @@ dashdot thickness =
         d =
             round thickness
     in
-        broken [ ( d * 5, d ), ( d, d ) ] thickness
+    broken [ ( d * 5, d ), ( d, d ) ] thickness
 
 
 

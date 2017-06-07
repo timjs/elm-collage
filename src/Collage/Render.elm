@@ -6,21 +6,19 @@ module Collage.Render exposing (svg)
 
 -}
 
-import String
-import List
-import Tuple exposing (first, second)
-import Html exposing (Html)
-import Svg exposing (Svg, Attribute)
-import Svg.Attributes as Svg exposing (style)
-import Svg.Events as Svg
-import Color exposing (Color)
-import Text exposing (Text)
-
-
 -- NOTE: Render should only depend on Core, not Collage itself
 
 import Collage.Core exposing (..)
 import Collage.Layout as Layout
+import Color exposing (Color)
+import Html exposing (Html)
+import List
+import String
+import Svg exposing (Attribute, Svg)
+import Svg.Attributes as Svg exposing (style)
+import Svg.Events as Svg
+import Text exposing (Text)
+import Tuple exposing (first, second)
 
 
 {-| Takes a `Collage` and renders it to usable HTML, in this case
@@ -36,17 +34,17 @@ svg col =
         h =
             toString <| Layout.height col
     in
-        Html.div
-            []
-            [ Svg.svg
-                [ Svg.width w
-                , Svg.height h
-                , Svg.version "1.1"
-                ]
-              <|
-                second <|
-                    render (Layout.northwest col) 0
+    Html.div
+        []
+        [ Svg.svg
+            [ Svg.width w
+            , Svg.height h
+            , Svg.version "1.1"
             ]
+          <|
+            second <|
+                render (Layout.northwest col) 0
+        ]
 
 
 render : Collage msg -> Int -> ( Int, List (Svg msg) )
@@ -129,13 +127,13 @@ render col id =
                 h =
                     toString height
             in
-                ( id
-                , [ Svg.g [ Svg.transform <| String.concat [ "translate(", tx, ",", ty, ")" ] ]
-                        [ Svg.foreignObject ([ Svg.width w, Svg.height h ] ++ attrs col id ++ events col)
-                            [ elem ]
-                        ]
-                  ]
-                )
+            ( id
+            , [ Svg.g [ Svg.transform <| String.concat [ "translate(", tx, ",", ty, ")" ] ]
+                    [ Svg.foreignObject ([ Svg.width w, Svg.height h ] ++ attrs col id ++ events col)
+                        [ elem ]
+                    ]
+              ]
+            )
 
         Group forms ->
             let
@@ -149,12 +147,12 @@ render col id =
                                 ( i_, rs_ ) =
                                     render x i
                             in
-                                go ( i + i_, rs ++ rs_ ) xs
+                            go ( i + i_, rs ++ rs_ ) xs
 
                 ( id_, forms_ ) =
                     go ( id, [] ) forms
             in
-                ( id_, [ Svg.g (attrs col id ++ events col) <| forms_ ] )
+            ( id_, [ Svg.g (attrs col id ++ events col) <| forms_ ] )
 
 
 events : Collage msg -> List (Attribute msg)
@@ -286,8 +284,8 @@ evalTransform obj =
         scale =
             toString obj.scale
     in
-        String.concat
-            [ "translate(", x, ",", y, ") rotate(", theta, ") scale(", scale, ")" ]
+    String.concat
+        [ "translate(", x, ",", y, ") rotate(", theta, ") scale(", scale, ")" ]
 
 
 evalFillStyle : FillStyle -> Int -> List (Svg msg)
@@ -381,7 +379,7 @@ decodeColor c =
         b =
             toString blue
     in
-        String.concat [ "rgb(", r, ",", g, ",", b, ")" ]
+    String.concat [ "rgb(", r, ",", g, ",", b, ")" ]
 
 
 decodeAlpha : Color -> String
@@ -390,7 +388,7 @@ decodeAlpha c =
         { alpha } =
             c |> Color.toRgb
     in
-        toString alpha
+    toString alpha
 
 
 decodeDashing : List ( Int, Int ) -> String

@@ -1,29 +1,29 @@
 module Collage.Layout
     exposing
         ( Direction(..)
-        , envelope
-        , width
-        , height
-        , spacer
-        , empty
-        , before
-        , after
         , above
+        , after
+        , base
+        , before
         , below
+        , east
+        , empty
+        , envelope
+        , height
         , horizontal
-        , vertical
-        , stack
         , north
         , northeast
-        , east
-        , southeast
-        , south
-        , southwest
-        , west
         , northwest
-        , base
-        , showOrigin
         , showEnvelope
+        , showOrigin
+        , south
+        , southeast
+        , southwest
+        , spacer
+        , stack
+        , vertical
+        , west
+        , width
         )
 
 {-| TODO
@@ -37,11 +37,11 @@ module Collage.Layout
 
 -}
 
-import Tuple exposing (first, second)
-import Maybe.Extra exposing ((?))
-import Color
 import Collage exposing (..)
 import Collage.Core as Core
+import Color
+import Maybe.Extra exposing ((?))
+import Tuple exposing (first, second)
 
 
 -- Directions ------------------------------------------------------------------
@@ -70,19 +70,20 @@ envelope dir col =
         ( tx, ty ) =
             col.origin
     in
-        col.scale
-            * case dir of
-                Up ->
-                    max 0 (env - ty)
+    col.scale
+        * (case dir of
+            Up ->
+                max 0 (env - ty)
 
-                Down ->
-                    max 0 (env + ty)
+            Down ->
+                max 0 (env + ty)
 
-                Right ->
-                    max 0 (env + tx)
+            Right ->
+                max 0 (env + tx)
 
-                Left ->
-                    max 0 (env - tx)
+            Left ->
+                max 0 (env - tx)
+          )
 
 
 handleBasic : Direction -> Float -> BasicCollage msg -> Float
@@ -96,7 +97,7 @@ handleBasic dir theta basic =
                 s =
                     sin theta
             in
-                ( c * x - s * y, s * x + c * y )
+            ( c * x - s * y, s * x + c * y )
 
         thicken t ( x, y ) =
             ( if x < 0 then
@@ -109,29 +110,29 @@ handleBasic dir theta basic =
                 y + t / 2
             )
     in
-        case basic of
-            Core.Shape ( fill, line ) (Core.Ellipse rx ry) ->
-                handleBox dir (rotate ( 2 * rx + line.thickness, 2 * ry + line.thickness ))
+    case basic of
+        Core.Shape ( fill, line ) (Core.Ellipse rx ry) ->
+            handleBox dir (rotate ( 2 * rx + line.thickness, 2 * ry + line.thickness ))
 
-            Core.Shape ( _, line ) (Core.Polygon ps) ->
-                handlePath dir (List.map (thicken line.thickness << rotate) ps)
+        Core.Shape ( _, line ) (Core.Polygon ps) ->
+            handlePath dir (List.map (thicken line.thickness << rotate) ps)
 
-            Core.Path line (Core.Polyline ps) ->
-                handlePath dir (List.map (thicken line.thickness << rotate) ps)
+        Core.Path line (Core.Polyline ps) ->
+            handlePath dir (List.map (thicken line.thickness << rotate) ps)
 
-            Core.Text text ->
-                --FIXME: calculate envelope for Text
-                0
+        Core.Text text ->
+            --FIXME: calculate envelope for Text
+            0
 
-            Core.Image width height _ ->
-                handleBox dir (rotate ( width, height ))
+        Core.Image width height _ ->
+            handleBox dir (rotate ( width, height ))
 
-            Core.Element width height _ ->
-                handleBox dir (rotate ( width, height ))
+        Core.Element width height _ ->
+            handleBox dir (rotate ( width, height ))
 
-            Core.Group forms ->
-                --FIXME: correct with translation???
-                (List.maximum <| List.map (envelope dir) forms) ? 0
+        Core.Group forms ->
+            --FIXME: correct with translation???
+            (List.maximum <| List.map (envelope dir) forms) ? 0
 
 
 handlePath : Direction -> List Point -> Float
@@ -143,20 +144,20 @@ handlePath dir ps =
         ys =
             List.map second ps
     in
-        case dir of
-            -- NOTE: be aware of the switched vertical coordinate system of Svg
-            Up ->
-                -(List.minimum ys ? 0)
+    case dir of
+        -- NOTE: be aware of the switched vertical coordinate system of Svg
+        Up ->
+            -(List.minimum ys ? 0)
 
-            -- NOTE: be aware of the switched vertical coordinate system of Svg
-            Down ->
-                List.maximum ys ? 0
+        -- NOTE: be aware of the switched vertical coordinate system of Svg
+        Down ->
+            List.maximum ys ? 0
 
-            Right ->
-                List.maximum xs ? 0
+        Right ->
+            List.maximum xs ? 0
 
-            Left ->
-                -(List.minimum xs ? 0)
+        Left ->
+            -(List.minimum xs ? 0)
 
 
 handleBox : Direction -> ( Float, Float ) -> Float
@@ -218,9 +219,9 @@ before : Collage msg -> Collage msg -> Collage msg
 before a b =
     let
         tx =
-            (envelope Left a) + (envelope Right b)
+            envelope Left a + envelope Right b
     in
-        stack [ a, translate ( -tx, 0 ) b ]
+    stack [ a, translate ( -tx, 0 ) b ]
 
 
 {-| Given two diagrams a and b, place b to the **right** of a,
@@ -238,9 +239,9 @@ after : Collage msg -> Collage msg -> Collage msg
 after a b =
     let
         tx =
-            (envelope Right a) + (envelope Left b)
+            envelope Right a + envelope Left b
     in
-        stack [ a, translate ( tx, 0 ) b ]
+    stack [ a, translate ( tx, 0 ) b ]
 
 
 {-| Given two forms a and b, place b **above** a,
@@ -260,10 +261,10 @@ above : Collage msg -> Collage msg -> Collage msg
 above a b =
     let
         ty =
-            (envelope Up a) + (envelope Down b)
+            envelope Up a + envelope Down b
     in
-        -- NOTE: translate b up means **minus** because of switched vertical axis
-        stack [ a, translate ( 0, -ty ) b ]
+    -- NOTE: translate b up means **minus** because of switched vertical axis
+    stack [ a, translate ( 0, -ty ) b ]
 
 
 {-| Given two forms a and b, place b **below** a,
@@ -280,10 +281,10 @@ below : Collage msg -> Collage msg -> Collage msg
 below a b =
     let
         ty =
-            (envelope Down a) + (envelope Up b)
+            envelope Down a + envelope Up b
     in
-        -- NOTE: translate b up means **plus** because of switched vertical axis
-        stack [ a, translate ( 0, ty ) b ]
+    -- NOTE: translate b up means **plus** because of switched vertical axis
+    stack [ a, translate ( 0, ty ) b ]
 
 
 {-| Place a list of Collages next to each other,
@@ -438,7 +439,7 @@ base col =
         ty =
             (down - up) / 2
     in
-        translate ( -tx, ty ) col
+    translate ( -tx, ty ) col
 
 
 
@@ -454,7 +455,7 @@ showOrigin col =
             circle 3
                 |> filled (uniform Color.red)
     in
-        stack [ origin, col ]
+    stack [ origin, col ]
 
 
 {-| Draw a red dot box around a diagram.
@@ -471,4 +472,4 @@ showEnvelope col =
                 |> outlined (dot 2 (uniform Color.red))
                 |> translate col.origin
     in
-        stack [ outline, col ]
+    stack [ outline, col ]

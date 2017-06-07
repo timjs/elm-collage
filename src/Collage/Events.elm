@@ -1,13 +1,13 @@
 module Collage.Events
     exposing
-        ( onClick
-        , onMouseDown
-        , onMouseUp
-        , onMouseOver
-        , onMouseOut
+        ( on
+        , onClick
         , onFocusIn
         , onFocusOut
-        , on
+        , onMouseDown
+        , onMouseOut
+        , onMouseOver
+        , onMouseUp
         )
 
 {-|
@@ -32,8 +32,8 @@ module Collage.Events
 
 -}
 
+import Collage exposing (Collage, Point)
 import Json.Decode as Json exposing (field)
-import Collage exposing (Point, Collage)
 
 
 -- Events ----------------------------------------------------------------------

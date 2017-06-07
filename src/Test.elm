@@ -1,12 +1,12 @@
 module Main exposing (..)
 
-import Html exposing (Html)
-import Color exposing (..)
-import Text exposing (fromString)
 import Collage exposing (..)
-import Collage.Layout exposing (..)
 import Collage.Events exposing (onClick)
+import Collage.Layout exposing (..)
 import Collage.Render exposing (svg)
+import Color exposing (..)
+import Html exposing (Html)
+import Text exposing (fromString)
 
 
 -- Model -----------------------------------------------------------------------
@@ -109,7 +109,10 @@ lines =
 
 view : Model -> Html Msg
 view model =
-    circ model
+    rect
+        |> translate ( 50, 50 )
+        |> showOrigin
+        -- circ model
         --vertical [ debug (circ model), debug rect ]
         --horizontal [ lines1, lines2 ]
         --vertical [ rect, stack [ txt, circ model ], tria ]
@@ -119,7 +122,7 @@ view model =
         --    |> above (tria model)
         -- |> showEnvelope
         -- |> showOrigin
-        |> svg 500 500
+        |> svg
 
 
 main : Program Never Model Msg

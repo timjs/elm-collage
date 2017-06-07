@@ -1,24 +1,24 @@
 module Collage.Core
     exposing
-        ( Point
+        ( BasicCollage(..)
         , Collage
-        , BasicCollage(..)
-        , Path(..)
-        , Shape(..)
         , FillStyle(..)
-        , LineStyle
         , LineCap(..)
         , LineJoin(..)
+        , LineStyle
+        , Path(..)
+        , Point
+        , Shape(..)
         )
 
 {-| This module contains internal types used accross multiple modules in this packages.
 Constructors are however not exposed to the user.
 -}
 
-import Html exposing (Html)
 import Color exposing (Color)
-import Text exposing (Text)
+import Html exposing (Html)
 import Json.Decode as Json
+import Text exposing (Text)
 
 
 type alias Point =

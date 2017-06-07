@@ -1,27 +1,27 @@
 module Text
     exposing
-        ( Text(..)
-        , fromString
-        , empty
-        , Style
+        ( Alignment(..)
         , Face(..)
-        , face
-        , color
-        , size
-        , tiny
-        , small
-        , normal
-        , large
-        , huge
-        , enormous
-        , Shape(..)
-        , shape
-        , Weight(..)
-        , weight
         , Line(..)
-        , line
-        , Alignment(..)
+        , Shape(..)
+        , Style
+        , Text(..)
+        , Weight(..)
         , align
+        , color
+        , empty
+        , enormous
+        , face
+        , fromString
+        , huge
+        , large
+        , line
+        , normal
+        , shape
+        , size
+        , small
+        , tiny
+        , weight
         )
 
 {-| TODO

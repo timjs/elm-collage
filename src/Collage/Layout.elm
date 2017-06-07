@@ -1,11 +1,12 @@
 module Collage.Layout
     exposing
-        ( Direction(..)
+        ( Direction
         , above
         , after
         , base
         , before
         , below
+        , beside
         , east
         , empty
         , envelope
@@ -14,6 +15,7 @@ module Collage.Layout
         , north
         , northeast
         , northwest
+        , place
         , showEnvelope
         , showOrigin
         , south
@@ -29,9 +31,8 @@ module Collage.Layout
 {-| TODO
 
 @docs Direction, envelope, width, height
-
 @docs spacer, empty
-@docs before, after, above, below, horizontal, vertical, stack
+@docs stack, place, beside, before, after, above, below, horizontal, vertical
 @docs north, northeast, east, southeast, south, southwest, west, northwest, base
 @docs showOrigin, showEnvelope
 
@@ -54,6 +55,23 @@ type Direction
     | Down
     | Right
     | Left
+
+
+{-| -}
+opposite : Direction -> Direction
+opposite dir =
+    case dir of
+        Up ->
+            Down
+
+        Down ->
+            Up
+
+        Right ->
+            Left
+
+        Left ->
+            Right
 
 
 
@@ -184,8 +202,10 @@ handleBox dir ( width, height ) =
 -}
 
 
-{-| Create an empty Collage.
+{-| Create an empty Collage of given width and height.
+
 This is useful for getting your spacing right and for making borders.
+
 -}
 spacer : Float -> Float -> Collage msg
 spacer w h =
@@ -194,12 +214,79 @@ spacer w h =
 
 {-| An Element that takes up no space. Good for things that appear conditionally:
 
-    flow down [ img1, if showMore then img2 else empty ]
+    horizontal [ img1, if showMore then img2 else empty ]
+
+  - Note: this is the identity element of the monoid on Collages.
 
 -}
 empty : Collage msg
 empty =
     spacer 0 0
+
+
+{-| Place a list of diagrams on top of each other,
+with their origin points stacked on the "out of page" axis.
+The first Collage in the list is on top.
+This is the same as the `group` operation in the Collage module.
+
+    stack [a, b, c]
+
+        +---+
+        | a |
+        +---+
+
+  - Note: this is called `concat` in Diagrams.
+
+FIXME:
+
+    stack a b -- read: "stack a on b"
+
+  - Note: this is `(<>)` in Diagrams.
+
+-}
+stack : Collage msg -> Collage msg -> Collage msg
+stack a b =
+    Collage.group [ a, b ]
+
+
+{-|
+
+  - Note: called `juxtapose` in Diagrams
+
+-}
+place : Direction -> Collage msg -> Collage msg -> Collage msg
+place dir a b =
+    let
+        len =
+            envelope dir a + envelope (opposite dir) b
+
+        move =
+            case dir of
+                Up ->
+                    -- NOTE: translating means **minus** because of switched vertical axis
+                    ( 0, -len )
+
+                Down ->
+                    -- NOTE: translating means **plus** because of switched vertical axis
+                    ( 0, len )
+
+                Right ->
+                    ( len, 0 )
+
+                Left ->
+                    ( -len, 0 )
+    in
+    translate move b
+
+
+{-|
+
+  - Note: same as `beside` in Diagrams
+
+-}
+beside : Direction -> Collage msg -> Collage msg -> Collage msg
+beside dir a b =
+    stack a (place dir a b)
 
 
 {-| Given two diagrams a and b, place b to the **left** of a,
@@ -214,14 +301,12 @@ Which is equivallent to:
     b
         |> before a
 
+  - Warning: Do net read this infix, arguments are swapped with regard to Diagrams!
+
 -}
 before : Collage msg -> Collage msg -> Collage msg
-before a b =
-    let
-        tx =
-            envelope Left a + envelope Right b
-    in
-    stack [ a, translate ( -tx, 0 ) b ]
+before =
+    beside Left
 
 
 {-| Given two diagrams a and b, place b to the **right** of a,
@@ -231,17 +316,13 @@ Sumarised:
 
     after a b -- read: after a, put b
 
-  - Warning: The `(|>)` doesn't read well, don't use it!
-  - Note: This is called `beside` in the Diagrams library.
+  - Warning: The `(|>)` doesn't read well combined with `after`, don't use it!
+  - Warning: Do net read this infix, arguments are swapped with regard to Diagrams!
 
 -}
 after : Collage msg -> Collage msg -> Collage msg
-after a b =
-    let
-        tx =
-            envelope Right a + envelope Left b
-    in
-    stack [ a, translate ( tx, 0 ) b ]
+after =
+    beside Right
 
 
 {-| Given two forms a and b, place b **above** a,
@@ -256,15 +337,12 @@ Which is equivallent to
     b
         |> above a
 
+  - Warning: Do net read this infix, arguments are swapped with regard to Diagrams!
+
 -}
 above : Collage msg -> Collage msg -> Collage msg
-above a b =
-    let
-        ty =
-            envelope Up a + envelope Down b
-    in
-    -- NOTE: translate b up means **minus** because of switched vertical axis
-    stack [ a, translate ( 0, -ty ) b ]
+above =
+    beside Up
 
 
 {-| Given two forms a and b, place b **below** a,
@@ -274,17 +352,13 @@ Summarised:
 
     below a b -- read: below a, put b
 
-  - Warning: The `(|>)` doesn't read well, don't use it!
+  - Warning: The `(|>)` doesn't read well combined with `below`, don't use it!
+  - Warning: Do net read this infix, arguments are swapped with regard to Diagrams!
 
 -}
 below : Collage msg -> Collage msg -> Collage msg
-below a b =
-    let
-        ty =
-            envelope Down a + envelope Up b
-    in
-    -- NOTE: translate b up means **plus** because of switched vertical axis
-    stack [ a, translate ( 0, ty ) b ]
+below =
+    beside Down
 
 
 {-| Place a list of Collages next to each other,
@@ -296,6 +370,8 @@ The first element in the list will be on the left, the last on the right.
        +---+---+---+
        | a | b | c |
        +---+---+---+
+
+  - Note: this is called `hcat` in Diagrams
 
 -}
 horizontal : List (Collage msg) -> Collage msg
@@ -317,27 +393,12 @@ The first element in the list will be on the top, the last on the bottom.
        | c |
        +---+
 
+  - Note: this is called `vcat` in Diagrams
+
 -}
 vertical : List (Collage msg) -> Collage msg
 vertical =
     List.foldr below empty
-
-
-{-| Place a list of diagrams on top of each other,
-with their origin points stacked on the "out of page" axis.
-The first Collage in the list is on top.
-This is the same as the `group` operation in the Collage module.
-
-    stack [a, b, c]
-
-        +---+
-        | a |
-        +---+
-
--}
-stack : List (Collage msg) -> Collage msg
-stack =
-    Collage.group
 
 
 
@@ -358,6 +419,7 @@ height col =
 
 
 -- Anchors ---------------------------------------------------------------------
+--TODO: rename to `align top/right/bottom/left` where `align : Anchor -> Collage msg -> Collage msg`?
 
 
 {-| Translate a Collage such that the origin is on the top edge of the bounding box.
@@ -455,7 +517,7 @@ showOrigin col =
             circle 3
                 |> filled (uniform Color.red)
     in
-    stack [ origin, col ]
+    stack origin col
 
 
 {-| Draw a red dot box around a diagram.
@@ -472,4 +534,4 @@ showEnvelope col =
                 |> outlined (dot 2 (uniform Color.red))
                 |> translate col.origin
     in
-    stack [ outline, col ]
+    stack outline col

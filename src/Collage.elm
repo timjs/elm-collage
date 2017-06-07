@@ -191,8 +191,7 @@ form basic =
 -- Grouping Collages -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
 
 
-{-| Takes a list of `Collage`s and combines them into a single
-`Collage`.
+{-| Takes a list of `Collage`s and combines them into a single `Collage`.
 -}
 group : List (Collage msg) -> Collage msg
 group =

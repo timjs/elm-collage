@@ -241,7 +241,8 @@ FIXME:
 
     stack a b -- read: "stack a on b"
 
-  - Note: this is `(<>)` in Diagrams.
+  - Note: this is the binary operation of the Semigroup of Collages.
+  - Note: this is called `(<>)` or `atop` in Diagrams.
 
 -}
 stack : Collage msg -> Collage msg -> Collage msg
@@ -276,7 +277,7 @@ place dir a b =
                 Left ->
                     ( -len, 0 )
     in
-    translate move b
+    shift move b
 
 
 {-|
@@ -422,11 +423,11 @@ height col =
 --TODO: rename to `align top/right/bottom/left` where `align : Anchor -> Collage msg -> Collage msg`?
 
 
-{-| Translate a Collage such that the origin is on the top edge of the bounding box.
+{-| Shift a Collage such that the origin is on the top edge of the bounding box.
 -}
 north : Collage msg -> Collage msg
 north col =
-    translate ( 0, envelope Up col ) col
+    shift ( 0, envelope Up col ) col
 
 
 {-| -}
@@ -435,11 +436,11 @@ northeast =
     north << east
 
 
-{-| Translate a Collage such that the origin is on the right edge of the bounding box.
+{-| Shift a Collage such that the origin is on the right edge of the bounding box.
 -}
 east : Collage msg -> Collage msg
 east col =
-    translate ( -(envelope Right col), 0 ) col
+    shift ( -(envelope Right col), 0 ) col
 
 
 {-| -}
@@ -448,11 +449,11 @@ southeast =
     south << east
 
 
-{-| Translate a Collage such that the origin is on the bottom edge of the bounding box.
+{-| Shift a Collage such that the origin is on the bottom edge of the bounding box.
 -}
 south : Collage msg -> Collage msg
 south col =
-    translate ( 0, -(envelope Down col) ) col
+    shift ( 0, -(envelope Down col) ) col
 
 
 {-| -}
@@ -461,11 +462,11 @@ southwest =
     south << west
 
 
-{-| Translate a Collage such that the origin is on the left edge of the bounding box.
+{-| Shift a Collage such that the origin is on the left edge of the bounding box.
 -}
 west : Collage msg -> Collage msg
 west col =
-    translate ( envelope Left col, 0 ) col
+    shift ( envelope Left col, 0 ) col
 
 
 {-| -}
@@ -474,7 +475,7 @@ northwest =
     north << west
 
 
-{-| Translate a Collage such that the envelope in all directions is equal.
+{-| Shift a Collage such that the envelope in all directions is equal.
 
   - Note: The anchor of every Collage defaults to this.
     Only use this function to "correct" previous translations of the origin.
@@ -501,7 +502,7 @@ base col =
         ty =
             (down - up) / 2
     in
-    translate ( -tx, ty ) col
+    shift ( -tx, ty ) col
 
 
 
@@ -526,12 +527,12 @@ showEnvelope : Collage msg -> Collage msg
 showEnvelope col =
     --FIXME: add
     -- OR
-    --  |> translate col.origin
+    --  |> shift col.origin
     -- after stacking to fix frame drawing
     let
         outline =
             rectangle (width col) (height col)
                 |> outlined (dot 2 (uniform Color.red))
-                |> translate col.origin
+                |> shift col.origin
     in
     stack outline col

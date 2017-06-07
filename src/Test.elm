@@ -70,7 +70,7 @@ circ model =
                     lightBlue
             , border
             )
-        |> translate ( 20, 30 )
+        |> shift ( 20, 30 )
         |> onClick Switch
 
 
@@ -110,7 +110,7 @@ lines =
 view : Model -> Html Msg
 view model =
     rect
-        |> translate ( 50, 50 )
+        |> shift ( 50, 50 )
         |> showOrigin
         -- circ model
         --vertical [ debug (circ model), debug rect ]

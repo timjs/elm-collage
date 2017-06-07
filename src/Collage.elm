@@ -33,6 +33,7 @@ module Collage
         , scale
         , segment
         , semithick
+        , shift
         , solid
         , square
         , styled
@@ -40,7 +41,6 @@ module Collage
         , thick
         , thin
         , traced
-        , translate
         , transparent
         , triangle
         , ultrathick
@@ -74,7 +74,7 @@ the only backend supported at present is SVG.
 
 ## Manipulating Collages
 
-@docs translate, scale, rotate, opacity
+@docs shift, scale, rotate, opacity
 
 
 # Shapes
@@ -206,9 +206,9 @@ group =
 -- * add skew in x and y with nice names: slant and tilt ???
 
 
-{-| | Translate a collage by the given amount (x,y) _within its local space_.
+{-| | Shift a collage by the given amount (x,y) _within its local space_.
 
-Translating a collage by, for example `(5,10)` will move the collage
+Shifting a collage by, for example `(5,10)` will move the collage
 _five pixels right_ and
 _ten pixels down_,
 which is consistent with te coordinate system used by Svg.
@@ -218,8 +218,8 @@ Note that this influences the way collages are composed with the `Collage.Layout
 since collages are always composed with respect to their local origins.
 
 -}
-translate : ( Float, Float ) -> Collage msg -> Collage msg
-translate ( tx, ty ) form =
+shift : ( Float, Float ) -> Collage msg -> Collage msg
+shift ( tx, ty ) form =
     let
         ( x, y ) =
             form.origin

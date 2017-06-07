@@ -402,11 +402,14 @@ type alias Path =
 --       something like `close : Path -> Shape`
 
 
-{-| A line with a given length
+{-| | Draw a horizontal line with a given length.
+
+The origin of the line will be `(0,0)`.
+
 -}
 line : Float -> Path
 line l =
-    path [ ( 0, 0 ), ( l, 0 ) ]
+    path [ ( -l / 2, 0 ), ( l / 2, 0 ) ]
 
 
 {-| `segment (x1,y1) (x2,y2)` is a line segment with
@@ -569,7 +572,7 @@ broken [(10,5),(20,5)] -- on for 10, off 5, on 20, off 5
 -}
 broken : List ( Int, Int ) -> Float -> FillStyle -> LineStyle
 broken dash thickness texture =
-    Core.LineStyle texture thickness Core.Flat Core.Sharp dash 0
+    Core.LineStyle texture thickness Core.Padded Core.Sharp dash 0
 
 
 

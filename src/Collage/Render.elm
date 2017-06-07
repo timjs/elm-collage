@@ -20,40 +20,47 @@ import Text exposing (Text)
 -- NOTE: Render should only depend on Core, not Collage itself
 
 import Collage.Core exposing (..)
-import Collage.Layout exposing (northwest)
+import Collage.Layout as Layout
 
 
 {-| Takes a `Collage` and renders it to usable HTML, in this case
-in the form of an SVG element. The first two arguments determine
+in the col of an SVG element. The first two arguments determine
 the height and width of the SVG viewbox in pixels.
 -}
-svg : Float -> Float -> Collage msg -> Html msg
-svg width height form =
-    Html.div
-        []
-        [ Svg.svg
-            [ Svg.width <| toString width
-            , Svg.height <| toString height
-            , Svg.version "1.1"
+svg : Collage msg -> Html msg
+svg col =
+    let
+        w =
+            toString <| Layout.width col
+
+        h =
+            toString <| Layout.height col
+    in
+        Html.div
+            []
+            [ Svg.svg
+                [ Svg.width w
+                , Svg.height h
+                , Svg.version "1.1"
+                ]
+              <|
+                second <|
+                    render (Layout.northwest col) 0
             ]
-          <|
-            second <|
-                render (northwest form) 0
-        ]
 
 
 render : Collage msg -> Int -> ( Int, List (Svg msg) )
-render form id =
+render col id =
     --FIXME: why use ids?
-    case form.basic of
+    case col.basic of
         Path style path ->
             case path of
                 Polyline ps ->
                     ( id
                     , [ Svg.polyline
                             ((Svg.points <| decodePoints ps)
-                                :: attrs form id
-                                ++ events form
+                                :: attrs col id
+                                ++ events col
                             )
                             []
                       ]
@@ -66,8 +73,8 @@ render form id =
                     , evalFillStyle fill id
                         ++ [ Svg.polygon
                                 ((Svg.points <| decodePoints ps)
-                                    :: attrs form id
-                                    ++ events form
+                                    :: attrs col id
+                                    ++ events col
                                 )
                                 []
                            ]
@@ -77,8 +84,8 @@ render form id =
                     ( id + 1
                     , evalFillStyle fill id
                         ++ [ Svg.ellipse
-                                (attrs form id
-                                    ++ events form
+                                (attrs col id
+                                    ++ events col
                                     ++ [ Svg.rx <| toString rx
                                        , Svg.ry <| toString ry
                                        ]
@@ -89,7 +96,7 @@ render form id =
 
         Text (Text.Text style str) ->
             ( id
-            , [ Svg.text_ (attrs form id ++ events form)
+            , [ Svg.text_ (attrs col id ++ events col)
                     [ Svg.text str ]
               ]
             )
@@ -97,8 +104,8 @@ render form id =
         Image width height url ->
             ( id
             , [ Svg.image
-                    (attrs form id
-                        ++ events form
+                    (attrs col id
+                        ++ events col
                         ++ [ Svg.width <| toString width
                            , Svg.height <| toString height
                            , Svg.xlinkHref url
@@ -124,7 +131,7 @@ render form id =
             in
                 ( id
                 , [ Svg.g [ Svg.transform <| String.concat [ "translate(", tx, ",", ty, ")" ] ]
-                        [ Svg.foreignObject ([ Svg.width w, Svg.height h ] ++ attrs form id ++ events form)
+                        [ Svg.foreignObject ([ Svg.width w, Svg.height h ] ++ attrs col id ++ events col)
                             [ elem ]
                         ]
                   ]
@@ -147,7 +154,7 @@ render form id =
                 ( id_, forms_ ) =
                     go ( id, [] ) forms
             in
-                ( id_, [ Svg.g (attrs form id ++ events form) <| forms_ ] )
+                ( id_, [ Svg.g (attrs col id ++ events col) <| forms_ ] )
 
 
 events : Collage msg -> List (Attribute msg)
@@ -156,16 +163,16 @@ events { handlers } =
 
 
 attrs : Collage msg -> Int -> List (Attribute msg)
-attrs form id =
-    case form.basic of
+attrs col id =
+    case col.basic of
         Path style _ ->
             [ Svg.stroke <| decodeFill style.fill id
             , Svg.strokeOpacity <| decodeFillAlpha style.fill
             , Svg.strokeWidth <| toString style.thickness
             , Svg.strokeLinecap <| decodeCap style.cap
             , Svg.strokeLinejoin <| decodeJoin style.join
-            , Svg.opacity <| toString form.alpha
-            , Svg.transform <| evalTransform form
+            , Svg.opacity <| toString col.alpha
+            , Svg.transform <| evalTransform col
             , Svg.strokeDashoffset <| toString style.dashPhase
             , Svg.strokeDasharray <| decodeDashing style.dashPattern
             ]
@@ -178,8 +185,8 @@ attrs form id =
             , Svg.strokeWidth <| toString line.thickness
             , Svg.strokeLinecap <| decodeCap line.cap
             , Svg.strokeLinejoin <| decodeJoin line.join
-            , Svg.opacity <| toString form.alpha
-            , Svg.transform <| evalTransform form
+            , Svg.opacity <| toString col.alpha
+            , Svg.transform <| evalTransform col
             , Svg.strokeDashoffset <| toString line.dashPhase
             , Svg.strokeDasharray <| decodeDashing line.dashPattern
             ]
@@ -226,11 +233,11 @@ attrs form id =
                         "none"
             , Svg.textAnchor <| "middle"
             , Svg.dominantBaseline "middle"
-            , Svg.transform <| evalTransform form
+            , Svg.transform <| evalTransform col
             ]
 
         _ ->
-            [ Svg.transform <| evalTransform form ]
+            [ Svg.transform <| evalTransform col ]
 
 
 decodeCap : LineCap -> String

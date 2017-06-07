@@ -2,6 +2,8 @@ module Collage.Layout
     exposing
         ( Direction(..)
         , envelope
+        , width
+        , height
         , spacer
         , empty
         , before
@@ -26,7 +28,7 @@ module Collage.Layout
 
 {-| TODO
 
-@docs Direction, envelope
+@docs Direction, envelope, width, height
 
 @docs spacer, empty
 @docs before, after, above, below, horizontal, vertical, stack
@@ -63,12 +65,11 @@ envelope : Direction -> Collage msg -> Float
 envelope dir col =
     let
         env =
-            handleBasic dir col.basic
+            handleBasic dir col.theta col.basic
 
         ( tx, ty ) =
             col.origin
     in
-        --TODO: rotation
         col.scale
             * case dir of
                 Up ->
@@ -84,32 +85,53 @@ envelope dir col =
                     max 0 (env - tx)
 
 
-handleBasic : Direction -> BasicCollage msg -> Float
-handleBasic dir basic =
-    case basic of
-        Core.Shape _ (Core.Polygon ps) ->
-            handlePath dir ps
+handleBasic : Direction -> Float -> BasicCollage msg -> Float
+handleBasic dir theta basic =
+    let
+        rotate ( x, y ) =
+            let
+                c =
+                    cos theta
 
-        Core.Shape ( fill, line ) (Core.Ellipse rx ry) ->
-            handleBox dir (2 * rx) (2 * ry) line.thickness
+                s =
+                    sin theta
+            in
+                ( c * x - s * y, s * x + c * y )
 
-        Core.Path _ (Core.Polyline ps) ->
-            handlePath dir ps
+        thicken t ( x, y ) =
+            ( if x < 0 then
+                x - t / 2
+              else
+                x + t / 2
+            , if y < 0 then
+                y - t / 2
+              else
+                y + t / 2
+            )
+    in
+        case basic of
+            Core.Shape ( fill, line ) (Core.Ellipse rx ry) ->
+                handleBox dir (rotate ( 2 * rx + line.thickness, 2 * ry + line.thickness ))
 
-        --FIXME: calculate envelope for Text
-        Core.Text text ->
-            0
+            Core.Shape ( _, line ) (Core.Polygon ps) ->
+                handlePath dir (List.map (thicken line.thickness << rotate) ps)
 
-        Core.Image width height _ ->
-            handleBox dir width height 0
+            Core.Path line (Core.Polyline ps) ->
+                handlePath dir (List.map (thicken line.thickness << rotate) ps)
 
-        --FIXME: calculate envelope for Element
-        Core.Element width height _ ->
-            0
+            Core.Text text ->
+                --FIXME: calculate envelope for Text
+                0
 
-        Core.Group forms ->
-            --FIXME: correct with translation...
-            (List.maximum <| List.map (envelope dir) forms) ? 0
+            Core.Image width height _ ->
+                handleBox dir (rotate ( width, height ))
+
+            Core.Element width height _ ->
+                handleBox dir (rotate ( width, height ))
+
+            Core.Group forms ->
+                --FIXME: correct with translation???
+                (List.maximum <| List.map (envelope dir) forms) ? 0
 
 
 handlePath : Direction -> List Point -> Float
@@ -137,21 +159,20 @@ handlePath dir ps =
                 -(List.minimum xs ? 0)
 
 
-handleBox : Direction -> Float -> Float -> Float -> Float
-handleBox dir width height thickness =
-    thickness
-        + case dir of
-            Up ->
-                height / 2
+handleBox : Direction -> ( Float, Float ) -> Float
+handleBox dir ( width, height ) =
+    case dir of
+        Up ->
+            height / 2
 
-            Down ->
-                height / 2
+        Down ->
+            height / 2
 
-            Right ->
-                width / 2
+        Right ->
+            width / 2
 
-            Left ->
-                width / 2
+        Left ->
+            width / 2
 
 
 
@@ -322,11 +343,13 @@ stack =
 -- Queries ---------------------------------------------------------------------
 
 
+{-| -}
 width : Collage msg -> Float
 width col =
     envelope Left col + envelope Right col
 
 
+{-| -}
 height : Collage msg -> Float
 height col =
     envelope Up col + envelope Down col

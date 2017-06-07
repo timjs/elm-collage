@@ -46,6 +46,10 @@ type BasicCollage msg
 
 type Shape
     = Polygon (List Point)
+      -- Although Rectangles are a special case of Polygons, they can have rounded corners,
+      -- Squares are just Rectangles with the same width and height, therefore we don't need them here.
+      -- | Rectangle Float Float
+      -- Circles are just Elipses with the same x- and y-radius, therefore we don't need them here.
     | Ellipse Float Float
 
 

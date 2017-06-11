@@ -79,7 +79,7 @@ circ model =
         |> onClick Switch
 
 
-rect : Collage Msg
+rect : Collage msg
 rect =
     rectangle 100 100
         |> styled ( uniform lightOrange, border )
@@ -108,13 +108,20 @@ lines =
             List.map hline [ ultrathin, verythin, thin, semithick, thick, verythick, ultrathick ]
 
 
+alignments : Collage msg
+alignments =
+    horizontal <|
+        List.map (showOrigin << align top) [ rect, tria, rect, rect ]
+
+
 
 -- Main ------------------------------------------------------------------------
 
 
 view : Model -> Html Msg
 view model =
-    horizontal [ debug <| vertical [ circ model, debug rect ], debug rect ]
+    alignments
+        --horizontal [ debug <| vertical [ circ model, debug rect ], debug rect ]
         --horizontal [ lines1, lines2 ]
         --vertical [ rect, stack [ txt, circ model ], tria ]
         -- ==

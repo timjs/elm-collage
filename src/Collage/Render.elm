@@ -43,7 +43,7 @@ svg collage =
             ]
           <|
             second <|
-                render (Layout.northwest collage) 0
+                render (Layout.align Layout.topLeft collage) 0
         ]
 
 

@@ -3,28 +3,31 @@ module Collage.Layout
         ( Direction
         , above
         , after
+        , align
+        , at
+        , base
         , before
         , below
         , beside
+        , bottom
+        , bottomLeft
+        , bottomRight
         , center
-        , east
         , empty
         , envelope
         , height
         , horizontal
-        , north
-        , northeast
-        , northwest
+        , left
         , place
+        , right
         , showEnvelope
         , showOrigin
-        , south
-        , southeast
-        , southwest
         , spacer
         , stack
+        , top
+        , topLeft
+        , topRight
         , vertical
-        , west
         , width
         )
 
@@ -32,8 +35,8 @@ module Collage.Layout
 
 @docs Direction, envelope, width, height
 @docs spacer, empty
-@docs stack, place, beside, before, after, above, below, horizontal, vertical
-@docs north, northeast, east, southeast, south, southwest, west, northwest, center
+@docs place, beside, before, after, above, below, horizontal, vertical, stack
+@docs align, center, at, top, topRight, right, bottomRight, bottom, bottomLeft, left, topLeft, base
 @docs showOrigin, showEnvelope
 
 -}
@@ -228,34 +231,6 @@ empty =
     spacer 0 0
 
 
-{-| Place a list of diagrams on top of each other,
-with their origin points stacked on the "out of page" axis.
-The first Collage in the list is on top.
-This is the same as the `group` operation in the Collage module.
-
-    stack [a, b, c]
-
-        +---+
-        | a |
-        +---+
-
-  - Note: this is called `concat` in Diagrams.
-
-FIXME: change name, should be something like `stack`
-FIXME: repair docs
-
-    stack a b -- read: "stack a on b"
-
-  - Note: this is the binary operation of the Semigroup of Collages.
-  - Note: `stack` forms a moniod with `empty`.
-  - Note: this is called `(<>)` or `stack` in Diagrams.
-
--}
-stack : List (Collage msg) -> Collage msg
-stack =
-    Collage.group
-
-
 {-|
 
   - Note: called `juxtapose` in Diagrams
@@ -409,6 +384,38 @@ vertical =
     List.foldr below empty
 
 
+{-| Place a list of diagrams on top of each other,
+with their origin points stacked on the "out of page" axis.
+The first Collage in the list is on top.
+This is the same as the `group` operation in the Collage module.
+
+    stack [a, b, c]
+
+        +---+
+        | a |
+        +---+
+
+  - Note: this is called `concat` in Diagrams.
+
+-}
+stack : List (Collage msg) -> Collage msg
+stack =
+    Collage.group
+
+
+{-| Infix operator for `stack`.
+
+    a <> b == stack [a, b]
+
+  - Note: `(<>)` forms a monoid with `empty`.
+  - Note: this is called `(<>)` or `atop` in Diagrams.
+
+-}
+(<>) : Collage msg -> Collage msg -> Collage msg
+(<>) a b =
+    stack [ a, b ]
+
+
 
 -- Queries ---------------------------------------------------------------------
 
@@ -426,64 +433,177 @@ height collage =
 
 
 
--- Anchors ---------------------------------------------------------------------
---TODO: rename to `align top/right/bottom/left` where `align : Anchor -> Collage msg -> Collage msg`?
+-- Alignment ---------------------------------------------------------------------
 
 
-{-| Shift a Collage such that the origin is on the top edge of the bounding box.
+type alias Anchor msg =
+    Collage msg -> Point
+
+
+{-| Shift a Collage such that the origin is on the given anchor.
+
+    List.map (align north)
+
+Anchors are created by functions from section below.
+
 -}
-north : Collage msg -> Collage msg
-north collage =
-    shift ( 0, envelope Up collage ) collage
+align : Anchor msg -> Collage msg -> Collage msg
+align anchor collage =
+    shift (anchor collage) collage
 
 
-{-| -}
-northeast : Collage msg -> Collage msg
-northeast =
-    north << east
+{-| Shift a Collage such that the envelope in all directions is equal.
 
+Alias for `align base`.
 
-{-| Shift a Collage such that the origin is on the right edge of the bounding box.
 -}
-east : Collage msg -> Collage msg
-east collage =
-    shift ( -(envelope Right collage), 0 ) collage
+center : Collage msg -> Collage msg
+center =
+    align base
 
 
-{-| -}
-southeast : Collage msg -> Collage msg
-southeast =
-    south << east
+{-| Stack a collage on top of a specified anchor of a host.
 
+Makes placing objects on a collage easier:
 
-{-| Shift a Collage such that the origin is on the bottom edge of the bounding box.
+    drawing
+        |> at south dot
+        |> at norhteast dot
+
+        +---------0
+        | drawing |
+        +----0----+
+
+instead of:
+
+    stack
+        [ dot
+        , align west <| stack
+            [ dot
+            , align east drawing
+            ]
+        ]
+
 -}
-south : Collage msg -> Collage msg
-south collage =
-    shift ( 0, -(envelope Down collage) ) collage
+at : Anchor msg -> Collage msg -> Collage msg -> Collage msg
+at anchor collage host =
+    stack [ collage, align anchor host ]
 
 
-{-| -}
-southwest : Collage msg -> Collage msg
-southwest =
-    south << west
+
+-- Anchors -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
 
 
-{-| Shift a Collage such that the origin is on the left edge of the bounding box.
+{-|
+
+        +-X-+
+        |   |
+        +---+
+
 -}
-west : Collage msg -> Collage msg
-west collage =
-    shift ( envelope Left collage, 0 ) collage
+top : Anchor msg
+top collage =
+    ( 0, envelope Up collage )
 
 
-{-| -}
-northwest : Collage msg -> Collage msg
-northwest =
-    north << west
+{-|
+
+        +---X
+        |   |
+        +---+
+
+-}
+topRight : Anchor msg
+topRight collage =
+    ( -(envelope Right collage), envelope Up collage )
 
 
-centerx : Collage msg -> Collage msg
-centerx collage =
+{-|
+
+        +---+
+        |   X
+        +---+
+
+-}
+right : Anchor msg
+right collage =
+    ( -(envelope Right collage), 0 )
+
+
+{-|
+
+        +---+
+        |   |
+        +---X
+
+-}
+bottomRight : Anchor msg
+bottomRight collage =
+    ( -(envelope Right collage), -(envelope Down collage) )
+
+
+{-|
+
+        +---+
+        |   |
+        +-X-+
+
+-}
+bottom : Anchor msg
+bottom collage =
+    ( 0, -(envelope Down collage) )
+
+
+{-|
+
+        +---+
+        |   |
+        X---+
+
+-}
+bottomLeft : Anchor msg
+bottomLeft collage =
+    ( envelope Left collage, -(envelope Down collage) )
+
+
+{-|
+
+        +---+
+        X   |
+        +---+
+
+-}
+left : Anchor msg
+left collage =
+    ( envelope Left collage, 0 )
+
+
+{-|
+
+        X---+
+        |   |
+        +---+
+
+-}
+topLeft : Anchor msg
+topLeft collage =
+    ( envelope Left collage, envelope Up collage )
+
+
+
+-- TODO: add baseX, and baseY (horizontalBase and vertialBase)?
+-- TODO: and add centerX, and centerY too?
+
+
+{-|
+
+        +---+
+        | X |
+        +---+
+
+-}
+base : Anchor msg
+base collage =
     let
         left =
             envelope Left collage
@@ -493,13 +613,7 @@ centerx collage =
 
         tx =
             (right - left) / 2
-    in
-    shift ( -tx, 0 ) collage
 
-
-centery : Collage msg -> Collage msg
-centery collage =
-    let
         up =
             envelope Up collage
 
@@ -509,21 +623,14 @@ centery collage =
         ty =
             (down - up) / 2
     in
-    shift ( 0, -ty ) collage
-
-
-{-| Shift a Collage such that the envelope in all directions is equal.
--}
-center : Collage msg -> Collage msg
-center =
-    centerx << centery
+    ( -tx, -ty )
 
 
 
 -- Debuging --------------------------------------------------------------------
 
 
-{-| Draw a red dot at `(0, 0)` in the diagram's local vector space.
+{-| Draw a red dot at the local origin of the collage.
 -}
 showOrigin : Collage msg -> Collage msg
 showOrigin collage =
@@ -535,7 +642,7 @@ showOrigin collage =
     stack [ origin, collage ]
 
 
-{-| Draw a red dot box around a diagram.
+{-| Draw a red dot box around the collage representing the envelope.
 -}
 showEnvelope : Collage msg -> Collage msg
 showEnvelope collage =

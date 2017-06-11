@@ -9,8 +9,10 @@ module Collage
         , Path
         , Point
         , Shape
+        , Style
         , broken
         , circle
+        , closed
         , dash
         , dashdot
         , dot
@@ -50,7 +52,34 @@ module Collage
         , verythin
         )
 
-{-| This library provides a toolkit for rendering and manipulating
+{-|
+
+
+## Main Design Goals
+
+  - You can create _shapes_ like rectangles, circles, ellipses, polygons etc.
+    By filling and/or outlining them, you turn them into a _collage_.
+
+  - Something similar applies to _paths_.
+    You can draw lines, line segments and paths.
+    (Bezier curves are on the todo list!)
+    By _tracing_ them, you turn them into a _collage_.
+
+  - Other ways to create a collage are by including text, images or raw Html.
+
+  - A _collage_ itself can than be transformed and grouped.
+    Transformations include shifting, scaling, rotating, skewing, mirroring etc.
+    By grouping collages they can be transformed as one.
+
+  - Events can easily be added to a collage using the `Collage.Event` module.
+
+  - You can laying out multiple collages in a compositional way by using the `Collage.Layout` module.
+    This is similar to the functionality provided by the old `Graphics.Element` module
+    and promoted by the popular Haskell [Diagrams library]().
+
+-- OLD --
+
+This library provides a toolkit for rendering and manipulating
 graphics primitives such as lines, polygons, text, images, etc.
 It is intended primarily for projects that are too complex for
 the manual manipulation of an SVG or HTML5 canvas element, but too
@@ -79,7 +108,7 @@ the only backend supported at present is SVG.
 
 # Shapes
 
-@docs Shape, polygon, ngon, triangle, rectangle, square, ellipse, circle
+@docs Shape, polygon, ngon, triangle, rectangle, square, ellipse, circle, Style
 
 
 ## Turning Shapes into Collages
@@ -94,7 +123,7 @@ the only backend supported at present is SVG.
 
 ## Turning Paths into Collages
 
-@docs traced
+@docs traced, closed
 
 
 # Other Content
@@ -467,6 +496,13 @@ traced style path =
     collage <| Core.Path style path
 
 
+{-| Close a path so that it can be outlined and filled.
+-}
+closed : Path -> Shape
+closed =
+    Core.ClosedPath
+
+
 
 -- Text ------------------------------------------------------------------------
 
@@ -504,6 +540,16 @@ html width height =
 
 
 -- Styling ---------------------------------------------------------------------
+
+
+{-| Convenience shorthand for styling.
+FIXME: good idea???
+-}
+type alias Style =
+    ( FillStyle, LineStyle )
+
+
+
 -- Fill Styles -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
 
 
@@ -571,7 +617,7 @@ broken [(10,5),(20,5)] -- on for 10, off 5, on 20, off 5
 -}
 broken : List ( Int, Int ) -> Float -> FillStyle -> LineStyle
 broken dash thickness texture =
-    Core.LineStyle texture thickness Core.Padded Core.Sharp dash 0
+    Core.LineStyle texture thickness Core.Flat Core.Sharp dash 0
 
 
 

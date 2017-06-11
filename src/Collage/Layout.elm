@@ -3,10 +3,10 @@ module Collage.Layout
         ( Direction
         , above
         , after
-        , base
         , before
         , below
         , beside
+        , center
         , east
         , empty
         , envelope
@@ -33,7 +33,7 @@ module Collage.Layout
 @docs Direction, envelope, width, height
 @docs spacer, empty
 @docs stack, place, beside, before, after, above, below, horizontal, vertical
-@docs north, northeast, east, southeast, south, southwest, west, northwest, base
+@docs north, northeast, east, southeast, south, southwest, west, northwest, center
 @docs showOrigin, showEnvelope
 
 -}
@@ -135,8 +135,12 @@ handleBasic dir theta basic =
         Core.Shape ( _, line ) (Core.Polygon ps) ->
             handlePath dir (List.map (thicken line.thickness << rotate) ps)
 
+        Core.Shape ( _, line ) (Core.ClosedPath path) ->
+            -- Use the same calculations as for paths
+            handleBasic dir theta (Core.Path line path)
+
         Core.Path line (Core.Polyline ps) ->
-            handlePath dir (List.map (thicken line.thickness << rotate) ps)
+            handlePath dir (List.map rotate ps)
 
         Core.Text text ->
             --FIXME: calculate envelope for Text
@@ -237,17 +241,19 @@ This is the same as the `group` operation in the Collage module.
 
   - Note: this is called `concat` in Diagrams.
 
-FIXME:
+FIXME: change name, should be something like `stack`
+FIXME: repair docs
 
     stack a b -- read: "stack a on b"
 
   - Note: this is the binary operation of the Semigroup of Collages.
-  - Note: this is called `(<>)` or `atop` in Diagrams.
+  - Note: `stack` forms a moniod with `empty`.
+  - Note: this is called `(<>)` or `stack` in Diagrams.
 
 -}
-stack : Collage msg -> Collage msg -> Collage msg
-stack a b =
-    Collage.group [ a, b ]
+stack : List (Collage msg) -> Collage msg
+stack =
+    Collage.group
 
 
 {-|
@@ -282,12 +288,13 @@ place dir a b =
 
 {-|
 
+  - Note: `beside dir` and all its descendents forms a monoid with `empty`.
   - Note: same as `beside` in Diagrams
 
 -}
 beside : Direction -> Collage msg -> Collage msg -> Collage msg
 beside dir a b =
-    stack a (place dir a b)
+    stack [ a, place dir a b ]
 
 
 {-| Given two diagrams a and b, place b to the **left** of a,
@@ -328,7 +335,7 @@ after =
 
 {-| Given two forms a and b, place b **above** a,
 such that their origins are on a vertical line and their envelopes touch.
-The origin of the new Collage is the base of a and b. FIXME: true?
+The origin of the new Collage is the center of a and b. FIXME: true?
 Summarised:
 
     above a b -- read: above a, put b
@@ -348,7 +355,7 @@ above =
 
 {-| Given two forms a and b, place b **below** a,
 such that their origins are on a vertical line and their envelopes touch.
-The origin of the new Collage is the base of a and b. FIXME: true?
+The origin of the new Collage is the center of a and b. FIXME: true?
 Summarised:
 
     below a b -- read: below a, put b
@@ -475,14 +482,8 @@ northwest =
     north << west
 
 
-{-| Shift a Collage such that the envelope in all directions is equal.
-
-  - Note: The anchor of every Collage defaults to this.
-    Only use this function to "correct" previous translations of the origin.
-
--}
-base : Collage msg -> Collage msg
-base collage =
+centerx : Collage msg -> Collage msg
+centerx collage =
     let
         left =
             envelope Left collage
@@ -492,7 +493,13 @@ base collage =
 
         tx =
             (right - left) / 2
+    in
+    shift ( -tx, 0 ) collage
 
+
+centery : Collage msg -> Collage msg
+centery collage =
+    let
         up =
             envelope Up collage
 
@@ -502,7 +509,14 @@ base collage =
         ty =
             (down - up) / 2
     in
-    shift ( -tx, ty ) collage
+    shift ( 0, -ty ) collage
+
+
+{-| Shift a Collage such that the envelope in all directions is equal.
+-}
+center : Collage msg -> Collage msg
+center =
+    centerx << centery
 
 
 
@@ -518,7 +532,7 @@ showOrigin collage =
             circle 3
                 |> filled (uniform Color.red)
     in
-    stack origin collage
+    stack [ origin, collage ]
 
 
 {-| Draw a red dot box around a diagram.
@@ -535,4 +549,4 @@ showEnvelope collage =
                 |> outlined (dot 2 (uniform Color.red))
                 |> shift collage.origin
     in
-    stack outline collage
+    stack [ outline, collage ]

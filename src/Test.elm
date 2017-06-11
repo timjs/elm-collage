@@ -46,6 +46,11 @@ border =
     solid verythin <| uniform black
 
 
+debug : Collage msg -> Collage msg
+debug collage =
+    collage |> showOrigin
+
+
 
 -- Text --
 
@@ -109,11 +114,7 @@ lines =
 
 view : Model -> Html Msg
 view model =
-    rect
-        |> shift ( 50, 50 )
-        |> showOrigin
-        -- circ model
-        --vertical [ debug (circ model), debug rect ]
+    horizontal [ debug <| vertical [ circ model, debug rect ], debug rect ]
         --horizontal [ lines1, lines2 ]
         --vertical [ rect, stack [ txt, circ model ], tria ]
         -- ==
@@ -122,6 +123,7 @@ view model =
         --    |> above (tria model)
         -- |> showEnvelope
         -- |> showOrigin
+        |> debug
         |> svg
 
 

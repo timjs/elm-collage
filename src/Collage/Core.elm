@@ -51,6 +51,7 @@ type Shape
       -- | Rectangle Float Float
       -- Circles are just Elipses with the same x- and y-radius, therefore we don't need them here.
     | Ellipse Float Float
+    | ClosedPath Path
 
 
 type Path

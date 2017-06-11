@@ -92,6 +92,9 @@ render collage id =
                            ]
                     )
 
+                ClosedPath path ->
+                    render { collage | basic = Path line path } id
+
         Text (Text.Text style str) ->
             ( id
             , [ Svg.text_ (attrs collage id ++ events collage)
@@ -163,16 +166,16 @@ events { handlers } =
 attrs : Collage msg -> Int -> List (Attribute msg)
 attrs collage id =
     case collage.basic of
-        Path style _ ->
-            [ Svg.stroke <| decodeFill style.fill id
-            , Svg.strokeOpacity <| decodeFillAlpha style.fill
-            , Svg.strokeWidth <| toString style.thickness
-            , Svg.strokeLinecap <| decodeCap style.cap
-            , Svg.strokeLinejoin <| decodeJoin style.join
+        Path line _ ->
+            [ Svg.stroke <| decodeFill line.fill id
+            , Svg.strokeOpacity <| decodeFillAlpha line.fill
+            , Svg.strokeWidth <| toString line.thickness
+            , Svg.strokeLinecap <| decodeCap line.cap
+            , Svg.strokeLinejoin <| decodeJoin line.join
             , Svg.opacity <| toString collage.alpha
             , Svg.transform <| evalTransform collage
-            , Svg.strokeDashoffset <| toString style.dashPhase
-            , Svg.strokeDasharray <| decodeDashing style.dashPattern
+            , Svg.strokeDashoffset <| toString line.dashPhase
+            , Svg.strokeDasharray <| decodeDashing line.dashPattern
             ]
 
         Shape ( fill, line ) _ ->
@@ -266,23 +269,23 @@ decodeJoin join =
 
 decodePoints : List Point -> String
 decodePoints ps =
-    ps |> List.map (\( x, y ) -> [ toString x, toString y ]) |> List.concat |> String.join " "
+    ps |> List.map (\( x, y ) -> String.join "," [ toString x, toString y ]) |> String.join " "
 
 
 evalTransform : Collage msg -> String
-evalTransform obj =
+evalTransform object =
     let
         x =
-            toString <| first obj.origin
+            toString <| first object.origin
 
         y =
-            toString <| second obj.origin
+            toString <| second object.origin
 
         theta =
-            toString <| obj.theta / 2 / pi * 360
+            toString <| object.theta / 2 / pi * 360
 
         scale =
-            toString obj.scale
+            toString object.scale
     in
     String.concat
         [ "translate(", x, ",", y, ") rotate(", theta, ") scale(", scale, ")" ]
@@ -393,4 +396,4 @@ decodeAlpha c =
 
 decodeDashing : List ( Int, Int ) -> String
 decodeDashing ds =
-    ds |> List.map (\( x, y ) -> String.concat [ toString x, ",", toString y ]) |> String.join ","
+    ds |> List.map (\( x, y ) -> String.join "," [ toString x, toString y ]) |> String.join " "

@@ -8,14 +8,14 @@ module Collage.Render exposing (svg)
 
 -- NOTE: Render should only depend on Core, not Collage itself
 
-import Collage.Core exposing (..)
+import Collage.Core as Core exposing (Collage, Point)
 import Collage.Layout as Layout
 import Color exposing (Color)
 import Html exposing (Html)
 import List
 import String
 import Svg exposing (Attribute, Svg)
-import Svg.Attributes as Svg exposing (style)
+import Svg.Attributes as Svg
 import Svg.Events as Svg
 import Text exposing (Text)
 import Tuple exposing (first, second)
@@ -51,9 +51,9 @@ render : Collage msg -> Int -> ( Int, List (Svg msg) )
 render collage id =
     --FIXME: why use ids?
     case collage.basic of
-        Path style path ->
+        Core.Path style path ->
             case path of
-                Polyline ps ->
+                Core.Polyline ps ->
                     ( id
                     , [ Svg.polyline
                             ((Svg.points <| decodePoints ps)
@@ -64,9 +64,9 @@ render collage id =
                       ]
                     )
 
-        Shape ( fill, line ) shape ->
+        Core.Shape ( fill, line ) shape ->
             case shape of
-                Polygon ps ->
+                Core.Polygon ps ->
                     ( id + 1
                     , evalFillStyle fill id
                         ++ [ Svg.polygon
@@ -78,7 +78,7 @@ render collage id =
                            ]
                     )
 
-                Ellipse rx ry ->
+                Core.Ellipse rx ry ->
                     ( id + 1
                     , evalFillStyle fill id
                         ++ [ Svg.ellipse
@@ -92,17 +92,17 @@ render collage id =
                            ]
                     )
 
-                ClosedPath path ->
-                    render { collage | basic = Path line path } id
+                Core.ClosedPath path ->
+                    render { collage | basic = Core.Path line path } id
 
-        Text (Text.Text style str) ->
+        Core.Text (Text.Text style str) ->
             ( id
             , [ Svg.text_ (attrs collage id ++ events collage)
                     [ Svg.text str ]
               ]
             )
 
-        Image width height url ->
+        Core.Image width height url ->
             ( id
             , [ Svg.image
                     (attrs collage id
@@ -116,7 +116,7 @@ render collage id =
               ]
             )
 
-        Element width height elem ->
+        Core.Element width height elem ->
             let
                 tx =
                     toString <| -(width / 2)
@@ -138,7 +138,7 @@ render collage id =
               ]
             )
 
-        Group forms ->
+        Core.Group forms ->
             let
                 go ( i, rs ) fs =
                     case fs of
@@ -157,6 +157,11 @@ render collage id =
             in
             ( id_, [ Svg.g (attrs collage id ++ events collage) <| forms_ ] )
 
+        Core.Subcollage fore back ->
+            --NOTE: rendering a subcollage is the same as rendering a group, only layout calculations in `Collage.Layout` differ.
+            --FIXME: as in `Collage`: order in list should be reversed by renderer
+            render (Core.collage <| Core.Group [ back, fore ]) id
+
 
 events : Collage msg -> List (Attribute msg)
 events { handlers } =
@@ -166,7 +171,7 @@ events { handlers } =
 attrs : Collage msg -> Int -> List (Attribute msg)
 attrs collage id =
     case collage.basic of
-        Path line _ ->
+        Core.Path line _ ->
             [ Svg.stroke <| decodeFill line.fill id
             , Svg.strokeOpacity <| decodeFillAlpha line.fill
             , Svg.strokeWidth <| toString line.thickness
@@ -178,7 +183,7 @@ attrs collage id =
             , Svg.strokeDasharray <| decodeDashing line.dashPattern
             ]
 
-        Shape ( fill, line ) _ ->
+        Core.Shape ( fill, line ) _ ->
             [ Svg.fill <| decodeFill fill id
             , Svg.fillOpacity <| decodeFillAlpha fill
             , Svg.stroke <| decodeFill line.fill id
@@ -192,8 +197,8 @@ attrs collage id =
             , Svg.strokeDasharray <| decodeDashing line.dashPattern
             ]
 
-        Text (Text.Text style str) ->
-            [ Svg.fill <| decodeFill (Uniform style.color) id
+        Core.Text (Text.Text style str) ->
+            [ Svg.fill <| decodeFill (Core.Uniform style.color) id
             , Svg.fontFamily <|
                 case style.face of
                     Text.Roman ->
@@ -241,29 +246,29 @@ attrs collage id =
             [ Svg.transform <| evalTransform collage ]
 
 
-decodeCap : LineCap -> String
+decodeCap : Core.LineCap -> String
 decodeCap cap =
     case cap of
-        Round ->
+        Core.Round ->
             "round"
 
-        Padded ->
+        Core.Padded ->
             "square"
 
-        Flat ->
+        Core.Flat ->
             "butt"
 
 
-decodeJoin : LineJoin -> String
+decodeJoin : Core.LineJoin -> String
 decodeJoin join =
     case join of
-        Smooth ->
+        Core.Smooth ->
             "round"
 
-        Sharp ->
+        Core.Sharp ->
             "milter"
 
-        Clipped ->
+        Core.Clipped ->
             "bevel"
 
 
@@ -291,7 +296,7 @@ evalTransform object =
         [ "translate(", x, ",", y, ") rotate(", theta, ") scale(", scale, ")" ]
 
 
-evalFillStyle : FillStyle -> Int -> List (Svg msg)
+evalFillStyle : Core.FillStyle -> Int -> List (Svg msg)
 evalFillStyle fs id =
     --FIXME: change name
     case fs of
@@ -341,23 +346,23 @@ evalFillStyle fs id =
             []
 
 
-decodeFill : FillStyle -> Int -> String
+decodeFill : Core.FillStyle -> Int -> String
 decodeFill fs id =
     case fs of
-        Uniform c ->
+        Core.Uniform c ->
             decodeColor c
 
-        Transparent ->
+        Core.Transparent ->
             "none"
 
 
-decodeFillAlpha : FillStyle -> String
+decodeFillAlpha : Core.FillStyle -> String
 decodeFillAlpha fs =
     case fs of
-        Uniform c ->
+        Core.Uniform c ->
             decodeAlpha c
 
-        Transparent ->
+        Core.Transparent ->
             "0"
 
 

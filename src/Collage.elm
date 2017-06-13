@@ -101,12 +101,15 @@ the only backend supported at present is SVG.
 @docs Collage, BasicCollage, group
 
 
-## Manipulating Collages
+## Transforming Collages
 
 @docs shift, scale, rotate, opacity
 
 
 # Shapes
+
+
+## Drawing Shapes
 
 @docs Shape, polygon, ngon, triangle, rectangle, square, ellipse, circle, Style
 
@@ -117,6 +120,9 @@ the only backend supported at present is SVG.
 
 
 # Paths
+
+
+## Drawing Paths
 
 @docs Path, line, segment, path
 
@@ -208,15 +214,6 @@ type alias BasicCollage msg =
 
 
 
--- Creating Collages -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
-
-
-collage : BasicCollage msg -> Collage msg
-collage basic =
-    Core.Collage ( 0, 0 ) 0 1 1 basic []
-
-
-
 -- Grouping Collages -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
 
 
@@ -225,7 +222,7 @@ collage basic =
 group : List (Collage msg) -> Collage msg
 group =
     --FIXME: change renderer instead of using `List.reverse`. Svg draws last element in list on top!
-    collage << Core.Group << List.reverse
+    Core.collage << Core.Group << List.reverse
 
 
 
@@ -407,7 +404,7 @@ specify the line thickness and texture, respectively.
 -}
 styled : ( FillStyle, LineStyle ) -> Shape -> Collage msg
 styled style =
-    collage << Core.Shape style
+    Core.collage << Core.Shape style
 
 
 
@@ -493,7 +490,7 @@ path =
 -}
 traced : LineStyle -> Path -> Collage msg
 traced style path =
-    collage <| Core.Path style path
+    Core.collage <| Core.Path style path
 
 
 {-| Close a path so that it can be outlined and filled.
@@ -510,7 +507,7 @@ closed =
 {-| -}
 text : Text -> Collage msg
 text =
-    collage << Core.Text
+    Core.collage << Core.Text
 
 
 
@@ -521,7 +518,7 @@ text =
 -}
 image : Float -> Float -> String -> Collage msg
 image width height =
-    collage << Core.Image width height
+    Core.collage << Core.Image width height
 
 
 
@@ -535,7 +532,7 @@ is not supported in Internet Explorer.
 -}
 html : Float -> Float -> Html msg -> Collage msg
 html width height =
-    collage << Core.Element width height
+    Core.collage << Core.Element width height
 
 
 

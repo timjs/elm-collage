@@ -9,6 +9,7 @@ module Collage.Core
         , Path(..)
         , Point
         , Shape(..)
+        , collage
         )
 
 {-| This module contains internal types used accross multiple modules in this packages.
@@ -30,9 +31,18 @@ type alias Collage msg =
     , theta : Float
     , scale : Float
     , alpha : Float
-    , basic : BasicCollage msg
     , handlers : List ( String, Json.Decoder msg )
+    , basic : BasicCollage msg
     }
+
+
+
+-- Creating Collages -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
+
+
+collage : BasicCollage msg -> Collage msg
+collage =
+    Collage ( 0, 0 ) 0 1 1 []
 
 
 type BasicCollage msg
@@ -42,6 +52,7 @@ type BasicCollage msg
     | Image Float Float String
     | Element Float Float (Html msg)
     | Group (List (Collage msg))
+    | Subcollage (Collage msg) (Collage msg)
 
 
 type Shape

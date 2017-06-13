@@ -75,13 +75,13 @@ circ model =
                     lightBlue
             , border
             )
-        |> shift ( 20, 30 )
+        --|> shift ( 20, 30 )
         |> onClick Switch
 
 
 rect : Collage msg
 rect =
-    rectangle 100 100
+    square 50
         |> styled ( uniform lightOrange, border )
 
 
@@ -120,7 +120,7 @@ alignments =
 
 view : Model -> Html Msg
 view model =
-    alignments
+    horizontal [ impose (circ model) rect, circ model ]
         --horizontal [ debug <| vertical [ circ model, debug rect ], debug rect ]
         --horizontal [ lines1, lines2 ]
         --vertical [ rect, stack [ txt, circ model ], tria ]

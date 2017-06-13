@@ -17,6 +17,7 @@ module Collage.Layout
         , envelope
         , height
         , horizontal
+        , impose
         , left
         , place
         , right
@@ -35,7 +36,7 @@ module Collage.Layout
 
 @docs Direction, envelope, width, height
 @docs spacer, empty
-@docs place, beside, before, after, above, below, horizontal, vertical, stack
+@docs place, beside, before, after, above, below, horizontal, vertical, stack, impose
 @docs align, center, at, top, topRight, right, bottomRight, bottom, bottomLeft, left, topLeft, base
 @docs showOrigin, showEnvelope
 
@@ -158,6 +159,11 @@ handleBasic dir theta basic =
         Core.Group forms ->
             --FIXME: correct with translation???
             (List.maximum <| List.map (envelope dir) forms) ? 0
+
+        Core.Subcollage _ back ->
+            --NOTE: we ignore the foreground and only calculate the envelope of the background
+            --FIXME: add rotation
+            envelope dir back
 
 
 handlePath : Direction -> List Point -> Float
@@ -414,6 +420,24 @@ stack =
 (<>) : Collage msg -> Collage msg -> Collage msg
 (<>) a b =
     stack [ a, b ]
+
+
+{-| Impose one collage on a background.
+
+`impose collage background` stacks `collage` on `background`.
+The background will be used to calculate envlopes.
+
+       impose a b -- read: "impose a on b"
+
+or:
+
+       b
+           |> impose a
+
+-}
+impose : Collage msg -> Collage msg -> Collage msg
+impose front back =
+    Core.collage <| Core.Subcollage front back
 
 
 

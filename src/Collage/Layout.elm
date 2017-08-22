@@ -146,9 +146,8 @@ handleBasic dir theta basic =
         Core.Path line (Core.Polyline ps) ->
             handlePath dir (List.map rotate ps)
 
-        Core.Text text ->
-            --FIXME: calculate envelope for Text
-            0
+        Core.Text dims _ ->
+            handleBox dir (rotate dims)
 
         Core.Image dims _ ->
             handleBox dir (rotate dims)

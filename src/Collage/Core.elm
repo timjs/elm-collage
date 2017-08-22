@@ -48,7 +48,7 @@ collage =
 type BasicCollage msg
     = Shape ( FillStyle, LineStyle ) Shape
     | Path LineStyle Path
-    | Text Text
+    | Text ( Float, Float ) Text
     | Image ( Float, Float ) String
     | Element ( Float, Float ) (Html msg)
     | Group (List (Collage msg))

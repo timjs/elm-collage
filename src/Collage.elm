@@ -506,8 +506,15 @@ closed =
 
 {-| -}
 text : Text -> Collage msg
-text =
-    Core.collage << Core.Text
+text ((Text.Text style contents) as txt) =
+    let
+        width =
+            height / 2 * toFloat (String.length contents)
+
+        height =
+            toFloat style.size
+    in
+    Core.collage <| Core.Text ( width, height ) txt
 
 
 

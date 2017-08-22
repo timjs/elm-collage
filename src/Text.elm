@@ -56,7 +56,7 @@ type Text
 -}
 type alias Style =
     { face : Face
-    , size : Maybe Int
+    , size : Int
     , color : Color
     , shape : Shape
     , weight : Weight
@@ -77,7 +77,7 @@ size (in pts). Font defaults to black sans-serif.
 fromString : String -> Text
 fromString =
     Text <|
-        Style Sansserif Nothing Color.black Upright Normal Nothing Left
+        Style Sansserif normal Color.black Upright Normal Nothing Left
 
 
 {-| -}
@@ -126,25 +126,24 @@ color clr (Text style str) =
 
 
 -- Size -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
---FIXME: not rendered
 
 
 {-| -}
 size : Int -> Text -> Text
 size size (Text style str) =
-    Text { style | size = Just size } str
+    Text { style | size = size } str
 
 
 {-| -}
 tiny : Int
 tiny =
-    8
+    11
 
 
 {-| -}
 small : Int
 small =
-    11
+    13
 
 
 {-| -}
@@ -156,19 +155,19 @@ normal =
 {-| -}
 large : Int
 large =
-    23
+    19
 
 
 {-| -}
 huge : Int
 huge =
-    32
+    23
 
 
 {-| -}
 enormous : Int
 enormous =
-    45
+    27
 
 
 

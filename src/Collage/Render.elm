@@ -95,7 +95,7 @@ render collage id =
                 Core.ClosedPath path ->
                     render { collage | basic = Core.Path line path } id
 
-        Core.Text (Text.Text style str) ->
+        Core.Text _ (Text.Text style str) ->
             ( id
             , [ Svg.text_ (attrs collage id ++ events collage)
                     [ Svg.text str ]
@@ -197,7 +197,7 @@ attrs collage id =
             , Svg.strokeDasharray <| decodeDashing line.dashPattern
             ]
 
-        Core.Text (Text.Text style str) ->
+        Core.Text _ (Text.Text style str) ->
             [ Svg.fill <| decodeFill (Core.Uniform style.color) id
             , Svg.fontFamily <|
                 case style.face of

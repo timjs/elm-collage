@@ -154,11 +154,11 @@ handleBasic dir theta basic =
             in
             handleBox dir (rotate (Core.calculateDimensions raw))
 
-        Core.Image dims _ ->
-            handleBox dir (rotate dims)
+        Core.Image width height _ ->
+            handleBox dir (rotate ( width, height ))
 
-        Core.Element dims _ ->
-            handleBox dir (rotate dims)
+        Core.Element width height _ ->
+            handleBox dir (rotate ( width, height ))
 
         Core.Group forms ->
             --FIXME: correct with translation???

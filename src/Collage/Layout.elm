@@ -152,7 +152,7 @@ handleBasic dir theta basic =
                 raw =
                     Debug.log "calulating text dimensions" <| Text.toRawSvg text
             in
-            handleBox dir (rotate (Core.calculateDimensions raw))
+            handleBox dir (rotate (Core.calculateRawDimensions raw))
 
         Core.Image width height _ ->
             handleBox dir (rotate ( width, height ))

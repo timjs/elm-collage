@@ -9,7 +9,7 @@ module Collage.Core
         , Path(..)
         , Point
         , Shape(..)
-        , calculateDimensions
+        , calculateRawDimensions
         , collage
         )
 
@@ -119,6 +119,6 @@ type LineJoin
 -- Native calls ----------------------------------------------------------------
 
 
-calculateDimensions : String -> ( Float, Float )
-calculateDimensions raw =
+calculateRawDimensions : String -> ( Float, Float )
+calculateRawDimensions raw =
     Native.Collage.getSvgDimensions raw

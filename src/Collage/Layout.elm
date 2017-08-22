@@ -46,6 +46,7 @@ import Collage exposing (..)
 import Collage.Core as Core
 import Color
 import Maybe.Extra exposing ((?))
+import Text
 import Tuple exposing (first, second)
 
 
@@ -147,8 +148,11 @@ handleBasic dir theta basic =
             handlePath dir (List.map rotate ps)
 
         Core.Text text ->
-            --FIXME: calculate envelope for Text
-            0
+            let
+                raw =
+                    Debug.log "calulating text dimensions" <| Text.toRawSvg text
+            in
+            handleBox dir (rotate (Core.calculateRawDimensions raw))
 
         Core.Image width height _ ->
             handleBox dir (rotate ( width, height ))

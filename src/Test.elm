@@ -6,6 +6,7 @@ import Collage.Layout exposing (..)
 import Collage.Render exposing (svg)
 import Color exposing (..)
 import Html exposing (Html)
+import Native.Collage
 import Text exposing (fromString)
 
 
@@ -57,7 +58,7 @@ debug collage =
 
 txt : Collage Msg
 txt =
-    text <| fromString "Hallo"
+    text <| fromString "Hello, out there"
 
 
 
@@ -120,18 +121,32 @@ alignments =
 
 view : Model -> Html Msg
 view model =
-    horizontal [ impose (circ model) rect, circ model ]
-        --horizontal [ debug <| vertical [ circ model, debug rect ], debug rect ]
-        --horizontal [ lines1, lines2 ]
-        --vertical [ rect, stack [ txt, circ model ], tria ]
-        -- ==
-        --rect model
-        --    |> above (circ model)
-        --    |> above (tria model)
-        -- |> showEnvelope
-        -- |> showOrigin
-        |> debug
-        |> svg
+    let
+        dimensions =
+            Native.Collage.getSvgDimensions raw
+
+        raw =
+            "<text font-family=\"sans-serif\" font-size=\"16px\">Hello, out there</text>"
+    in
+    Html.div []
+        [ Html.text <| toString dimensions
+        , txt |> showEnvelope |> svg
+        ]
+
+
+
+-- horizontal [ impose (circ model) rect, circ model ]
+--horizontal [ debug <| vertical [ circ model, debug rect ], debug rect ]
+--horizontal [ lines1, lines2 ]
+--vertical [ rect, stack [ txt, circ model ], tria ]
+-- ==
+--rect model
+--    |> above (circ model)
+--    |> above (tria model)
+-- |> showEnvelope
+-- |> showOrigin
+-- |> debug
+-- |> svg
 
 
 main : Program Never Model Msg

@@ -21,6 +21,7 @@ module Text
         , size
         , small
         , tiny
+        , toRawSvg
         , weight
         )
 
@@ -37,6 +38,8 @@ module Text
 @docs Shape, shape, Weight, weight, Line, line
 
 @docs Alignment, align
+
+@docs toRawSvg
 
 -}
 
@@ -241,3 +244,74 @@ type Alignment
 align : Alignment -> Text -> Text
 align align (Text style str) =
     Text { style | align = align } str
+
+
+
+-- Make Raw Tag ----------------------------------------------------------------
+
+
+(=>) : a -> b -> ( a, b )
+(=>) =
+    (,)
+
+
+{-| -}
+toRawSvg : Text -> String
+toRawSvg (Text style contents) =
+    let
+        attributes =
+            String.concat <| List.intersperse " " <| List.map assign pairs
+
+        assign ( key, value ) =
+            key ++ "=\"" ++ value ++ "\""
+
+        pairs =
+            [ "font-family"
+                => (case style.face of
+                        Roman ->
+                            "serif"
+
+                        Sansserif ->
+                            "sans-serif"
+
+                        Monospace ->
+                            "monospace"
+
+                        Font name ->
+                            name
+                   )
+            , "font-size"
+                => toString style.size
+            , "font-style"
+                => (case style.shape of
+                        Italic ->
+                            "italic"
+
+                        --FIXME: add more
+                        _ ->
+                            "normal"
+                   )
+            , "font-weight"
+                => (case style.weight of
+                        Bold ->
+                            "bold"
+
+                        --FIXME: add more
+                        _ ->
+                            "normal"
+                   )
+            , "text-decoration"
+                => (case style.line of
+                        Just Under ->
+                            "underline"
+
+                        --FIXME: add more
+                        _ ->
+                            "none"
+                   )
+
+            --TODO
+            --, "" => case style.align of
+            ]
+    in
+    "<text " ++ attributes ++ ">" ++ contents ++ "</text>"

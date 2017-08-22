@@ -121,17 +121,7 @@ alignments =
 
 view : Model -> Html Msg
 view model =
-    let
-        dimensions =
-            Native.Collage.getSvgDimensions raw
-
-        raw =
-            "<text font-family=\"sans-serif\" font-size=\"16px\">Hello, out there</text>"
-    in
-    Html.div []
-        [ Html.text <| toString dimensions
-        , txt |> showEnvelope |> svg
-        ]
+    Html.div [] [ txt |> showEnvelope |> svg ]
 
 
 

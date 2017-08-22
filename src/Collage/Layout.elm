@@ -150,7 +150,7 @@ handleBasic dir theta basic =
         Core.Text text ->
             let
                 raw =
-                    Debug.log "calulating text dimensions" <| Text.toRawSvg text
+                    Text.toRawSvg text
             in
             handleBox dir (rotate (Core.calculateDimensions raw))
 

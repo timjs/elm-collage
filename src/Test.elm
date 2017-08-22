@@ -6,7 +6,6 @@ import Collage.Layout exposing (..)
 import Collage.Render exposing (svg)
 import Color exposing (..)
 import Html exposing (Html)
-import Native.Collage
 import Text exposing (fromString)
 
 

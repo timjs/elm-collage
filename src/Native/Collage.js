@@ -2,6 +2,12 @@ var _timjs$elm_collage$Native_Collage = function() {
 
   let svgns = "http://www.w3.org/2000/svg";
 
+  // var getSvgDimensions =
+  //   typeof document !== null && document.body !== null
+  //   ? getRealSvgDimensions
+  //   : function(_) { return _elm_lang$core$Native_Utils.Tuple2(0, 0); };
+
+
   function getSvgDimensions(rawSvg) {
     //NOTE: Svg namespace needs to be there to render inner contents correctly!
     let temp = document.createElementNS(svgns, 'svg');

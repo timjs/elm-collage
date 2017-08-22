@@ -9,7 +9,6 @@ module Collage.Core
         , Path(..)
         , Point
         , Shape(..)
-        , calculateRawDimensions
         , collage
         )
 
@@ -20,7 +19,6 @@ Constructors are however not exposed to the user.
 import Color exposing (Color)
 import Html exposing (Html)
 import Json.Decode as Json
-import Native.Collage
 import Text exposing (Text)
 
 
@@ -113,12 +111,3 @@ type LineJoin
     = Smooth
     | Clipped
     | Sharp
-
-
-
--- Native calls ----------------------------------------------------------------
-
-
-calculateRawDimensions : String -> ( Float, Float )
-calculateRawDimensions raw =
-    Native.Collage.getSvgDimensions raw

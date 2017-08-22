@@ -518,7 +518,7 @@ text =
 -}
 image : Float -> Float -> String -> Collage msg
 image width height =
-    Core.collage << Core.Image width height
+    Core.collage << Core.Image ( width, height )
 
 
 
@@ -532,7 +532,7 @@ is not supported in Internet Explorer.
 -}
 html : Float -> Float -> Html msg -> Collage msg
 html width height =
-    Core.collage << Core.Element width height
+    Core.collage << Core.Element ( width, height )
 
 
 

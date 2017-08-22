@@ -102,7 +102,7 @@ render collage id =
               ]
             )
 
-        Core.Image width height url ->
+        Core.Image ( width, height ) url ->
             ( id
             , [ Svg.image
                     (attrs collage id
@@ -116,7 +116,7 @@ render collage id =
               ]
             )
 
-        Core.Element width height elem ->
+        Core.Element ( width, height ) elem ->
             let
                 tx =
                     toString <| -(width / 2)

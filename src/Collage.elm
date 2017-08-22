@@ -507,11 +507,6 @@ closed =
 {-| -}
 text : Text -> Collage msg
 text =
-    --FIXME: We should calculate the dimensions here, instead of recalulating them every time for an envelope, but there is some internal bug...
-    -- let
-    --     dims =
-    --         Core.calculateDimensions <| Debug.log "calculating" <| Text.toRawSvg txt
-    -- in
     Core.collage << Core.Text
 
 

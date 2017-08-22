@@ -516,9 +516,9 @@ text =
 
 {-| An image. The arguments specify the image's thickness, height and url.
 -}
-image : Float -> Float -> String -> Collage msg
-image width height =
-    Core.collage << Core.Image width height
+image : ( Float, Float ) -> String -> Collage msg
+image dims =
+    Core.collage << Core.Image dims
 
 
 
@@ -530,9 +530,9 @@ resulting collage is subject to all of the regular manipulations.
 Note that if you are compiling to SVG, then this functionality
 is not supported in Internet Explorer.
 -}
-html : Float -> Float -> Html msg -> Collage msg
-html width height =
-    Core.collage << Core.Element width height
+html : ( Float, Float ) -> Html msg -> Collage msg
+html dims =
+    Core.collage << Core.Element dims
 
 
 

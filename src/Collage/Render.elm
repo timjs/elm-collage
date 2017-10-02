@@ -218,16 +218,14 @@ attrs collage id =
                     Text.Bold ->
                         "bold"
 
-                    --FIXME: add more
-                    _ ->
+                    Text.Normal ->
                         "normal"
             , Svg.fontStyle <|
                 case style.shape of
                     Text.Italic ->
                         "italic"
 
-                    --FIXME: add more
-                    _ ->
+                    Text.Upright ->
                         "normal"
             , Svg.textDecoration <|
                 case style.line of

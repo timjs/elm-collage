@@ -10,6 +10,7 @@ module Collage.Core
         , Point
         , Shape(..)
         , collage
+        , getTextWidth
         )
 
 {-| This module contains internal types used accross multiple modules in this packages.
@@ -111,3 +112,12 @@ type LineJoin
     = Smooth
     | Clipped
     | Sharp
+
+
+
+-- Native calls ----------------------------------------------------------------
+
+
+getTextWidth : String -> String -> Float
+getTextWidth font text =
+    Native.Collage.getTextWidth font text

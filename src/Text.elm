@@ -21,6 +21,7 @@ module Text
         , size
         , small
         , tiny
+        , toCssFontSpec
         , weight
         )
 
@@ -37,6 +38,8 @@ module Text
 @docs Shape, shape, Weight, weight, Line, line
 
 @docs Alignment, align
+
+@docs toCssFontSpec
 
 -}
 
@@ -240,3 +243,57 @@ type Alignment
 align : Alignment -> Text -> Text
 align align (Text style str) =
     Text { style | align = align } str
+
+
+
+-- Make Raw Tag ----------------------------------------------------------------
+
+
+(=>) : a -> b -> ( a, b )
+(=>) =
+    (,)
+
+
+{-| Example:
+/* style | variant | weight | stretch | size/line-height | family */
+font: italic small-caps bolder condensed 16px/3 cursive;
+-}
+toCssFontSpec : Style -> String
+toCssFontSpec style =
+    let
+        --NOTE: adding font-stretch makes spec not parse...
+        spec =
+            [ -- font-style
+              case style.shape of
+                Italic ->
+                    "italic"
+
+                Upright ->
+                    "normal"
+            , -- font-variant
+              "normal"
+            , -- font-weight
+              case style.weight of
+                Bold ->
+                    "bold"
+
+                Normal ->
+                    "normal"
+            , -- font-size
+              toString style.size ++ "px"
+            , -- font-family
+              case style.face of
+                Roman ->
+                    "serif"
+
+                Sansserif ->
+                    "sans-serif"
+
+                Monospace ->
+                    "monospace"
+
+                Font name ->
+                    name
+            ]
+    in
+    String.concat <| List.intersperse " " <| spec

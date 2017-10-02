@@ -506,10 +506,10 @@ closed =
 
 {-| -}
 text : Text -> Collage msg
-text ((Text.Text style contents) as txt) =
+text ((Text.Text style string) as txt) =
     let
         width =
-            height / 2 * toFloat (String.length contents)
+            Core.getTextWidth (Text.toCssFontSpec style) string
 
         height =
             toFloat style.size

@@ -120,18 +120,22 @@ alignments =
 
 view : Model -> Html Msg
 view model =
-    horizontal [ impose (circ model) rect, circ model ]
-        --horizontal [ debug <| vertical [ circ model, debug rect ], debug rect ]
-        --horizontal [ lines1, lines2 ]
-        --vertical [ rect, stack [ txt, circ model ], tria ]
-        -- ==
-        --rect model
-        --    |> above (circ model)
-        --    |> above (tria model)
-        -- |> showEnvelope
-        -- |> showOrigin
-        |> debug
-        |> svg
+    Html.div [] [ txt |> showEnvelope |> svg ]
+
+
+
+--horizontal [ impose (circ model) rect, circ model ]
+--horizontal [ debug <| vertical [ circ model, debug rect ], debug rect ]
+--horizontal [ lines1, lines2 ]
+--vertical [ rect, stack [ txt, circ model ], tria ]
+-- ==
+--rect model
+--    |> above (circ model)
+--    |> above (tria model)
+-- |> showEnvelope
+-- |> showOrigin
+--|> debug
+--|> svg
 
 
 main : Program Never Model Msg

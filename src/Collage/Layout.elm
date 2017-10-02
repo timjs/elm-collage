@@ -355,9 +355,9 @@ The first element in the list will be on the left, the last on the right.
 
     horizontal [a, b, c]
 
-       +---+---+---+
+       +–––+–––+–––+
        | a | b | c |
-       +---+---+---+
+       +–––+–––+–––+
 
   - Note: this is called `hcat` in Diagrams
 
@@ -373,13 +373,13 @@ The first element in the list will be on the top, the last on the bottom.
 
     vertical [a, b, c]
 
-       +---+
+       +–––+
        | a |
-       +---+
+       +–––+
        | b |
-       +---+
+       +–––+
        | c |
-       +---+
+       +–––+
 
   - Note: this is called `vcat` in Diagrams
 
@@ -396,9 +396,9 @@ This is the same as the `group` operation in the Collage module.
 
     stack [a, b, c]
 
-        +---+
+        +–––+
         | a |
-        +---+
+        +–––+
 
   - Note: this is called `concat` in Diagrams.
 
@@ -456,7 +456,7 @@ height collage =
 
 
 
--- Alignment ---------------------------------------------------------------------
+-- Alignment -------------------------------------------------------------------
 
 
 type alias Anchor msg =
@@ -493,9 +493,9 @@ Makes placing objects on a collage easier:
         |> at south dot
         |> at norhteast dot
 
-        +---------0
+        +------–––0
         | drawing |
-        +----0----+
+        +–––-0–––-+
 
 instead of:
 
@@ -521,7 +521,7 @@ at anchor collage host =
 
         +-X-+
         |   |
-        +---+
+        +–––+
 
 -}
 top : Anchor msg
@@ -531,9 +531,9 @@ top collage =
 
 {-|
 
-        +---X
+        +–––X
         |   |
-        +---+
+        +–––+
 
 -}
 topRight : Anchor msg
@@ -543,9 +543,9 @@ topRight collage =
 
 {-|
 
-        +---+
+        +–––+
         |   X
-        +---+
+        +–––+
 
 -}
 right : Anchor msg
@@ -555,9 +555,9 @@ right collage =
 
 {-|
 
-        +---+
+        +–––+
         |   |
-        +---X
+        +–––X
 
 -}
 bottomRight : Anchor msg
@@ -567,7 +567,7 @@ bottomRight collage =
 
 {-|
 
-        +---+
+        +–––+
         |   |
         +-X-+
 
@@ -579,9 +579,9 @@ bottom collage =
 
 {-|
 
-        +---+
+        +–––+
         |   |
-        X---+
+        X–––+
 
 -}
 bottomLeft : Anchor msg
@@ -591,9 +591,9 @@ bottomLeft collage =
 
 {-|
 
-        +---+
+        +–––+
         X   |
-        +---+
+        +–––+
 
 -}
 left : Anchor msg
@@ -603,9 +603,9 @@ left collage =
 
 {-|
 
-        X---+
+        X–––+
         |   |
-        +---+
+        +–––+
 
 -}
 topLeft : Anchor msg
@@ -620,9 +620,9 @@ topLeft collage =
 
 {-|
 
-        +---+
+        +–––+
         | X |
-        +---+
+        +–––+
 
 -}
 base : Anchor msg

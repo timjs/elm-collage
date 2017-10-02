@@ -17,9 +17,9 @@ module Collage
         , dashdot
         , dot
         , ellipse
+        , embedded
         , filled
         , group
-        , html
         , image
         , invisible
         , line
@@ -147,7 +147,7 @@ the only backend supported at present is SVG.
 
 # Other Content
 
-@docs image, html
+@docs image, embedded
 
 
 # Styling
@@ -543,8 +543,8 @@ resulting collage is subject to all of the regular manipulations.
 Note that if you are compiling to SVG, then this functionality
 is not supported in Internet Explorer.
 -}
-html : ( Float, Float ) -> Html msg -> Collage msg
-html dims =
+embedded : ( Float, Float ) -> Html msg -> Collage msg
+embedded dims =
     Core.collage << Core.Element dims
 
 

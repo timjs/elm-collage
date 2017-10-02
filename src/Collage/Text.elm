@@ -1,4 +1,4 @@
-module Text
+module Collage.Text
     exposing
         ( Alignment(..)
         , Face(..)
@@ -13,6 +13,7 @@ module Text
         , enormous
         , face
         , fromString
+        , height
         , huge
         , large
         , line
@@ -21,8 +22,8 @@ module Text
         , size
         , small
         , tiny
-        , toCssFontSpec
         , weight
+        , width
         )
 
 {-| TODO
@@ -39,11 +40,12 @@ module Text
 
 @docs Alignment, align
 
-@docs toCssFontSpec
+@docs width, height
 
 -}
 
 import Color exposing (Color)
+import Native.Text
 
 
 -- Text ------------------------------------------------------------------------
@@ -246,17 +248,28 @@ align align (Text style str) =
 
 
 
--- Make Raw Tag ----------------------------------------------------------------
+-- Calculations ----------------------------------------------------------------
 
 
-(=>) : a -> b -> ( a, b )
-(=>) =
-    (,)
+{-| -}
+width : Text -> Float
+width (Text style string) =
+    Native.Text.width (toCssFontSpec style) string
+
+
+{-| -}
+height : Text -> Float
+height (Text style _) =
+    toFloat style.size
 
 
 {-| Example:
+
+```css
 /* style | variant | weight | stretch | size/line-height | family */
 font: italic small-caps bolder condensed 16px/3 cursive;
+```
+
 -}
 toCssFontSpec : Style -> String
 toCssFontSpec style =

@@ -10,6 +10,7 @@ module Collage.Render exposing (svg)
 
 import Collage.Core as Core exposing (Collage, Point)
 import Collage.Layout as Layout
+import Collage.Text as Text exposing (Text)
 import Color exposing (Color)
 import Html exposing (Html)
 import List
@@ -17,7 +18,6 @@ import String
 import Svg exposing (Attribute, Svg)
 import Svg.Attributes as Svg
 import Svg.Events as Svg
-import Text exposing (Text)
 import Tuple exposing (first, second)
 
 

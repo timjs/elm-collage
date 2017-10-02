@@ -10,18 +10,16 @@ module Collage.Core
         , Point
         , Shape(..)
         , collage
-        , getTextWidth
         )
 
 {-| This module contains internal types used accross multiple modules in this packages.
 Constructors are however not exposed to the user.
 -}
 
+import Collage.Text exposing (Text)
 import Color exposing (Color)
 import Html exposing (Html)
 import Json.Decode as Json
-import Native.Collage
-import Text exposing (Text)
 
 
 type alias Point =
@@ -113,12 +111,3 @@ type LineJoin
     = Smooth
     | Clipped
     | Sharp
-
-
-
--- Native calls ----------------------------------------------------------------
-
-
-getTextWidth : String -> String -> Float
-getTextWidth font text =
-    Native.Collage.getTextWidth font text

@@ -31,6 +31,7 @@ module Collage
         , path
         , polygon
         , rectangle
+        , rendered
         , rotate
         , scale
         , segment
@@ -39,7 +40,6 @@ module Collage
         , solid
         , square
         , styled
-        , text
         , thick
         , thin
         , traced
@@ -132,9 +132,22 @@ the only backend supported at present is SVG.
 @docs traced, closed
 
 
+# Text
+
+
+## Creating text
+
+(See text module)
+
+
+## Turning Text into Collages
+
+@docs rendered
+
+
 # Other Content
 
-@docs text, image, html
+@docs image, html
 
 
 # Styling
@@ -162,9 +175,9 @@ the only backend supported at present is SVG.
 -}
 
 import Collage.Core as Core
+import Collage.Text as Text exposing (Text)
 import Color exposing (Color)
 import Html exposing (Html)
-import Text exposing (Text)
 
 
 -- Basics ----------------------------------------------------------------------
@@ -505,16 +518,9 @@ closed =
 
 
 {-| -}
-text : Text -> Collage msg
-text ((Text.Text style string) as txt) =
-    let
-        width =
-            Core.getTextWidth (Text.toCssFontSpec style) string
-
-        height =
-            toFloat style.size
-    in
-    Core.collage <| Core.Text ( width, height ) txt
+rendered : Text -> Collage msg
+rendered text =
+    Core.collage <| Core.Text ( Text.width text, Text.height text ) text
 
 
 

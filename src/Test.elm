@@ -4,9 +4,9 @@ import Collage exposing (..)
 import Collage.Events exposing (onClick)
 import Collage.Layout exposing (..)
 import Collage.Render exposing (svg)
+import Collage.Text exposing (fromString)
 import Color exposing (..)
 import Html exposing (Html)
-import Text exposing (fromString)
 
 
 -- Model -----------------------------------------------------------------------
@@ -57,7 +57,7 @@ debug collage =
 
 txt : Collage Msg
 txt =
-    text <| fromString "Hallo"
+    rendered <| fromString "Hallo"
 
 
 

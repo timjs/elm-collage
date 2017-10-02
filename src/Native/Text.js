@@ -1,4 +1,4 @@
-let _timjs$elm_collage$Native_Collage = function() {
+let _timjs$elm_collage$Native_Text = function() {
 
   //NOTE: We re-use the canvas object for better performance
   let canvas = document.createElement("canvas");
@@ -12,14 +12,14 @@ let _timjs$elm_collage$Native_Collage = function() {
   *
   * @see https://stackoverflow.com/questions/118241/calculate-text-width-with-javascript/21015393#21015393
   */
-  function getTextWidth(font, text) {
+  function width(font, text) {
     context.font = font;
     let metrics = context.measureText(text);
     return metrics.width;
   }
 
   return {
-    getTextWidth: F2(getTextWidth)
+    width: F2(width)
   };
 
 }();

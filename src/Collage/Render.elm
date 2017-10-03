@@ -220,7 +220,7 @@ attrs collage id =
                     Text.Bold ->
                         "bold"
 
-                    Text.Normal ->
+                    Text.Regular ->
                         "normal"
             , Svg.fontStyle <|
                 case style.shape of

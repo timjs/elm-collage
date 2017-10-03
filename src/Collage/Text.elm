@@ -5,10 +5,12 @@ module Collage.Text
         , Line(..)
         , Shape(..)
         , Style
+          --TODO: should be internal
         , Text(..)
         , Weight(..)
-        , align
+        , alignment
         , color
+        , defaultStyle
         , empty
         , enormous
         , face
@@ -21,24 +23,63 @@ module Collage.Text
         , shape
         , size
         , small
+        , style
         , tiny
         , weight
         , width
         )
 
-{-| TODO
+{-| A library for styling and displaying text.
 
-@docs Text, fromString, empty
+While the String library focuses on representing and manipulating strings of characters,
+the Text library focuses on how those strings should look on screen.
+It lets you make text bold or italic, set the typeface, set the text size, etc.
 
-@docs Style
+
+# Text
+
+@docs Text
+
+
+# Creating text
+
+@docs fromString, empty
+
+
+# Styling text
+
+
+## Typeface and color
 
 @docs Face, face, color
 
+
+## Size
+
 @docs size, tiny, small, normal, large, huge, enormous
 
-@docs Shape, shape, Weight, weight, Line, line
 
-@docs Alignment, align
+## Shape and weight
+
+@docs Shape, shape, Weight, weight
+
+
+## Decorations
+
+@docs Line, line
+
+
+## Alignment
+
+@docs Alignment, alignment
+
+
+## Creating styles
+
+@docs Style, style, defaultStyle
+
+
+# Measuring text
 
 @docs width, height
 
@@ -51,13 +92,50 @@ import Native.Text
 -- Text ------------------------------------------------------------------------
 
 
-{-| A line or block of text.
+{-| Represents styled text.
+
+It can be rendered with collages.
+
 -}
 type Text
     = Text Style String
 
 
-{-| Specifies the styling (color, font, weight, etc.) of text
+
+-- Creating Text -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
+
+
+{-| Convert a string into text which can be styled and displayed.
+
+To show the string "Hello World!" on screen in italics, you could say:
+
+    fromString "Hello World!"
+        |> shape Italic
+        |> alignment Left
+        |> Collage.rendered
+
+-}
+fromString : String -> Text
+fromString =
+    Text defaultStyle
+
+
+{-| Text with nothing in it.
+
+    empty =
+        fromString ""
+
+-}
+empty : Text
+empty =
+    fromString ""
+
+
+
+-- Style Text -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
+
+
+{-| Specifies the styling (color, typeface, weight, etc.) of text.
 -}
 type alias Style =
     { face : Face
@@ -68,43 +146,64 @@ type alias Style =
 
     --FIXME: should be Set Line
     , line : Maybe Line
-    , align : Alignment
+
+    --TODO: todo or not todo?
+    , alignment : Alignment
     }
 
 
+{-| Give some text a predefined style.
 
--- Creating Text -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
+For example, if you design a style called `heading` that is specifically for heading text,
+you could apply it to text like this:
 
+    heading =
+        { face = Sansserif
+        , size = huge
+        , color = Color.darkBlue
+        , shape = Upright
+        , weight = Bold
+        , line = Nothing
+        , alignment = Center
+        }
 
-{-| Creates a line of text. The first argument specifies the font
-size (in pts). Font defaults to black sans-serif.
+    fromString "Welcome to Elm Collage!"
+        |> style heading
+
 -}
-fromString : String -> Text
-fromString =
-    Text <|
-        Style Sansserif normal Color.black Upright Normal Nothing Left
+style : Style -> Text -> Text
+style style (Text _ string) =
+    Text style string
 
 
-{-| -}
-empty : Text
-empty =
-    fromString ""
+{-| Plain black text.
 
+It uses the browsers default typeface and text height.
+No decorations are used.
 
-
--- Styling ---------------------------------------------------------------------
-
-
-styled : Style -> String -> Text
-styled =
-    Text
+-}
+defaultStyle : Style
+defaultStyle =
+    { face = Sansserif
+    , size = normal
+    , color = Color.black
+    , shape = Upright
+    , weight = Regular
+    , line = Nothing
+    , alignment = Left
+    }
 
 
 
 -- Face and Color -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -
 
 
-{-| -}
+{-| Possible typefaces for text.
+
+`Roman`, `Sansserif` and `Monospace` correspond to the default browser fonts of the user.
+Use `Font` to specify a concrete typeface.
+
+-}
 type Face
     = Roman
     | Sansserif
@@ -114,26 +213,26 @@ type Face
     | Font String
 
 
-{-| Sets the font face of `Text`.
-FIXME: rename?
+{-| Set the typeface of some text.
 -}
 face : Face -> Text -> Text
 face face (Text style str) =
     Text { style | face = face } str
 
 
-{-| Gives a `Text` element a solid color.
+{-| Set the color of some text.
 -}
 color : Color -> Text -> Text
-color clr (Text style str) =
-    Text { style | color = clr } str
+color color (Text style str) =
+    Text { style | color = color } str
 
 
 
 -- Size -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
 
 
-{-| -}
+{-| Set the size of some text.
+-}
 size : Int -> Text -> Text
 size size (Text style str) =
     Text { style | size = size } str
@@ -179,27 +278,36 @@ enormous =
 -- Shape and Weight -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
 
 
-{-| -}
+{-| Possible shapes for a piece of text.
+-}
 type Shape
     = Upright
-      -- | Smallcaps
+      -- | SmallCapped
       -- | Slanted
     | Italic
 
 
-{-| Italicizes `Text`.
+{-| Set the shape of some text.
 -}
 shape : Shape -> Text -> Text
 shape shape (Text style str) =
     Text { style | shape = shape } str
 
 
-{-| -}
+
+-- type Weight
+--     = ExtraLight
+--     | Light
+--     | Medium
+--     | SemiBold
+--     | Bold
+--     | Black
+
+
+{-| Possible weights for a piece of text.
+-}
 type Weight
-    = Normal
-      -- | Light
-      -- | Medium
-      -- | Black
+    = Regular
     | Bold
 
 
@@ -214,14 +322,22 @@ weight weight (Text style str) =
 -- Decoration -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
 
 
-{-| -}
+{-| Styles for lines on text.
+-}
 type Line
     = Under
     | Over
     | Through
 
 
-{-| Underlines `Text`.
+{-| Put lines on text.
+
+This allows you to add an underline, an overline, or a strike out text:
+
+    line Under   (fromString "underline")
+    line Over    (fromString "overline")
+    line Through (fromString "strike out")
+
 -}
 line : Line -> Text -> Text
 line line (Text style str) =
@@ -232,7 +348,7 @@ line line (Text style str) =
 -- Alignment -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -
 
 
-{-| Describes the alignment (justification) of a text element.
+{-| Describes the alignment (justification) of a piece of text.
 -}
 type Alignment
     = Left
@@ -241,23 +357,41 @@ type Alignment
     | Center
 
 
-{-| -}
-align : Alignment -> Text -> Text
-align align (Text style str) =
-    Text { style | align = align } str
+{-| Set the alignment of some text.
+-}
+alignment : Alignment -> Text -> Text
+alignment alignment (Text style str) =
+    Text { style | alignment = alignment } str
 
 
 
 -- Calculations ----------------------------------------------------------------
 
 
-{-| -}
+{-| Width of the text when displayed on the user screen.
+
+  - **Warning!**
+    Use this function sporadically.
+    Although it should be quite fast,
+    it calls methods of the canvas object (yes really) on the client which can take some time...
+
+-}
 width : Text -> Float
 width (Text style string) =
     Native.Text.width (toCssFontSpec style) string
 
 
-{-| -}
+{-| Height of the text.
+
+This is equal to the text size:
+
+    fromString "Hello World!"
+        |> size 16
+        |> height
+    ==
+    16
+
+-}
 height : Text -> Float
 height (Text style _) =
     toFloat style.size
@@ -290,7 +424,7 @@ toCssFontSpec style =
                 Bold ->
                     "bold"
 
-                Normal ->
+                Regular ->
                     "normal"
             , -- font-size
               toString style.size ++ "px"

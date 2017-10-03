@@ -599,6 +599,8 @@ transparent =
     , dashOffset = 0
     }
 
+(Record is not shown due to technical limitations of interal exports in Elm.)
+
 -}
 type alias LineStyle =
     Core.LineStyle
@@ -732,12 +734,18 @@ ultrathick =
 no endings, `Padded` capped lines have flat endings that extend
 slightly past the end of the line, and `Round` capped lines have
 hemispherical endings.
+
+(Cases are not shown due to technical limitations of interal exports in Elm.)
+
 -}
 type alias LineCap =
     Core.LineCap
 
 
 {-| Describes the join style of a line.
+
+(Cases are not shown due to technical limitations of interal exports in Elm.)
+
 -}
 type alias LineJoin =
     Core.LineJoin

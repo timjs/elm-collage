@@ -57,10 +57,10 @@ type BasicCollage msg
 
 type Shape
     = Polygon (List Point)
-      -- Although Rectangles are a special case of Polygons, they can have rounded corners,
-      -- Squares are just Rectangles with the same width and height, therefore we don't need them here.
+      --TODO: Although Rectangles are a special case of Polygons, they can have rounded corners,
       -- | Rectangle Float Float
-      -- Circles are just Elipses with the same x- and y-radius, therefore we don't need them here.
+      --NOTE: Squares are just Rectangles with the same width and height, therefore we don't need them here.
+      --NOTE: Circles are just Elipses with the same x- and y-radius, therefore we don't need them here.
     | Ellipse Float Float
     | ClosedPath Path
 
@@ -71,9 +71,9 @@ type Path
 
 type FillStyle
     = Transparent
+      --TODO: Add gradient and pattern fills
       -- | Gradient Gradient
       -- | Pattern Float Float String Float
-      -- | FillStyle String
     | Uniform Color
 
 

@@ -12,7 +12,6 @@ module Collage
         , Style
         , broken
         , circle
-        , closed
         , dash
         , dashdot
         , dot
@@ -24,6 +23,7 @@ module Collage
         , invisible
         , line
         , longdash
+        , loop
         , ngon
         , opacity
         , opposite
@@ -129,7 +129,7 @@ the only backend supported at present is SVG.
 
 ## Turning Paths into Collages
 
-@docs traced, closed
+@docs traced, loop
 
 
 # Text
@@ -508,9 +508,9 @@ traced style path =
 
 {-| Close a path so that it can be outlined and filled.
 -}
-closed : Path -> Shape
-closed =
-    Core.ClosedPath
+loop : Path -> Shape
+loop =
+    Core.Loop
 
 
 

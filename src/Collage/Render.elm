@@ -94,7 +94,7 @@ render collage id =
                            ]
                     )
 
-                Core.ClosedPath path ->
+                Core.Loop path ->
                     render { collage | basic = Core.Path line path } id
 
         Core.Text _ (Text.Text style str) ->

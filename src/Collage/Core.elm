@@ -22,8 +22,15 @@ import Html exposing (Html)
 import Json.Decode as Json
 
 
+-- Point -----------------------------------------------------------------------
+
+
 type alias Point =
     ( Float, Float )
+
+
+
+-- Collage ---------------------------------------------------------------------
 
 
 type alias Collage msg =
@@ -36,13 +43,15 @@ type alias Collage msg =
     }
 
 
-
--- Creating Collages -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
-
-
 collage : BasicCollage msg -> Collage msg
-collage =
-    Collage ( 0, 0 ) 0 1 1 []
+collage basic =
+    { origin = ( 0, 0 )
+    , theta = 0
+    , scale = 1
+    , alpha = 1
+    , handlers = []
+    , basic = basic
+    }
 
 
 type BasicCollage msg
@@ -55,6 +64,10 @@ type BasicCollage msg
     | Subcollage (Collage msg) (Collage msg)
 
 
+
+-- Shapes, Paths and Text ------------------------------------------------------
+
+
 type Shape
     = Polygon (List Point)
       --TODO: Although Rectangles are a special case of Polygons, they can have rounded corners,
@@ -62,11 +75,16 @@ type Shape
       --NOTE: Squares are just Rectangles with the same width and height, therefore we don't need them here.
       --NOTE: Circles are just Elipses with the same x- and y-radius, therefore we don't need them here.
     | Ellipse Float Float
-    | ClosedPath Path
+    | Loop Path
 
 
 type Path
     = Polyline (List Point)
+
+
+
+-- Styles ----------------------------------------------------------------------
+-- Fill style -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
 
 
 type FillStyle
@@ -75,6 +93,10 @@ type FillStyle
       -- | Gradient Gradient
       -- | Pattern Float Float String Float
     | Uniform Color
+
+
+
+-- Line style -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
 
 
 type alias LineStyle =

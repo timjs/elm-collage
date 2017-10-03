@@ -232,7 +232,7 @@ handleBasic dir theta basic =
         Core.Shape ( _, line ) (Core.Polygon ps) ->
             handlePath dir (List.map (thicken line.thickness << rotate) ps)
 
-        Core.Shape ( _, line ) (Core.ClosedPath path) ->
+        Core.Shape ( _, line ) (Core.Loop path) ->
             -- Use the same calculations as for paths
             handleBasic dir theta (Core.Path line path)
 
@@ -336,7 +336,9 @@ height collage =
 
 This is useful for getting your spacing right and for making borders.
 
-    let hspace = spacer 10 0 in
+    hspace =
+        spacer 10 0
+
     horizontal <| List.intersperse hspace [a, b, c]
 
         +–––+  +–––+  +–––+

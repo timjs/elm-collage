@@ -1,6 +1,7 @@
 module Collage.Render exposing (svg)
 
-{-| TODO
+{-| Technically, it should be possible to use different backends to render a collage,
+but we only provide a Svg backend here.
 
 @docs svg
 
@@ -21,9 +22,10 @@ import Svg.Events as Svg
 import Tuple exposing (first, second)
 
 
-{-| Takes a `Collage` and renders it to usable HTML, in this case
-in the collage of an SVG element. The first two arguments determine
-the height and width of the SVG viewbox in pixels.
+{-| Take a collage and render it to Html using Svg.
+
+It uses the automatically calculated envelope from the Collage.Layout module as the viewbox.
+
 -}
 svg : Collage msg -> Html msg
 svg collage =

@@ -5,6 +5,7 @@ module Collage.Layout
         , align
         , at
         , base
+        , beside
         , bottom
         , bottomLeft
         , bottomRight
@@ -29,74 +30,83 @@ module Collage.Layout
         , width
         )
 
-{-|
-
-
-# Layouting of collages
-
-With this module you can compose collages in a more automatic way.
-You can lay out collages in multiple ways:
-
-  - horizontally, next to each other
-  - vertically, above each other
-  - stack them on top of each other
-
+{-| With this module you can compose collages in a more automatic way.
+Instead of shifting collages manually,
+this module figures out the dimensions of each part of your drawing
+and places them seamlesly next to each other, above each other or on top of each other.
 This is all possible by keeping track of the _envelope_ or _bounding box_ of each collage.
-Because we know of each basic shape how wide and how tall they are,
-we can place two collages next to each other, making them touch.
 
-Each collage has a internal origin.
-The envelope is calculated relative to this origin.
-By shifting a collage, we change the origin and the way collages are composed.
+Collages are positioned relative to their _internal origin_.
+By default, a collage's internal origin lays in its exact center.
+By _shifting_ a collage, we change its internal origin
+and the way it composes with other collages.
+Another method to change the origin, is by using _alignments_.
 
-This ideais based on the [Diagrams library](https://archives.haskell.org/projects.haskell.org/diagrams/) for Haskell
+All these ideas are based on the [Diagrams library](https://archives.haskell.org/projects.haskell.org/diagrams/) for Haskell
 and the [Scalable Graphics library](https://dl.acm.org/citation.cfm?id=2746329) for Clean.
 You can regard this module as a simplified version of above libraries.
+
+
+# Envelopes
 
 An _envelope_ defines the bounding box of a collage.
 It is sometimes referred to as a _span box_.
 [Envelopes](https://archives.haskell.org/projects.haskell.org/diagrams/doc/manual.html#envelopes-and-local-vector-spaces)
 can become quite complex when we calculate them in all possible directions.
-Here, we restrict ourselves to calculate the envelope in four different _directions_: up, down, right and left.
-
-
-## Envelopes
+Here, we restrict ourselves to four directions: up, down, right and left.
 
 @docs envelope, Direction, opposite, width, height
 
 
-## Layouting
+# Layouting
 
-@docs horizontal, vertical, stack, impose, place
+Collages can be composed in three ways:
+
+  - horizontally, or next to each other
+  - vertically, or above each other
+  - on the "out of page" axis, or stacked on top of each other
+
+A more advanced way of combining collages is by _imposition_:
+placing one collage on top of a background and forgetting about the dimensions of the foreground.
+All ways of combining are expressed used one basic placing function,
+which you can use in some extreme cases where you need to place a collage but not combine it with others.
+
+@docs horizontal, vertical, stack, impose, beside, place
 
 
-## Aligning
+# Spacers
 
-@docs align, at, center
-
-
-### Anchors
-
-@docs top, topRight, right, bottomRight, bottom, bottomLeft, left, topLeft, base, Anchor
-
-
-## Spacers
+What is placing collages without being able to space them accordingly?
+These two collages are invisible and only take up some space.
+(Or they even don't...)
 
 @docs spacer, empty
 
 
-## Debugging
+# Aligning
+
+@docs align, at, center
+
+
+## Anchors
+
+@docs Anchor, top, topRight, right, bottomRight, bottom, bottomLeft, left, topLeft, base
+
+
+# Debugging
 
 These two functions can aid in discovering how collages are composed.
 
 @docs showOrigin, showEnvelope
 
 
-## Extensions
+# Possible extensions
 
 We can imagine some possible extensions which could aid in designing composable drawings:
 
-  - add padding
+  - way to add padding
+  - add `baseX`, and `baseY` (`horizontalBase` and `vertialBase`)?
+  - and add `centerX`, and `centerY` too?
   - ...
 
 -}
@@ -121,6 +131,10 @@ type Direction
 
 
 {-| Calculate the opposite direction.
+
+    Up   <-> Down
+    Left <-> Right
+
 -}
 opposite : Direction -> Direction
 opposite dir =
@@ -291,7 +305,7 @@ handleBox dir ( width, height ) =
 
 {-| Calculates the width of a collage.
 
-The width is equivalent to the envlopes in the left and right directions:
+The width is equivalent to the envelopes in the left and right directions:
 
     width collage == envelope Left collage + envelope Right collage
 
@@ -303,7 +317,7 @@ width collage =
 
 {-| Calculates the height of a collage.
 
-The height is equivalent to the envlopes in the up and down directions:
+The height is equivalent to the envelopes in the up and down directions:
 
     height collage == envelope Up collage + envelope Down collage
 
@@ -322,15 +336,26 @@ height collage =
 
 This is useful for getting your spacing right and for making borders.
 
+    let hspace = spacer 10 0 in
+    horizontal <| List.intersperse hspace [a, b, c]
+
+        +–––+  +–––+  +–––+
+        | a |  | b |  | c |
+        +–––+  +–––+  +–––+
+
 -}
 spacer : Float -> Float -> Collage msg
 spacer w h =
     rectangle w h |> styled ( transparent, invisible )
 
 
-{-| An Element that takes up no space. Good for things that appear conditionally:
+{-| A collage that takes up no space. Good for things that appear conditionally:
 
-    horizontal [ img1, if showMore then img2 else empty ]
+    horizontal [ a, if showMore then b else empty ]
+
+        +–––+––––––––––+
+        | a | maybe b? |
+        +–––+––––––––––+
 
   - Note: this is the identity element of the monoid on collages.
 
@@ -344,7 +369,8 @@ empty =
 -- Placing -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
 
 
-{-| Shift a collage in a direction to precicly that position where it would touch the first one.
+{-| Shift a collage in a direction to precisely that position where it would touch the first one,
+without composing them.
 
 Use this to position a collage next to another collage without actually composing them.
 
@@ -376,87 +402,18 @@ place dir a b =
     shift move b
 
 
-{-|
+{-| Place a collage _beside_ another one in the given direction and combine them into a new one.
 
-  - Note: `beside dir` and all its descendents forms a monoid with `empty`.
-  - Note: same as `beside` in Diagrams
+Most of the time it is way nicer to use `horizontal` or `vertical` to express your layout,
+but `beside dir` can come into hand as a curried function.
+
+  - Note: `beside dir` forms a monoid with `empty` for every `dir`.
+  - Note: same as `beside` in Diagrams.
 
 -}
 beside : Direction -> Collage msg -> Collage msg -> Collage msg
 beside dir a b =
     stack [ a, place dir a b ]
-
-
-{-| Given two diagrams a and b, place b to the **left** of a,
-such that their origins are on a horizontal line and their envelopes touch.
-The origin of the new collage is the origin of a. FIXME: true?
-Sumarised:
-
-    before a b -- read: before a, put b
-
-Which is equivallent to:
-
-    b
-        |> before a
-
-  - Warning: Do net read this infix, arguments are swapped with regard to Diagrams!
-
--}
-before : Collage msg -> Collage msg -> Collage msg
-before =
-    beside Left
-
-
-{-| Given two diagrams a and b, place b to the **right** of a,
-such that their origins are on a horizontal line and their envelopes touch.
-The origin of the new collage is the origin of a. FIXME: true?
-Sumarised:
-
-    after a b -- read: after a, put b
-
-  - Warning: The `(|>)` doesn't read well combined with `after`, don't use it!
-  - Warning: Do net read this infix, arguments are swapped with regard to Diagrams!
-
--}
-after : Collage msg -> Collage msg -> Collage msg
-after =
-    beside Right
-
-
-{-| Given two forms a and b, place b **above** a,
-such that their origins are on a vertical line and their envelopes touch.
-The origin of the new collage is the center of a and b. FIXME: true?
-Summarised:
-
-    above a b -- read: above a, put b
-
-Which is equivallent to
-
-    b
-        |> above a
-
-  - Warning: Do not read this infix, arguments are swapped with regard to Diagrams!
-
--}
-above : Collage msg -> Collage msg -> Collage msg
-above =
-    beside Up
-
-
-{-| Given two forms a and b, place b **below** a,
-such that their origins are on a vertical line and their envelopes touch.
-The origin of the new collage is the center of a and b. FIXME: true?
-Summarised:
-
-    below a b -- read: below a, put b
-
-  - Warning: The `(|>)` doesn't read well combined with `below`, don't use it!
-  - Warning: Do not read this infix, arguments are swapped with regard to Diagrams!
-
--}
-below : Collage msg -> Collage msg -> Collage msg
-below =
-    beside Down
 
 
 
@@ -469,44 +426,44 @@ The first element in the list will be on the left, the last on the right.
 
     horizontal [a, b, c]
 
-       +–––+–––+–––+
-       | a | b | c |
-       +–––+–––+–––+
+        +–––+–––+–––+
+        | a | b | c |
+        +–––+–––+–––+
 
-  - Note: this is called `hcat` in Diagrams
+  - Note: this is called `hcat` in Diagrams.
 
 -}
 horizontal : List (Collage msg) -> Collage msg
 horizontal =
-    List.foldr after empty
+    List.foldr (beside Right) empty
 
 
-{-| Place a list of Diagrams next to each other,
+{-| Place a list of collages next to each other,
 such that their origins are along a vertical line.
 The first element in the list will be on the top, the last on the bottom.
 
     vertical [a, b, c]
 
-       +–––+
-       | a |
-       +–––+
-       | b |
-       +–––+
-       | c |
-       +–––+
+        +–––+
+        | a |
+        +–––+
+        | b |
+        +–––+
+        | c |
+        +–––+
 
-  - Note: this is called `vcat` in Diagrams
+  - Note: this is called `vcat` in Diagrams.
 
 -}
 vertical : List (Collage msg) -> Collage msg
 vertical =
-    List.foldr below empty
+    List.foldr (beside Down) empty
 
 
-{-| Place a list of diagrams on top of each other,
-with their origin points stacked on the "out of page" axis.
+{-| Place a list of collages on top of each other, with their origin points stacked on the "out of page" axis.
+
 The first collage in the list is on top.
-This is the same as the `group` operation in the collage module.
+This actually is the same as the `group` operation in the Collage module.
 
     stack [a, b, c]
 
@@ -518,37 +475,35 @@ This is the same as the `group` operation in the collage module.
 
   - Note: this is called `concat` in Diagrams.
 
+  - Note: when we create an operator `(<>)` like
+
+        (<>) a b =
+            stack [ a, b ]
+
+    then `(<>)` forms a monoid together with `empty`.
+    `(<>)` is called `atop` in Diagrams.
+
 -}
 stack : List (Collage msg) -> Collage msg
 stack =
     Collage.group
 
 
-{-| Infix operator for `stack`.
+{-| Impose a collage on a background.
 
-    a <> b == stack [a, b]
+The call
 
-  - Note: `(<>)` forms a monoid with `empty`.
-  - Note: this is called `(<>)` or `atop` in Diagrams.
+    impose fore back
 
--}
-(<>) : Collage msg -> Collage msg -> Collage msg
-(<>) a b =
-    stack [ a, b ]
+stacks `fore` on `back`.
+The envelope of `fore` will be "forgotten"
+and `back` will be used to calculate the envelope of the resulting collage.
 
-
-{-| Impose one collage on a background.
-
-`impose foreground background` stacks `foreground` on `background`.
-The envelope of `foreground` will be "forgotten"
-and `background` will be used to calculate the envlope of the resulting collage.
-
-       impose a b -- read: "impose a on b"
-
-or:
-
-       b
-           |> impose a
+        +–––––––––––+
+        | b +–––+   |
+        |   | a |   | <-- new envelope
+        |   +–––+   |
+        +–––––––––––+
 
 -}
 impose : Collage msg -> Collage msg -> Collage msg
@@ -568,13 +523,11 @@ Use this, for example, when you like to align some collages to the top:
         |> List.map (align top)
         |> horizontal
 
-    =>
-
-    +––X––+––––X––––+–X–+
-    |  a  |    b    | c |
-    |     +–––––––––+   |
-    +–––––+         |   |
-                    +–––+
+        +––X––+––––X––––+–X–+
+        |  a  |    b    | c |
+        |     +–––––––––+   |
+        +–––––+         |   |
+                        +–––+
 
 Anchors are created by the functions from the section below.
 
@@ -629,9 +582,7 @@ center =
 
 
 {-| Anchors are technically just functions.
-
 You can use any function as an anchor as long as it takes a collage and returns a displacement relative to its internal origin.
-
 -}
 type alias Anchor msg =
     Collage msg -> Point
@@ -731,11 +682,6 @@ left collage =
 topLeft : Anchor msg
 topLeft collage =
     ( envelope Left collage, envelope Up collage )
-
-
-
--- TODO: add baseX, and baseY (horizontalBase and vertialBase)?
--- TODO: and add centerX, and centerY too?
 
 
 {-|

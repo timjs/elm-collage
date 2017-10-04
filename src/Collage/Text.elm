@@ -1,14 +1,12 @@
 module Collage.Text
     exposing
-        ( Alignment(..)
-        , Face(..)
+        ( Face(..)
         , Line(..)
         , Shape(..)
         , Style
         , Text
           --(.)
         , Weight(..)
-        , alignment
         , color
         , defaultStyle
         , empty
@@ -67,11 +65,6 @@ It lets you make text bold or italic, set the typeface, set the text size, etc.
 ## Decorations
 
 @docs Line, line
-
-
-## Alignment
-
-@docs Alignment, alignment
 
 
 ## Creating styles
@@ -149,7 +142,7 @@ type alias Style =
     , line : Maybe Line
 
     --TODO: todo or not todo?
-    , alignment : Alignment
+    -- , alignment : Alignment
     }
 
 
@@ -191,7 +184,8 @@ defaultStyle =
     , shape = Upright
     , weight = Regular
     , line = Nothing
-    , alignment = Left
+
+    -- , alignment = Left
     }
 
 
@@ -346,26 +340,25 @@ line line (Core.Chunk style str) =
 
 
 
--- Alignment -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -
+{-
+   -- Alignment -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -
 
 
-{-| Describes the alignment (justification) of a piece of text.
+   {-| Describes the alignment (justification) of a piece of text.
+   -}
+   type Alignment
+       = Left
+       | Right
+         -- | Justify
+       | Center
+
+
+   {-| Set the alignment of some text.
+   -}
+   alignment : Alignment -> Text -> Text
+   alignment alignment (Core.Chunk style str) =
+       Core.Chunk { style | alignment = alignment } str
 -}
-type Alignment
-    = Left
-    | Right
-      -- | Justify
-    | Center
-
-
-{-| Set the alignment of some text.
--}
-alignment : Alignment -> Text -> Text
-alignment alignment (Core.Chunk style str) =
-    Core.Chunk { style | alignment = alignment } str
-
-
-
 -- Calculations ----------------------------------------------------------------
 
 

@@ -33,6 +33,25 @@ While the String library focuses on representing and manipulating strings of cha
 the Text library focuses on how those strings should look on screen.
 It lets you make text bold or italic, set the typeface, set the text size, etc.
 
+Be aware that this module is intended for **small chunks of text** only.
+Therefore is **not a good idea to use newlines** in a text chunk.
+Alignment and placement should be done using the Collage or Layout modules.
+
+To add some text to your collages,
+follow the next steps:
+
+1.  Create some text chunk with `fromString`.
+2.  Style it using the functions in this module.
+3.  Make a collage out of it, i.e. render it using `Collage.rendered`.
+    From this point you cannot style you text any more.
+    What you _can_ do however is...
+4.  Transform the collage using the functions in the Collage module:
+    shift it, rotate it, scale it etc.
+    Or use the placement functions in Collage.Layout.
+
+So the most important thing to remember is that after you have turned your text into a collage,
+you cannot style it any more!
+
 
 # Text
 
@@ -53,6 +72,12 @@ It lets you make text bold or italic, set the typeface, set the text size, etc.
 
 
 ## Size
+
+The predefined font sizes below are spaced `sqrt (sqrt 2)` of each other.
+which gives a balanced view.
+This idea is bluntly stolen from LaTeX,
+which does something quite similar.
+Off course, you can always specify your own font size explicitly.
 
 @docs size, tiny, small, normal, large, huge, enormous
 
@@ -86,10 +111,7 @@ import Native.Text
 -- Text ------------------------------------------------------------------------
 
 
-{-| Represents styled text.
-
-It can be rendered with collages.
-
+{-| Opaque type representing styled text.
 -}
 type alias Text =
     Core.Text Style
@@ -101,9 +123,11 @@ type alias Text =
 
 {-| Convert a string into text which can be styled and displayed.
 
-To show the string "Hello World!" on screen in italics, you could say:
+To show the string "Hello World!" on screen in large, dark red, italics, you could say:
 
     fromString "Hello World!"
+        |> size large
+        |> color Color.darkRed
         |> shape Italic
         |> Collage.rendered
 
@@ -136,9 +160,7 @@ type alias Style =
     , color : Color
     , shape : Shape
     , weight : Weight
-
-    --FIXME: should be Set Line
-    , line : Maybe Line
+    , line : Line
 
     --TODO: todo or not todo?
     -- , alignment : Alignment
@@ -173,6 +195,15 @@ style style (Core.Chunk _ string) =
 It uses the browsers default typeface and text height.
 No decorations are used.
 
+    defaultStyle =
+        { typeface = Sansserif
+        , size = normal
+        , color = Color.black
+        , shape = Upright
+        , weight = Regular
+        , line = None
+        }
+
 -}
 defaultStyle : Style
 defaultStyle =
@@ -181,7 +212,7 @@ defaultStyle =
     , color = Color.black
     , shape = Upright
     , weight = Regular
-    , line = Nothing
+    , line = None
 
     -- , alignment = Left
     }
@@ -201,12 +232,14 @@ type Typeface
     = Serif
     | Sansserif
     | Monospace
-      -- | Cursive
-      -- | Fantasy
     | Font String
 
 
 {-| Set the typeface of some text.
+
+    fromString "Text in my favorite font"
+        |> typeface (Font "Lato")
+
 -}
 typeface : Typeface -> Text -> Text
 typeface typeface (Core.Chunk style str) =
@@ -214,6 +247,12 @@ typeface typeface (Core.Chunk style str) =
 
 
 {-| Set the color of some text.
+
+Use the Color module to specify colors.
+
+    fromString "Nice blue text"
+        |> color Color.blue
+
 -}
 color : Color -> Text -> Text
 color color (Core.Chunk style str) =
@@ -225,108 +264,134 @@ color color (Core.Chunk style str) =
 
 
 {-| Set the size of some text.
+
+    fromString "Big text"
+        |> size huge
+
 -}
 size : Int -> Text -> Text
 size size (Core.Chunk style str) =
     Core.Chunk { style | size = size } str
 
 
-{-| -}
+{-| 11 px
+-}
 tiny : Int
 tiny =
     11
 
 
-{-| -}
+{-| 13 px
+-}
 small : Int
 small =
     13
 
 
-{-| -}
+{-| 16 px
+-}
 normal : Int
 normal =
     16
 
 
-{-| -}
+{-| 19 px
+-}
 large : Int
 large =
     19
 
 
-{-| -}
+{-| 23 px
+-}
 huge : Int
 huge =
     23
 
 
-{-| -}
+{-| 27 px
+-}
 enormous : Int
 enormous =
     27
 
 
 
--- Shape and Weight -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
+-- Shape, Weight and Stretch -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
 
 
 {-| Possible shapes for a piece of text.
 -}
 type Shape
     = Upright
-      -- | SmallCapped
-      -- | Slanted
+    | SmallCaps
+    | Slanted
     | Italic
 
 
 {-| Set the shape of some text.
+
+    fromString "Italic text"
+        |> shape Italic
+
 -}
 shape : Shape -> Text -> Text
 shape shape (Core.Chunk style str) =
     Core.Chunk { style | shape = shape } str
 
 
-
--- type Weight
---     = ExtraLight
---     | Light
---     | Medium
---     | SemiBold
---     | Bold
---     | Black
-
-
 {-| Possible weights for a piece of text.
 -}
 type Weight
-    = Regular
+    = Thin
+    | Light
+    | Regular
+    | Medium
+    | SemiBold
     | Bold
+    | Black
 
 
-{-| Makes `Text` bold.
+{-| Set the weight of some text.
+
+    fromString "Bold text"
+        |> weight Bold
+
 -}
 weight : Weight -> Text -> Text
 weight weight (Core.Chunk style str) =
     Core.Chunk { style | weight = weight } str
 
 
+type Stretch
+    = Condensed
+    | Normal
+    | Expanded
 
+
+
+{-
+   stretch : Stretch -> Text -> Text
+   stretch stretch (Core.Chunk style str) =
+       Core.Chunk { style | stretch = stretch } str
+-}
 -- Decoration -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
 
 
 {-| Styles for lines on text.
 -}
 type Line
-    = Under
+    = None
+    | Under
     | Over
     | Through
 
 
 {-| Put lines on text.
 
-This allows you to add an underline, an overline, or a strike out text:
+This allows you to add an underline, an overline, or strike out text:
 
+    line None    (fromString "normal text")
     line Under   (fromString "underline")
     line Over    (fromString "overline")
     line Through (fromString "strike out")
@@ -334,7 +399,7 @@ This allows you to add an underline, an overline, or a strike out text:
 -}
 line : Line -> Text -> Text
 line line (Core.Chunk style str) =
-    Core.Chunk { style | line = Just line } str
+    Core.Chunk { style | line = line } str
 
 
 
@@ -379,9 +444,9 @@ This is equal to the text size:
 
     fromString "Hello World!"
         |> size 16
-        |> height
-    ==
-    16
+        |> height    ==    16
+
+(Now you know why newlines are a bad idea...)
 
 -}
 height : Text -> Float
@@ -404,20 +469,46 @@ toCssFontSpec style =
         spec =
             [ -- font-style
               case style.shape of
-                Italic ->
-                    "italic"
-
                 Upright ->
                     "normal"
+
+                SmallCaps ->
+                    "normal"
+
+                Slanted ->
+                    "oblique"
+
+                Italic ->
+                    "italic"
             , -- font-variant
-              "normal"
+              case style.shape of
+                SmallCaps ->
+                    "small-caps"
+
+                _ ->
+                    "normal"
             , -- font-weight
               case style.weight of
-                Bold ->
-                    "bold"
+                Thin ->
+                    "200"
+
+                Light ->
+                    "300"
 
                 Regular ->
                     "normal"
+
+                Medium ->
+                    "500"
+
+                SemiBold ->
+                    "600"
+
+                Bold ->
+                    "bold"
+
+                Black ->
+                    "800"
             , -- font-size
               toString style.size ++ "px"
             , -- font-family

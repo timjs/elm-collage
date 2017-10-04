@@ -216,26 +216,59 @@ attrs collage id =
             , Svg.fontSize <| toString style.size
             , Svg.fontWeight <|
                 case style.weight of
-                    Text.Bold ->
-                        "bold"
+                    Text.Thin ->
+                        "200"
+
+                    Text.Light ->
+                        "300"
 
                     Text.Regular ->
                         "normal"
+
+                    Text.Medium ->
+                        "500"
+
+                    Text.SemiBold ->
+                        "600"
+
+                    Text.Bold ->
+                        "bold"
+
+                    Text.Black ->
+                        "800"
             , Svg.fontStyle <|
                 case style.shape of
+                    Text.Upright ->
+                        "normal"
+
+                    Text.SmallCaps ->
+                        "normal"
+
+                    Text.Slanted ->
+                        "oblique"
+
                     Text.Italic ->
                         "italic"
+            , Svg.fontVariant <|
+                case style.shape of
+                    Text.SmallCaps ->
+                        "small-caps"
 
-                    Text.Upright ->
+                    _ ->
                         "normal"
             , Svg.textDecoration <|
                 case style.line of
-                    Just Text.Under ->
+                    Text.None ->
+                        "none"
+
+                    Text.Under ->
                         "underline"
 
-                    --FIXME: add more
-                    _ ->
-                        "none"
+                    Text.Over ->
+                        "overline"
+
+                    Text.Through ->
+                        "line-through"
             , Svg.textAnchor <| "middle"
             , Svg.dominantBaseline "middle"
             , Svg.transform <| evalTransform collage

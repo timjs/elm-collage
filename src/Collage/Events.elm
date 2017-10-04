@@ -2,31 +2,43 @@ module Collage.Events
     exposing
         ( on
         , onClick
+        , onDoubleClick
         , onFocusIn
         , onFocusOut
         , onMouseDown
+        , onMouseEnter
+        , onMouseLeave
         , onMouseOut
         , onMouseOver
         , onMouseUp
         )
 
-{-|
+{-| Use this module to make your graphics interactive.
+It is as easy as you think it is.
+
+    collage
+        |> onClick Clicked
+
+Will send the message `Clicked` to your update function where you can handle it.
+You will probably need some way to identify your objects to keep track of _which_ object the user clicked on:
+
+    drawing.collage
+        |> onClick (Clicked drawing.id)
+
+where `drawing : { r | collage : Collage, id : Id }`
 
 
-# Events
+# Mouse Events
+
+@docs onClick, onDoubleClick, onMouseDown, onMouseUp, onMouseEnter, onMouseLeave, onMouseOver, onMouseOut
 
 
-## Mouse Events
-
-@docs onClick, onMouseDown, onMouseUp, onMouseOver, onMouseOut
-
-
-## Focus Events
+# Focus Events
 
 @docs onFocusIn, onFocusOut
 
 
-## Custom Events
+# Custom Events
 
 @docs on
 
@@ -39,12 +51,13 @@ import Json.Decode as Json exposing (field)
 -- Events ----------------------------------------------------------------------
 
 
-{-| Adds a custom event handler to a `Collage`. The first
-argument specifies the event name (as you would give it
-to JavaScript's `addEventListener`). The second argument
-will be used to decode the JSON response from the event
-listener. If the decoder succeeds, the resulting message
-will be passed along to your `update` function.
+{-| Adds a custom event handler to a collage.
+
+The first argument specifies the event name
+(as you would give it to JavaScript's `addEventListener`).
+The second argument will be used to decode the Json response from the event listener.
+If the decoder succeeds,
+the resulting message will be passed along to your `update` function.
 
     onClick : msg -> Collage msg -> Collage msg
     onClick msg =
@@ -52,8 +65,8 @@ will be passed along to your `update` function.
 
 -}
 on : String -> Json.Decoder msg -> Collage msg -> Collage msg
-on event decoder f =
-    { f | handlers = ( event, decoder ) :: f.handlers }
+on event decoder collage =
+    { collage | handlers = ( event, decoder ) :: collage.handlers }
 
 
 simpleOn : String -> msg -> Collage msg -> Collage msg
@@ -78,6 +91,12 @@ onClick =
 
 
 {-| -}
+onDoubleClick : msg -> Collage msg -> Collage msg
+onDoubleClick =
+    simpleOn "dblclick"
+
+
+{-| -}
 onMouseDown : (Point -> msg) -> Collage msg -> Collage msg
 onMouseDown =
     mouseOn "mousedown"
@@ -90,9 +109,15 @@ onMouseUp =
 
 
 {-| -}
-onMouseMove : (Point -> msg) -> Collage msg -> Collage msg
-onMouseMove =
-    mouseOn "mousemove"
+onMouseEnter : (Point -> msg) -> Collage msg -> Collage msg
+onMouseEnter =
+    mouseOn "mouseenter"
+
+
+{-| -}
+onMouseLeave : (Point -> msg) -> Collage msg -> Collage msg
+onMouseLeave =
+    mouseOn "mouseleave"
 
 
 {-| -}
@@ -105,6 +130,12 @@ onMouseOver =
 onMouseOut : (Point -> msg) -> Collage msg -> Collage msg
 onMouseOut =
     mouseOn "mouseout"
+
+
+{-| -}
+onMouseMove : (Point -> msg) -> Collage msg -> Collage msg
+onMouseMove =
+    mouseOn "mousemove"
 
 
 {-| -}

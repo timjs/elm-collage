@@ -201,8 +201,8 @@ attrs collage id =
         Core.Text _ (Core.Chunk style str) ->
             [ Svg.fill <| decodeFill (Core.Uniform style.color) id
             , Svg.fontFamily <|
-                case style.face of
-                    Text.Roman ->
+                case style.typeface of
+                    Text.Serif ->
                         "serif"
 
                     Text.Sansserif ->

@@ -1,17 +1,16 @@
 module Collage.Text
     exposing
-        ( Face(..)
-        , Line(..)
+        ( Line(..)
         , Shape(..)
         , Style
         , Text
           --(.)
+        , Typeface(..)
         , Weight(..)
         , color
         , defaultStyle
         , empty
         , enormous
-        , face
         , fromString
         , height
         , huge
@@ -23,6 +22,7 @@ module Collage.Text
         , small
         , style
         , tiny
+        , typeface
         , weight
         , width
         )
@@ -49,7 +49,7 @@ It lets you make text bold or italic, set the typeface, set the text size, etc.
 
 ## Typeface and color
 
-@docs Face, face, color
+@docs Typeface, typeface, color
 
 
 ## Size
@@ -105,7 +105,6 @@ To show the string "Hello World!" on screen in italics, you could say:
 
     fromString "Hello World!"
         |> shape Italic
-        |> alignment Left
         |> Collage.rendered
 
 -}
@@ -132,7 +131,7 @@ empty =
 {-| Specifies the styling (color, typeface, weight, etc.) of text.
 -}
 type alias Style =
-    { face : Face
+    { typeface : Typeface
     , size : Int
     , color : Color
     , shape : Shape
@@ -152,13 +151,12 @@ For example, if you design a style called `heading` that is specifically for hea
 you could apply it to text like this:
 
     heading =
-        { face = Sansserif
+        { typeface = Sansserif
         , size = huge
         , color = Color.darkBlue
         , shape = Upright
         , weight = Bold
         , line = Nothing
-        , alignment = Center
         }
 
     fromString "Welcome to Elm Collage!"
@@ -178,7 +176,7 @@ No decorations are used.
 -}
 defaultStyle : Style
 defaultStyle =
-    { face = Sansserif
+    { typeface = Sansserif
     , size = normal
     , color = Color.black
     , shape = Upright
@@ -190,17 +188,17 @@ defaultStyle =
 
 
 
--- Face and Color -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -
+-- Typeface and Color -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -
 
 
 {-| Possible typefaces for text.
 
-`Roman`, `Sansserif` and `Monospace` correspond to the default browser fonts of the user.
+`Serif`, `Sansserif` and `Monospace` correspond to the default browser fonts of the user.
 Use `Font` to specify a concrete typeface.
 
 -}
-type Face
-    = Roman
+type Typeface
+    = Serif
     | Sansserif
     | Monospace
       -- | Cursive
@@ -210,9 +208,9 @@ type Face
 
 {-| Set the typeface of some text.
 -}
-face : Face -> Text -> Text
-face face (Core.Chunk style str) =
-    Core.Chunk { style | face = face } str
+typeface : Typeface -> Text -> Text
+typeface typeface (Core.Chunk style str) =
+    Core.Chunk { style | typeface = typeface } str
 
 
 {-| Set the color of some text.
@@ -423,8 +421,8 @@ toCssFontSpec style =
             , -- font-size
               toString style.size ++ "px"
             , -- font-family
-              case style.face of
-                Roman ->
+              case style.typeface of
+                Serif ->
                     "serif"
 
                 Sansserif ->

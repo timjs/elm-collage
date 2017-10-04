@@ -262,12 +262,12 @@ since collages are always composed with respect to their local origins.
 
 -}
 shift : ( Float, Float ) -> Collage msg -> Collage msg
-shift ( tx, ty ) collage =
+shift ( dx, dy ) collage =
     let
         ( x, y ) =
             collage.origin
     in
-    { collage | origin = ( x + tx, y + ty ) }
+    { collage | origin = ( x + dx, y + dy ) }
 
 
 {-| Scale a collage by a given factor. Scaling by 2 doubles both dimensions,
@@ -318,13 +318,13 @@ polygon =
     Core.Polygon
 
 
-{-| Create a regular polygon with a given number of sides and radius.
+{-| A regular polygon with a given number of sides and radius.
 
 Examples:
 
-    ngon 3 50 - triangle
-    ngon 5 50 - pentagon
-    ngon 8 50 - octogon
+    ngon 3 50  -- triangle
+    ngon 5 50  -- pentagon
+    ngon 8 50  -- octogon
 
 -}
 ngon : Int -> Float -> Shape
@@ -342,32 +342,55 @@ ngon n r =
     Core.Polygon <| List.map f (List.range 0 n)
 
 
-{-| -}
+{-| A triangle pointing upwards with given base.
+
+Note the difference between the `triangle` function and the `ngon`:
+
+  - `triangle base` gives us a triangle pointing upwards,
+    three equal sides of length `base`,
+    and a distance from point to center of `sqrt 7 / 4 * base`.
+  - `ngon 3 radius` gives us a triangle pointing right,
+    three equal sides of length `4 / sqrt 7 * radius`
+    and a radius of `radius`.
+
+-}
 triangle : Float -> Shape
-triangle =
-    ngon 3
+triangle b =
+    let
+        x =
+            b / 2
+
+        y =
+            sqrt 3 / 2 * x
+    in
+    polygon [ ( -x, y ), ( x, y ), ( 0, -y ) ]
 
 
-{-| A rectangle. The arguments specify thickness and height, respectively.
+{-| A rectangle of given width and height.
 -}
 rectangle : Float -> Float -> Shape
 rectangle w h =
     let
-        halfW =
+        x =
             w / 2
 
-        halfH =
+        y =
             h / 2
     in
     polygon
-        [ ( 0 - halfW, halfH )
-        , ( halfW, halfH )
-        , ( halfW, 0 - halfH )
-        , ( 0 - halfW, 0 - halfH )
+        [ ( -x, y )
+        , ( x, y )
+        , ( x, -y )
+        , ( -x, -y )
         ]
 
 
-{-| A square with a given edge length.
+{-| A square of given size.
+
+Off course this is equal to using `rectangle` with the same width and height:
+
+    square size  ==  rectangle size size
+
 -}
 square : Float -> Shape
 square n =
@@ -378,16 +401,22 @@ square n =
 -- TODO: add roundedRect and roundedSquare
 
 
-{-| An ellipse. The arugments specify the horizontal and vertical radii,
-respectively.
-NOTE: called `oval` in original lib
+{-| An ellipse of given horizontal and vertical radii.
+
+  - Note: this function was called `oval` in original lib.
+
 -}
 ellipse : Float -> Float -> Shape
 ellipse =
     Core.Ellipse
 
 
-{-| A circle. The argument specifies the radius.
+{-| A circle of given radius.
+
+As with a square, using `circle` is the same as using `ellips` with the same x and y radii:
+
+    circle radius  ==  ellipse radius radius
+
 -}
 circle : Float -> Shape
 circle r =

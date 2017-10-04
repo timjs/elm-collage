@@ -507,6 +507,8 @@ and `back` will be used to calculate the envelope of the resulting collage.
         |   +–––+   |
         +–––––––––––+
 
+Obviously, this also works with the background having a smaller envelope than the foreground.
+
 -}
 impose : Collage msg -> Collage msg -> Collage msg
 impose front back =

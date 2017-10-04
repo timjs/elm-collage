@@ -1,14 +1,19 @@
 module Collage
     exposing
         ( BasicCollage
+          --(.)
         , Collage
+          --(.)
         , FillStyle
-        , LineCap
-        , LineJoin
+          --(.)
+        , LineCap(..)
+        , LineJoin(..)
         , LineStyle
         , Path
+          --(.)
         , Point
         , Shape
+          --(.)
         , Style
         , broken
         , circle
@@ -217,13 +222,12 @@ red circle, a line of text, or an arbitrary HTML element.
 
 -}
 type alias Collage msg =
-    Core.Collage msg
+    Core.Collage Core.FillStyle LineStyle Text.Style msg
 
 
-{-| Basic collage type. Public to support multiple rendering enginges.
--}
+{-| -}
 type alias BasicCollage msg =
-    Core.BasicCollage msg
+    Core.BasicCollage Core.FillStyle LineStyle Text.Style msg
 
 
 
@@ -603,7 +607,13 @@ transparent =
 
 -}
 type alias LineStyle =
-    Core.LineStyle
+    { fill : FillStyle
+    , thickness : Float
+    , cap : LineCap
+    , join : LineJoin
+    , dashPattern : List ( Int, Int )
+    , dashPhase : Int
+    }
 
 
 {-| Invisible line
@@ -629,7 +639,7 @@ broken [(10,5),(20,5)] -- on for 10, off 5, on 20, off 5
 -}
 broken : List ( Int, Int ) -> Float -> FillStyle -> LineStyle
 broken dash thickness texture =
-    Core.LineStyle texture thickness Core.Flat Core.Sharp dash 0
+    LineStyle texture thickness Flat Sharp dash 0
 
 
 
@@ -735,17 +745,29 @@ no endings, `Padded` capped lines have flat endings that extend
 slightly past the end of the line, and `Round` capped lines have
 hemispherical endings.
 
-(Cases are not shown due to technical limitations of interal exports in Elm.)
+In TikZ and Css:
+
+    = Butt
+    | Round
+    | Rect
 
 -}
-type alias LineCap =
-    Core.LineCap
+type LineCap
+    = Flat
+    | Round
+    | Padded
 
 
 {-| Describes the join style of a line.
 
-(Cases are not shown due to technical limitations of interal exports in Elm.)
+In TikZ and Css:
+
+    = Round
+    | Bevel
+    | Miter
 
 -}
-type alias LineJoin =
-    Core.LineJoin
+type LineJoin
+    = Smooth
+    | Clipped
+    | Sharp

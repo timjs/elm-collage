@@ -7,9 +7,8 @@ but we only provide a Svg backend here.
 
 -}
 
--- NOTE: Render should only depend on Core, not Collage itself
-
-import Collage.Core as Core exposing (Collage, Point)
+import Collage exposing (Collage, Point)
+import Collage.Core as Core
 import Collage.Layout as Layout
 import Collage.Text as Text exposing (Text)
 import Color exposing (Color)
@@ -97,7 +96,7 @@ render collage id =
                 Core.Loop path ->
                     render { collage | basic = Core.Path line path } id
 
-        Core.Text _ (Text.Text style str) ->
+        Core.Text _ (Core.Chunk style str) ->
             ( id
             , [ Svg.text_ (attrs collage id ++ events collage)
                     [ Svg.text str ]
@@ -199,7 +198,7 @@ attrs collage id =
             , Svg.strokeDasharray <| decodeDashing line.dashPattern
             ]
 
-        Core.Text _ (Text.Text style str) ->
+        Core.Text _ (Core.Chunk style str) ->
             [ Svg.fill <| decodeFill (Core.Uniform style.color) id
             , Svg.fontFamily <|
                 case style.face of
@@ -246,29 +245,29 @@ attrs collage id =
             [ Svg.transform <| evalTransform collage ]
 
 
-decodeCap : Core.LineCap -> String
+decodeCap : Collage.LineCap -> String
 decodeCap cap =
     case cap of
-        Core.Round ->
+        Collage.Round ->
             "round"
 
-        Core.Padded ->
+        Collage.Padded ->
             "square"
 
-        Core.Flat ->
+        Collage.Flat ->
             "butt"
 
 
-decodeJoin : Core.LineJoin -> String
+decodeJoin : Collage.LineJoin -> String
 decodeJoin join =
     case join of
-        Core.Smooth ->
+        Collage.Smooth ->
             "round"
 
-        Core.Sharp ->
+        Collage.Sharp ->
             "milter"
 
-        Core.Clipped ->
+        Collage.Clipped ->
             "bevel"
 
 

@@ -5,8 +5,8 @@ module Collage.Text
         , Line(..)
         , Shape(..)
         , Style
-          --TODO: should be internal
-        , Text(..)
+        , Text
+          --(.)
         , Weight(..)
         , alignment
         , color
@@ -85,6 +85,7 @@ It lets you make text bold or italic, set the typeface, set the text size, etc.
 
 -}
 
+import Collage.Core as Core
 import Color exposing (Color)
 import Native.Text
 
@@ -97,8 +98,8 @@ import Native.Text
 It can be rendered with collages.
 
 -}
-type Text
-    = Text Style String
+type alias Text =
+    Core.Text Style
 
 
 
@@ -117,7 +118,7 @@ To show the string "Hello World!" on screen in italics, you could say:
 -}
 fromString : String -> Text
 fromString =
-    Text defaultStyle
+    Core.Chunk defaultStyle
 
 
 {-| Text with nothing in it.
@@ -172,8 +173,8 @@ you could apply it to text like this:
 
 -}
 style : Style -> Text -> Text
-style style (Text _ string) =
-    Text style string
+style style (Core.Chunk _ string) =
+    Core.Chunk style string
 
 
 {-| Plain black text.
@@ -216,15 +217,15 @@ type Face
 {-| Set the typeface of some text.
 -}
 face : Face -> Text -> Text
-face face (Text style str) =
-    Text { style | face = face } str
+face face (Core.Chunk style str) =
+    Core.Chunk { style | face = face } str
 
 
 {-| Set the color of some text.
 -}
 color : Color -> Text -> Text
-color color (Text style str) =
-    Text { style | color = color } str
+color color (Core.Chunk style str) =
+    Core.Chunk { style | color = color } str
 
 
 
@@ -234,8 +235,8 @@ color color (Text style str) =
 {-| Set the size of some text.
 -}
 size : Int -> Text -> Text
-size size (Text style str) =
-    Text { style | size = size } str
+size size (Core.Chunk style str) =
+    Core.Chunk { style | size = size } str
 
 
 {-| -}
@@ -290,8 +291,8 @@ type Shape
 {-| Set the shape of some text.
 -}
 shape : Shape -> Text -> Text
-shape shape (Text style str) =
-    Text { style | shape = shape } str
+shape shape (Core.Chunk style str) =
+    Core.Chunk { style | shape = shape } str
 
 
 
@@ -314,8 +315,8 @@ type Weight
 {-| Makes `Text` bold.
 -}
 weight : Weight -> Text -> Text
-weight weight (Text style str) =
-    Text { style | weight = weight } str
+weight weight (Core.Chunk style str) =
+    Core.Chunk { style | weight = weight } str
 
 
 
@@ -340,8 +341,8 @@ This allows you to add an underline, an overline, or a strike out text:
 
 -}
 line : Line -> Text -> Text
-line line (Text style str) =
-    Text { style | line = Just line } str
+line line (Core.Chunk style str) =
+    Core.Chunk { style | line = Just line } str
 
 
 
@@ -360,8 +361,8 @@ type Alignment
 {-| Set the alignment of some text.
 -}
 alignment : Alignment -> Text -> Text
-alignment alignment (Text style str) =
-    Text { style | alignment = alignment } str
+alignment alignment (Core.Chunk style str) =
+    Core.Chunk { style | alignment = alignment } str
 
 
 
@@ -377,7 +378,7 @@ alignment alignment (Text style str) =
 
 -}
 width : Text -> Float
-width (Text style string) =
+width (Core.Chunk style string) =
     Native.Text.width (toCssFontSpec style) string
 
 
@@ -393,7 +394,7 @@ This is equal to the text size:
 
 -}
 height : Text -> Float
-height (Text style _) =
+height (Core.Chunk style _) =
     toFloat style.size
 
 

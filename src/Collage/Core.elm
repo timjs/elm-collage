@@ -3,12 +3,9 @@ module Collage.Core
         ( BasicCollage(..)
         , Collage
         , FillStyle(..)
-        , LineCap(..)
-        , LineJoin(..)
-        , LineStyle
         , Path(..)
-        , Point
         , Shape(..)
+        , Text(..)
         , collage
         )
 
@@ -16,7 +13,6 @@ module Collage.Core
 Constructors are however not exposed to the user.
 -}
 
-import Collage.Text exposing (Text)
 import Color exposing (Color)
 import Html exposing (Html)
 import Json.Decode as Json
@@ -33,17 +29,27 @@ type alias Point =
 -- Collage ---------------------------------------------------------------------
 
 
-type alias Collage msg =
+type alias Collage fill line text msg =
     { origin : Point
     , theta : Float
     , scale : Float
     , alpha : Float
     , handlers : List ( String, Json.Decoder msg )
-    , basic : BasicCollage msg
+    , basic : BasicCollage fill line text msg
     }
 
 
-collage : BasicCollage msg -> Collage msg
+type BasicCollage fill line text msg
+    = Shape ( fill, line ) Shape
+    | Path line Path
+    | Text ( Float, Float ) (Text text)
+    | Image ( Float, Float ) String
+    | Element ( Float, Float ) (Html msg)
+    | Group (List (Collage fill line text msg))
+    | Subcollage (Collage fill line text msg) (Collage fill line text msg)
+
+
+collage : BasicCollage fill line text msg -> Collage fill line text msg
 collage basic =
     { origin = ( 0, 0 )
     , theta = 0
@@ -52,16 +58,6 @@ collage basic =
     , handlers = []
     , basic = basic
     }
-
-
-type BasicCollage msg
-    = Shape ( FillStyle, LineStyle ) Shape
-    | Path LineStyle Path
-    | Text ( Float, Float ) Text
-    | Image ( Float, Float ) String
-    | Element ( Float, Float ) (Html msg)
-    | Group (List (Collage msg))
-    | Subcollage (Collage msg) (Collage msg)
 
 
 
@@ -82,9 +78,12 @@ type Path
     = Polyline (List Point)
 
 
+type Text style
+    = Chunk style String
+
+
 
 -- Styles ----------------------------------------------------------------------
--- Fill style -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
 
 
 type FillStyle
@@ -93,43 +92,3 @@ type FillStyle
       -- | Gradient Gradient
       -- | Pattern Float Float String Float
     | Uniform Color
-
-
-
--- Line style -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
-
-
-type alias LineStyle =
-    { fill : FillStyle
-    , thickness : Float
-    , cap : LineCap
-    , join : LineJoin
-    , dashPattern : List ( Int, Int )
-    , dashPhase : Int
-    }
-
-
-{-| In Tikz and Svg:
-
-    = Butt
-    | Round
-    | Rect
-
--}
-type LineCap
-    = Flat
-    | Round
-    | Padded
-
-
-{-| In Tikz and Svg:
-
-    = Round
-    | Bevel
-    | Miter
-
--}
-type LineJoin
-    = Smooth
-    | Clipped
-    | Sharp

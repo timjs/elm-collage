@@ -402,7 +402,7 @@ triangle b =
         y =
             sqrt 3 / 2 * x
     in
-    polygon [ ( -x, y ), ( x, y ), ( 0, -y ) ]
+    polygon [ ( -x, -y ), ( x, -y ), ( 0, y ) ]
 
 
 {-| A rectangle of given width and height.
@@ -417,10 +417,10 @@ rectangle w h =
             h / 2
     in
     polygon
-        [ ( -x, y )
-        , ( x, y )
+        [ ( -x, -y )
         , ( x, -y )
-        , ( -x, -y )
+        , ( x, y )
+        , ( -x, y )
         ]
 
 

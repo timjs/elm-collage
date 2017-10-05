@@ -60,6 +60,14 @@ module Collage
 {-|
 
 
+# Coordinate system
+
+Because all major drawing libraries (Apple's Cocoa on iOS, Microsoft's WPF, .NET's System.Drawing, Java's FX, GTK+'s Cairo, HTML's Canvas, and SVG) use the **upper left** corner as the origin of a computer graphic,
+we use the same convention here.
+
+But not the "higher order" ones like TikZ, Diagrams, and Graphics...
+
+
 ## Main Design Goals
 
   - You can create _shapes_ like rectangles, circles, ellipses, polygons etc.
@@ -81,6 +89,37 @@ module Collage
   - You can laying out multiple collages in a compositional way by using the `Collage.Layout` module.
     This is similar to the functionality provided by the old `Graphics.Element` module
     and promoted by the popular Haskell [Diagrams library]().
+
+```
+Shape          Path         Text            Image      Html
+
+- polygon      - line       - fromString
+- ngon         - segment                      |          |
+- triangle     - path         |               |          |
+- rectangle                   |               |          |
+- square         |            |               |          |
+- oval           |            |               |          |
+- circle         |            |               |          |
+  |              |            |               |          |
+filled         traced       rendered          |        embedded
+outlined         |            |               |          |
+styled           |            |               |          |
+  |              |            |               |          |
+  +––––––––––––––+––––––––––––+–––––––––––––––+––––––––––+
+                              |
+                              |
+                              ˅
+
+                           Collage  ˂––+
+                                       |
+                           - shift     |
+                           - scale     |
+                           - rotate    |
+                           - opacity   |
+                           - group     |
+                             |         |
+                             +–––––––––+
+```
 
 -- OLD --
 

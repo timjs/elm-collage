@@ -32,10 +32,6 @@ svg ( width, height ) collage =
 
         h =
             toString height
-
-        c =
-            collage
-                |> Collage.shift ( width / 2, -height / 2 )
     in
     Html.div
         []
@@ -46,7 +42,7 @@ svg ( width, height ) collage =
             ]
           <|
             Tuple.second <|
-                render c 0
+                render (Collage.shift ( width / 2, -height / 2 ) collage) 0
         ]
 
 

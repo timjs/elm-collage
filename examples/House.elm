@@ -12,7 +12,7 @@ import Html exposing (Html)
 
 
 type alias Model =
-    { active : Part }
+    { hover : Part }
 
 
 type Part
@@ -25,8 +25,9 @@ type Part
     | Handle
 
 
+init : Model
 init =
-    { active = None }
+    { hover = None }
 
 
 
@@ -39,105 +40,66 @@ type alias Msg =
 
 update : Msg -> Model -> Model
 update msg model =
-    { active = msg }
+    { hover = msg }
 
 
 
 -- View ------------------------------------------------------------------------
 
 
-roof model =
-    triangle 1
-        |> filled
-            (if model.active == Roof then
-                uniform purple
-             else
-                uniform blue
-            )
-        |> onMouseEnter (always Roof)
-
-
-
---TODO: add broaden
--- |> broaden 0.75
-
-
-door model =
-    rectangle 0.2 0.4
-        |> filled
-            (if model.active == Door then
-                uniform purple
-             else
-                uniform red
-            )
-        |> onMouseEnter (always Door)
-
-
-handle model =
-    circle 0.02
-        |> filled
-            (if model.active == Handle then
-                uniform purple
-             else
-                uniform black
-            )
-        |> onMouseEnter (always Handle)
-
-
-wall model =
-    square 1
-        |> filled
-            (if model.active == Wall then
-                uniform purple
-             else
-                uniform yellow
-            )
-        |> onMouseEnter (always Wall)
-
-
-chimney model =
-    rectangle 0.1 0.4
-        |> filled
-            (if model.active == Chimney then
-                uniform purple
-             else
-                uniform green
-            )
-        |> onMouseEnter (always Chimney)
-
-
-smoke model =
+house : Model -> Collage Msg
+house model =
     let
-        puff p =
-            circle 0.05
+        interactive : Part -> FillStyle -> Shape -> Collage Msg
+        interactive part fill shape =
+            shape
                 |> filled
-                    (if model.active == Smoke then
+                    (if model.hover == part then
                         uniform purple
                      else
-                        uniform gray
+                        fill
                     )
-                |> shift p
-                |> onMouseEnter (always Smoke)
+                |> onMouseEnter (always part)
 
-        puffs =
-            List.map puff [ ( 0, 0 ), ( 0.05, -0.15 ) ]
+        --TODO: add `broaden 0.75`
+        roof =
+            interactive Roof (uniform blue) (triangle 1)
+
+        door =
+            interactive Door (uniform red) (rectangle 0.2 0.4)
+
+        handle =
+            interactive Handle (uniform black) (circle 0.02)
+
+        wall =
+            interactive Wall (uniform yellow) (square 1)
+
+        chimney =
+            interactive Chimney (uniform green) (rectangle 0.1 0.4)
+
+        smoke =
+            let
+                puff p =
+                    interactive Smoke (uniform gray) (circle 0.05)
+                        |> shift p
+
+                puffs =
+                    List.map puff [ ( 0, 0 ), ( 0.05, -0.15 ) ]
+            in
+            stack puffs
     in
-    stack puffs
-
-
-house model =
     vertical
         [ stack
-            [ roof model
-            , chimney model
-                |> at (top >> (\( x, y ) -> ( x, y + 0.15 ))) (smoke model)
+            [ roof
+            , chimney
+                |> at (top >> (\( x, y ) -> ( x, y + 0.15 ))) smoke
                 |> shift ( 0.25, -0.4 )
             ]
             |> center
         , stack
-            [ handle model |> shift ( 0.05, -0.2 )
-            , door model |> align bottom
-            , wall model |> align bottom
+            [ handle |> shift ( 0.05, -0.2 )
+            , door |> align bottom
+            , wall |> align bottom
             ]
         ]
 
@@ -153,6 +115,7 @@ view model =
 -- Main ------------------------------------------------------------------------
 
 
+main : Program Never Model Msg
 main =
     Html.beginnerProgram
         { model = init
@@ -162,8 +125,8 @@ main =
 
 
 
-{-
-   -- The diagram to be drawn, with features tagged by strings.
+{- Compare https://archives.haskell.org/projects.haskell.org/diagrams/blog/2015-04-30-GTK-coordinates.html:
+
    prettyHouse :: QDiagram Cairo V2 Double [String]
    prettyHouse = house
      where

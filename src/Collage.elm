@@ -24,7 +24,7 @@ module Collage
         , embedded
         , filled
         , group
-        , image
+        , included
         , invisible
         , line
         , longdash
@@ -224,7 +224,7 @@ align them to the left, to the top, etc.
 
 # Other Content
 
-@docs image, embedded
+@docs included, embedded
 
 
 # Styling
@@ -640,8 +640,8 @@ rendered text =
 
 {-| An image. The arguments specify the image's thickness, height and url.
 -}
-image : ( Float, Float ) -> String -> Collage msg
-image dims =
+included : ( Float, Float ) -> String -> Collage msg
+included dims =
     Core.collage << Core.Image dims
 
 

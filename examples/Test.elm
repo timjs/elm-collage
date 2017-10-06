@@ -59,7 +59,7 @@ debug collage =
 
 txt : Collage Msg
 txt =
-    rendered <| fromString "Hallo"
+    rendered <| fromString "Hello collage!"
 
 
 
@@ -110,6 +110,10 @@ lines =
             List.map hline [ ultrathin, verythin, thin, semithick, thick, verythick, ultrathick ]
 
 
+
+-- Alignments --
+
+
 alignments : Collage msg
 alignments =
     horizontal <|
@@ -122,25 +126,19 @@ alignments =
 
 view : Model -> Html Msg
 view model =
-    List.map debug [ horizontal [ circ model, rect ], rect ]
-        |> horizontal
+    vertical
+        [ rect
+        , horizontal
+            [ stack [ showEnvelope txt, circ model ]
+            , vertical
+                [ tria
+                , tria |> rotate pi
+                ]
+                |> center
+            ]
+        ]
+        |> debug
         |> svg
-
-
-
---Html.div [] [ txt |> showEnvelope |> svg ]
---horizontal [ impose (circ model) rect, circ model ]
---horizontal [ debug <| vertical [ circ model, debug rect ], debug rect ]
---horizontal [ lines1, lines2 ]
---vertical [ rect, stack [ txt, circ model ], tria ]
--- ==
---rect model
---    |> above (circ model)
---    |> above (tria model)
--- |> showEnvelope
--- |> showOrigin
---|> debug
---|> svg
 
 
 main : Program Never Model Msg

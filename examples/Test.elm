@@ -92,6 +92,12 @@ tria =
         |> styled ( uniform lightGreen, border )
 
 
+penta : Collage msg
+penta =
+    ngon 5 50
+        |> styled ( uniform lightCharcoal, border )
+
+
 
 -- Alignments --
 
@@ -117,6 +123,7 @@ view model =
                 , tria |> rotate pi
                 ]
                 |> center
+            , debug penta
             ]
         ]
         |> debug

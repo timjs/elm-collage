@@ -382,7 +382,7 @@ ngon n r =
             2 * pi / m
 
         f i =
-            ( r * cos (t * toFloat i), r * sin (t * toFloat i) )
+            ( r * cos (t * toFloat i + pi / 2), r * sin (t * toFloat i + pi / 2) )
     in
     Core.Polygon <| List.map f (List.range 0 n)
 
@@ -391,11 +391,11 @@ ngon n r =
 
 Note the difference between the `triangle` function and the `ngon`:
 
-  - `triangle base` gives us a triangle pointing upwards,
-    three equal sides of length `base`,
+  - `triangle base` gives us a triangle pointing upwards
+    with three equal sides of length `base`
     and a distance from point to center of `sqrt 7 / 4 * base`.
-  - `ngon 3 radius` gives us a triangle pointing right,
-    three equal sides of length `4 / sqrt 7 * radius`
+  - `ngon 3 radius` gives us a similar triangle
+    but with three equal sides of length `4 / sqrt 7 * radius`
     and a radius of `radius`.
 
 -}

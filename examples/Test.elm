@@ -77,7 +77,6 @@ circ model =
                     lightBlue
             , border
             )
-        --|> shift ( 20, 30 )
         |> onClick Switch
 
 
@@ -91,23 +90,6 @@ tria : Collage msg
 tria =
     triangle 50
         |> styled ( uniform lightGreen, border )
-
-
-
--- Lines --
-
-
-hline : Float -> Collage msg
-hline t =
-    line 100
-        |> traced (solid t (uniform black))
-
-
-lines : Collage msg
-lines =
-    vertical <|
-        List.intersperse (spacer 50 50) <|
-            List.map hline [ ultrathin, verythin, thin, semithick, thick, verythick, ultrathick ]
 
 
 

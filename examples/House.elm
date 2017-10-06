@@ -61,7 +61,7 @@ house model =
                     )
                 |> onMouseEnter (always part)
 
-        --TODO: add `broaden 0.75`
+        --TODO: add `lengthen 0.75`
         roof =
             interactive Roof (uniform blue) (triangle 1)
 

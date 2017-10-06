@@ -68,7 +68,7 @@ txt =
 
 circ : Model -> Collage Msg
 circ model =
-    circle 50
+    circle 100
         |> styled
             ( uniform <|
                 if model.active then
@@ -82,19 +82,19 @@ circ model =
 
 rect : Collage msg
 rect =
-    square 50
+    square 100
         |> styled ( uniform lightOrange, border )
 
 
 tria : Collage msg
 tria =
-    triangle 50
+    triangle 100
         |> styled ( uniform lightGreen, border )
 
 
 penta : Collage msg
 penta =
-    ngon 5 50
+    ngon 5 100
         |> styled ( uniform lightCharcoal, border )
 
 

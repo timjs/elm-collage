@@ -33,8 +33,8 @@ While the String library focuses on representing and manipulating strings of cha
 the Text library focuses on how those strings should look on screen.
 It lets you make text bold or italic, set the typeface, set the text size, etc.
 
-Be aware that this module is intended for **small chunks of text** only.
-Therefore is **not a good idea to use newlines** in a text chunk.
+Be aware that this module is intended for **small chunks of text** on **one line**.
+Using a newline character in a text chunk will simply have no effect.
 Alignment and placement should be done using the Collage or Layout modules.
 
 To add some text to your collages,

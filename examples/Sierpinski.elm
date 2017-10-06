@@ -13,7 +13,6 @@ sierpinski n side =
         0 ->
             triangle side
                 |> filled (uniform Color.blue)
-                |> rotate (degrees -90)
 
         _ ->
             let

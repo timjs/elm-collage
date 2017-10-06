@@ -47,5 +47,6 @@ main =
         , up |> shift ( 0, 100 )
         , wy |> shift ( -10, 100 )
         , box
+        , ellipse 20 40 |> filled (uniform red) |> shift ( 50, 50 )
         ]
-        |> svg ( 220, 220 )
+        |> svgBox ( 220, 220 )

@@ -1,9 +1,9 @@
-module Collage.Render exposing (svg, svg_)
+module Collage.Render exposing (svg, svgBox)
 
 {-| Technically, it should be possible to use different backends to render a collage,
 but we only provide a Svg backend here.
 
-@docs svg, svg_
+@docs svg, svgBox
 
 -}
 
@@ -24,8 +24,8 @@ import Tuple
 {-| Render a collage as Svg in a viewbox of given width and height,
 and the origin in the center.
 -}
-svg : ( Float, Float ) -> Collage msg -> Html msg
-svg ( width, height ) collage =
+svgBox : ( Float, Float ) -> Collage msg -> Html msg
+svgBox ( width, height ) collage =
     let
         w =
             toString width
@@ -51,8 +51,8 @@ svg ( width, height ) collage =
 It uses the automatically calculated envelope from the Collage.Layout module as the viewbox.
 
 -}
-svg_ : Collage msg -> Html msg
-svg_ collage =
+svg : Collage msg -> Html msg
+svg collage =
     let
         w =
             toString <| Layout.width collage
@@ -75,7 +75,7 @@ svg_ collage =
 
 render : Collage msg -> Int -> ( Int, List (Svg msg) )
 render collage id =
-    --FIXME: why use ids?
+    --FIXME: why use ids? => for gradients...
     case collage.basic of
         Core.Path style path ->
             case path of

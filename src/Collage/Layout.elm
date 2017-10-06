@@ -188,10 +188,10 @@ envelope dir collage =
     collage.scale
         * (case dir of
             Up ->
-                max 0 (env - ty)
+                max 0 (env + ty)
 
             Down ->
-                max 0 (env + ty)
+                max 0 (env - ty)
 
             Right ->
                 max 0 (env + tx)
@@ -226,6 +226,7 @@ handleBasic dir theta basic =
             )
     in
     case basic of
+        --| Shapes
         Core.Shape ( fill, line ) (Core.Ellipse rx ry) ->
             handleBox dir (rotate ( 2 * rx + line.thickness, 2 * ry + line.thickness ))
 
@@ -236,6 +237,7 @@ handleBasic dir theta basic =
             -- Use the same calculations as for paths
             handleBasic dir theta (Core.Path line path)
 
+        --| Elements
         Core.Path line (Core.Polyline ps) ->
             handlePath dir (List.map rotate ps)
 
@@ -248,6 +250,7 @@ handleBasic dir theta basic =
         Core.Element dims _ ->
             handleBox dir (rotate dims)
 
+        --| Groups
         Core.Group forms ->
             --FIXME: correct with translation???
             (List.maximum <| List.map (envelope dir) forms) ? 0
@@ -268,13 +271,11 @@ handlePath dir ps =
             List.map second ps
     in
     case dir of
-        -- NOTE: be aware of the switched vertical coordinate system of Svg
         Up ->
-            -(List.minimum ys ? 0)
-
-        -- NOTE: be aware of the switched vertical coordinate system of Svg
-        Down ->
             List.maximum ys ? 0
+
+        Down ->
+            -(List.minimum ys ? 0)
 
         Right ->
             List.maximum xs ? 0
@@ -388,12 +389,10 @@ place dir a b =
         move =
             case dir of
                 Up ->
-                    -- NOTE: translating means **minus** because of switched vertical axis
-                    ( 0, -len )
+                    ( 0, len )
 
                 Down ->
-                    -- NOTE: translating means **plus** because of switched vertical axis
-                    ( 0, len )
+                    ( 0, -len )
 
                 Right ->
                     ( len, 0 )
@@ -601,7 +600,7 @@ type alias Anchor msg =
 -}
 top : Anchor msg
 top collage =
-    ( 0, envelope Up collage )
+    ( 0, -(envelope Up collage) )
 
 
 {-|
@@ -613,7 +612,7 @@ top collage =
 -}
 topRight : Anchor msg
 topRight collage =
-    ( -(envelope Right collage), envelope Up collage )
+    ( -(envelope Right collage), -(envelope Up collage) )
 
 
 {-|
@@ -637,7 +636,7 @@ right collage =
 -}
 bottomRight : Anchor msg
 bottomRight collage =
-    ( -(envelope Right collage), -(envelope Down collage) )
+    ( -(envelope Right collage), envelope Down collage )
 
 
 {-|
@@ -649,7 +648,7 @@ bottomRight collage =
 -}
 bottom : Anchor msg
 bottom collage =
-    ( 0, -(envelope Down collage) )
+    ( 0, envelope Down collage )
 
 
 {-|
@@ -661,7 +660,7 @@ bottom collage =
 -}
 bottomLeft : Anchor msg
 bottomLeft collage =
-    ( envelope Left collage, -(envelope Down collage) )
+    ( envelope Left collage, envelope Down collage )
 
 
 {-|
@@ -685,7 +684,7 @@ left collage =
 -}
 topLeft : Anchor msg
 topLeft collage =
-    ( envelope Left collage, envelope Up collage )
+    ( envelope Left collage, -(envelope Up collage) )
 
 
 {-|
@@ -714,7 +713,7 @@ base collage =
             envelope Down collage
 
         ty =
-            (down - up) / 2
+            (up - down) / 2
     in
     ( -tx, -ty )
 

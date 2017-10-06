@@ -408,6 +408,8 @@ place dir a b =
 Most of the time it is way nicer to use `horizontal` or `vertical` to express your layout,
 but `beside dir` can come into hand as a curried function.
 
+The new origin will be the origin of the first argument.
+
   - Note: `beside dir` forms a monoid with `empty` for every `dir`.
   - Note: same as `beside` in Diagrams.
 
@@ -431,6 +433,8 @@ The first element in the list will be on the left, the last on the right.
         | a | b | c |
         +–––+–––+–––+
 
+The new origin will be the origin of the first element in the list.
+
   - Note: this is called `hcat` in Diagrams.
 
 -}
@@ -452,6 +456,8 @@ The first element in the list will be on the top, the last on the bottom.
         +–––+
         | c |
         +–––+
+
+The new origin will be the origin of the first element in the list.
 
   - Note: this is called `vcat` in Diagrams.
 
@@ -484,6 +490,8 @@ This actually is the same as the `group` operation in the Collage module.
     then `(<>)` forms a monoid together with `empty`.
     `(<>)` is called `atop` in Diagrams.
 
+The new origin will be the origin of the first element in the list.
+
 -}
 stack : List (Collage msg) -> Collage msg
 stack =
@@ -507,6 +515,8 @@ and `back` will be used to calculate the envelope of the resulting collage.
         +–––––––––––+
 
 Obviously, this also works with the background having a smaller envelope than the foreground.
+
+The new origin will be the origin of the background.
 
 -}
 impose : Collage msg -> Collage msg -> Collage msg
@@ -561,6 +571,8 @@ instead of:
             , align bottom drawing
             ]
         ]
+
+This does not change the origin of `collage`.
 
 -}
 at : Anchor msg -> Collage msg -> Collage msg -> Collage msg
@@ -742,6 +754,6 @@ showEnvelope collage =
         outline =
             rectangle (width collage) (height collage)
                 |> outlined (dot 2 (uniform Color.red))
-                |> shift collage.origin
     in
-    stack [ outline, collage ]
+    collage
+        |> at base outline

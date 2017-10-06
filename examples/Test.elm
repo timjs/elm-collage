@@ -48,7 +48,9 @@ border =
 
 debug : Collage msg -> Collage msg
 debug collage =
-    collage |> showOrigin
+    collage
+        |> showOrigin
+        |> showEnvelope
 
 
 
@@ -120,10 +122,13 @@ alignments =
 
 view : Model -> Html Msg
 view model =
-    Html.div [] [ txt |> showEnvelope |> svg ]
+    List.map debug [ horizontal [ circ model, rect ], rect ]
+        |> horizontal
+        |> svg
 
 
 
+--Html.div [] [ txt |> showEnvelope |> svg ]
 --horizontal [ impose (circ model) rect, circ model ]
 --horizontal [ debug <| vertical [ circ model, debug rect ], debug rect ]
 --horizontal [ lines1, lines2 ]

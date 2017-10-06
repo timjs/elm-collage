@@ -199,6 +199,9 @@ the only backend supported at present is SVG.
 
 ## Fill Styles
 
+For now we have only uniform fillings and a transparent filling.
+Gradients and pattern fills are on the todo list.
+
 @docs FillStyle, uniform, transparent
 
 
@@ -208,6 +211,9 @@ the only backend supported at present is SVG.
 
 
 ### Line Thickness
+
+We provide some sensible defaults for line thickness.
+They are bluntly stolen from TikZ.
 
 @docs ultrathin, verythin, thin, semithick, thick, verythick, ultrathick
 
@@ -376,7 +382,7 @@ ngon n r =
             2 * pi / m
 
         f i =
-            ( r * cos (t * toFloat i), r * sin (t * toFloat i) )
+            ( r * cos (t * toFloat i + pi / 2), r * sin (t * toFloat i + pi / 2) )
     in
     Core.Polygon <| List.map f (List.range 0 n)
 
@@ -385,11 +391,11 @@ ngon n r =
 
 Note the difference between the `triangle` function and the `ngon`:
 
-  - `triangle base` gives us a triangle pointing upwards,
-    three equal sides of length `base`,
+  - `triangle base` gives us a triangle pointing upwards
+    with three equal sides of length `base`
     and a distance from point to center of `sqrt 7 / 4 * base`.
-  - `ngon 3 radius` gives us a triangle pointing right,
-    three equal sides of length `4 / sqrt 7 * radius`
+  - `ngon 3 radius` gives us a similar triangle
+    but with three equal sides of length `4 / sqrt 7 * radius`
     and a radius of `radius`.
 
 -}
@@ -402,7 +408,7 @@ triangle b =
         y =
             sqrt 3 / 2 * x
     in
-    polygon [ ( -x, y ), ( x, y ), ( 0, -y ) ]
+    polygon [ ( -x, -y ), ( x, -y ), ( 0, y ) ]
 
 
 {-| A rectangle of given width and height.
@@ -417,10 +423,10 @@ rectangle w h =
             h / 2
     in
     polygon
-        [ ( -x, y )
-        , ( x, y )
+        [ ( -x, -y )
         , ( x, -y )
-        , ( -x, -y )
+        , ( x, y )
+        , ( -x, y )
         ]
 
 
@@ -706,8 +712,14 @@ broken [(10,5)] 5 -- a line that with dashes 10 long and spaces 5 long
 broken [(10,5),(20,5)] -- on for 10, off 5, on 20, off 5
 -}
 broken : List ( Int, Int ) -> Float -> FillStyle -> LineStyle
-broken dash thickness texture =
-    LineStyle texture thickness Flat Sharp dash 0
+broken dash thickness fill =
+    { fill = fill
+    , thickness = thickness
+    , cap = Flat
+    , join = Sharp
+    , dashPattern = dash
+    , dashPhase = 0
+    }
 
 
 
@@ -715,6 +727,9 @@ broken dash thickness texture =
 
 
 {-| The same as `solid`, except the line is dots.
+
+Calulates the length of the dots based on the line thickness.
+
 -}
 dot : Float -> FillStyle -> LineStyle
 dot thickness =
@@ -762,46 +777,53 @@ dashdot thickness =
 -- Line Thickness -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
 
 
-{-| -}
+{-| 0.5 px
+-}
 ultrathin : Float
 ultrathin =
     0.5
 
 
-{-| -}
+{-| 1 px
+-}
 verythin : Float
 verythin =
     1.0
 
 
-{-| -}
+{-| 2 px
+-}
 thin : Float
 thin =
     2.0
 
 
-{-| -}
+{-| 3 px
+-}
 semithick : Float
 semithick =
+    3.0
+
+
+{-| 4 px
+-}
+thick : Float
+thick =
     4.0
 
 
-{-| -}
-thick : Float
-thick =
+{-| 6 px
+-}
+verythick : Float
+verythick =
     6.0
 
 
-{-| -}
-verythick : Float
-verythick =
-    10.0
-
-
-{-| -}
+{-| 8 px
+-}
 ultrathick : Float
 ultrathick =
-    16.0
+    8.0
 
 
 
@@ -813,7 +835,7 @@ no endings, `Padded` capped lines have flat endings that extend
 slightly past the end of the line, and `Round` capped lines have
 hemispherical endings.
 
-In TikZ and Css:
+In TikZ and Css these options are called:
 
     = Butt
     | Round
@@ -828,7 +850,7 @@ type LineCap
 
 {-| Describes the join style of a line.
 
-In TikZ and Css:
+In TikZ and Css these options are called:
 
     = Round
     | Bevel

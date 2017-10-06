@@ -48,7 +48,9 @@ border =
 
 debug : Collage msg -> Collage msg
 debug collage =
-    collage |> showOrigin
+    collage
+        |> showOrigin
+        |> showEnvelope
 
 
 
@@ -57,7 +59,7 @@ debug collage =
 
 txt : Collage Msg
 txt =
-    rendered <| fromString "Hallo"
+    rendered <| fromString "Hello collage!"
 
 
 
@@ -75,7 +77,6 @@ circ model =
                     lightBlue
             , border
             )
-        --|> shift ( 20, 30 )
         |> onClick Switch
 
 
@@ -91,21 +92,14 @@ tria =
         |> styled ( uniform lightGreen, border )
 
 
-
--- Lines --
-
-
-hline : Float -> Collage msg
-hline t =
-    line 100
-        |> traced (solid t (uniform black))
+penta : Collage msg
+penta =
+    ngon 5 50
+        |> styled ( uniform lightCharcoal, border )
 
 
-lines : Collage msg
-lines =
-    vertical <|
-        List.intersperse (spacer 50 50) <|
-            List.map hline [ ultrathin, verythin, thin, semithick, thick, verythick, ultrathick ]
+
+-- Alignments --
 
 
 alignments : Collage msg
@@ -120,22 +114,20 @@ alignments =
 
 view : Model -> Html Msg
 view model =
-    Html.div [] [ txt |> showEnvelope |> svg ]
-
-
-
---horizontal [ impose (circ model) rect, circ model ]
---horizontal [ debug <| vertical [ circ model, debug rect ], debug rect ]
---horizontal [ lines1, lines2 ]
---vertical [ rect, stack [ txt, circ model ], tria ]
--- ==
---rect model
---    |> above (circ model)
---    |> above (tria model)
--- |> showEnvelope
--- |> showOrigin
---|> debug
---|> svg
+    vertical
+        [ rect
+        , horizontal
+            [ stack [ showEnvelope txt, circ model ]
+            , vertical
+                [ tria
+                , tria |> rotate pi
+                ]
+                |> center
+            , debug penta
+            ]
+        ]
+        |> debug
+        |> svg
 
 
 main : Program Never Model Msg

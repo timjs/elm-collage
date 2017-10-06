@@ -61,7 +61,7 @@ house model =
                     )
                 |> onMouseEnter (always part)
 
-        --TODO: add `broaden 0.75`
+        --TODO: add `lengthen 0.75`
         roof =
             interactive Roof (uniform blue) (triangle 1)
 
@@ -84,7 +84,7 @@ house model =
                         |> shift p
 
                 puffs =
-                    List.map puff [ ( 0, 0 ), ( 0.05, -0.15 ) ]
+                    List.map puff [ ( 0, 0 ), ( 0.05, 0.15 ) ]
             in
             stack puffs
     in
@@ -92,12 +92,12 @@ house model =
         [ stack
             [ roof
             , chimney
-                |> at (top >> (\( x, y ) -> ( x, y + 0.15 ))) smoke
-                |> shift ( 0.25, -0.4 )
+                |> at (top >> (\( x, y ) -> ( x, y - 0.15 ))) smoke
+                |> shift ( 0.25, 0.4 )
             ]
             |> center
         , stack
-            [ handle |> shift ( 0.05, -0.2 )
+            [ handle |> shift ( 0.05, 0.2 )
             , door |> align bottom
             , wall |> align bottom
             ]
@@ -107,7 +107,7 @@ house model =
 view : Model -> Html Msg
 view model =
     house model
-        |> scale 100
+        |> scale 200
         |> svg
 
 

@@ -1,9 +1,9 @@
-module Collage.Render exposing (svg)
+module Collage.Render exposing (svg, svgBox)
 
 {-| Technically, it should be possible to use different backends to render a collage,
 but we only provide a Svg backend here.
 
-@docs svg
+@docs svg, svgBox
 
 -}
 
@@ -18,7 +18,32 @@ import String
 import Svg exposing (Attribute, Svg)
 import Svg.Attributes as Svg
 import Svg.Events as Svg
-import Tuple exposing (first, second)
+import Tuple
+
+
+{-| Render a collage as Svg in a viewbox of given width and height,
+and the origin in the center.
+-}
+svgBox : ( Float, Float ) -> Collage msg -> Html msg
+svgBox ( width, height ) collage =
+    let
+        w =
+            toString width
+
+        h =
+            toString height
+    in
+    Html.div
+        []
+        [ Svg.svg
+            [ Svg.width w
+            , Svg.height h
+            , Svg.version "1.1"
+            ]
+          <|
+            Tuple.second <|
+                render (Collage.shift ( width / 2, -height / 2 ) collage) 0
+        ]
 
 
 {-| Take a collage and render it to Html using Svg.
@@ -43,14 +68,14 @@ svg collage =
             , Svg.version "1.1"
             ]
           <|
-            second <|
+            Tuple.second <|
                 render (Layout.align Layout.topLeft collage) 0
         ]
 
 
 render : Collage msg -> Int -> ( Int, List (Svg msg) )
 render collage id =
-    --FIXME: why use ids?
+    --FIXME: why use ids? => for gradients...
     case collage.basic of
         Core.Path style path ->
             case path of
@@ -306,23 +331,23 @@ decodeJoin join =
 
 decodePoints : List Point -> String
 decodePoints ps =
-    ps |> List.map (\( x, y ) -> String.join "," [ toString x, toString y ]) |> String.join " "
+    ps |> List.map (\( x, y ) -> String.join "," [ toString x, toString -y ]) |> String.join " "
 
 
 evalTransform : Collage msg -> String
-evalTransform object =
+evalTransform collage =
     let
         x =
-            toString <| first object.origin
+            toString <| Tuple.first collage.origin
 
         y =
-            toString <| second object.origin
+            toString <| -(Tuple.second collage.origin)
 
         theta =
-            toString <| object.theta / 2 / pi * 360
+            toString <| collage.theta / 2 / pi * 360
 
         scale =
-            toString object.scale
+            toString <| collage.scale
     in
     String.concat
         [ "translate(", x, ",", y, ") rotate(", theta, ") scale(", scale, ")" ]

@@ -57,15 +57,60 @@ module Collage
         , verythin
         )
 
-{-|
+{-| The collage API is for freeform graphics.
+You can style all sorts of forms including shapes, paths, text and images,
+and shift, rotate, scale, and group them.
 
 
-# Coordinate system
+### Coordinate system
 
-Because all major drawing libraries (Apple's Cocoa on iOS, Microsoft's WPF, .NET's System.Drawing, Java's FX, GTK+'s Cairo, HTML's Canvas, and SVG) use the **upper left** corner as the origin of a computer graphic,
-we use the same convention here.
+Collages use the same coordinate system you might see in an algebra or physics problem.
+The origin (0,0) is **at the center** of the collage, not the top left corner as in some other graphics libraries.
+Furthermore, the **y-axis points up**, so moving a collage 10 units in the y-axis will move it up on screen.
+This is intentional,
+the goal is to provide an elegant interface which is abstracted as much as possible from implementation details.
 
-But not the "higher order" ones like TikZ, Diagrams, and Graphics...
+
+### Creating graphics
+
+To create a graphic you start with creating some form: a _shape_, a _path_ or a chunk of _text_.
+Now you can _style_ a form.
+It depends on the kind of form you created how you can style it.
+A shape, for example can be filled with an uniform color,
+outlined with a dotted line,
+or both;
+a path only can be traced with a line style;
+and a piece of text can be made monospaced, bold, italic, underlined etc.
+You can think of a form as some kind of _stencil_,
+dipping it in different colors of ink and stamp it onto the screen once or multiple times.
+
+Styling a form will turn it into a _collage_.
+Collages are the most powerfull object of this library.
+They cannot be styled any more,
+but they can be shifted, rotated, scaled, made partially transparent, and grouped into a new collage.
+Yeah, you read that correctly:
+you can group multiple collages into a new one,
+which you can shift, rotate, scale, and group again!
+
+So rembember:
+before you can transform you drawing,
+you have to style it (i.e. turn it into a _collage_),
+only after styling you can shift, rotate, scale, etc.
+Including an external image or a piece of raw Html also belongs to the possiblilities.
+
+
+### Interactive graphics
+
+You can make your collages interactive by using the events from the Collage.Event module.
+See the documentation of that module for more information.
+
+
+### Automatic relative positioning
+
+The Collage.Layout module is designed to help you place collages with respect to each other.
+By keeping track of the dimensions,
+the module can place collages next to each other, above each other,
+align them to the left, to the top, etc.
 
 
 ## Main Design Goals
@@ -90,49 +135,37 @@ But not the "higher order" ones like TikZ, Diagrams, and Graphics...
     This is similar to the functionality provided by the old `Graphics.Element` module
     and promoted by the popular Haskell [Diagrams library]().
 
-```
-Shape          Path         Text            Image      Html
 
-- polygon      - line       - fromString
-- ngon         - segment                      |          |
-- triangle     - path         |               |          |
-- rectangle                   |               |          |
-- square         |            |               |          |
-- oval           |            |               |          |
-- circle         |            |               |          |
-  |              |            |               |          |
-filled         traced       rendered          |        embedded
-outlined         |            |               |          |
-styled           |            |               |          |
-  |              |            |               |          |
-  +––––––––––––––+––––––––––––+–––––––––––––––+––––––––––+
-                              |
-                              |
-                              ˅
+### Summary
 
-                           Collage  ˂––+
-                                       |
-                           - shift     |
-                           - scale     |
-                           - rotate    |
-                           - opacity   |
-                           - group     |
-                             |         |
-                             +–––––––––+
-```
+    Shape          Path         Text            Image       Html
 
--- OLD --
+    - polygon      - line       - fromString
+    - ngon         - segment                      |           |
+    - triangle     - path         |               |           |
+    - rectangle                   |               |           |
+    - square         |            |               |           |
+    - oval           |            |               |           |
+    - circle         |            |               |           |
+      |              |            |               |           |
+    filled         traced       rendered        included    embedded
+    outlined         |            |               |           |
+    styled           |            |               |           |
+      |              |            |               |           |
+      +––––––––––––––+––––––––––––+–––––––––––––––+–––––––––––+
+                                  |
+                                  |
+                                  ˅
 
-This library provides a toolkit for rendering and manipulating
-graphics primitives such as lines, polygons, text, images, etc.
-It is intended primarily for projects that are too complex for
-the manual manipulation of an SVG or HTML5 canvas element, but too
-simple for a fully blown graphics engine such as WebGL (a motivating
-example would be a simple 2D game).
-
-In theory, the structure of this library allows for multiple easily
-interchangable backend rendering targets (i.e. SVG, HTML5 canvas), but
-the only backend supported at present is SVG.
+                               Collage  ˂––+
+                                           |
+                               - shift     |
+                               - scale     |
+                               - rotate    |
+                               - opacity   |
+                               - group     |
+                                 |         |
+                                 +–––––––––+
 
 
 # Basics

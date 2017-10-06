@@ -59,7 +59,8 @@ debug collage =
 
 txt : Collage Msg
 txt =
-    rendered <| fromString "Hello collage!"
+    fromString "Hello collage!"
+        |> rendered
 
 
 

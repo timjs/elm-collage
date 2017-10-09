@@ -57,18 +57,18 @@ module Collage
         , verythin
         )
 
-{-| The collage API is for freeform graphics.
+{-| The collage module is here to help you create freeform graphics.
 You can style all sorts of forms including shapes, paths, text and images,
-and shift, rotate, scale, and group them.
+and then shift, rotate, scale, and group them.
 
 
 ### Coordinate system
 
 Collages use the same coordinate system you might see in an algebra or physics problem.
 The origin (0,0) is **at the center** of the collage, not the top left corner as in some other graphics libraries.
-Furthermore, the **y-axis points up**, so moving a collage 10 units in the y-axis will move it up on screen.
-This is intentional,
-the goal is to provide an elegant interface which is abstracted as much as possible from implementation details.
+Furthermore, the **y-axis points up**: so moving a collage 10 units in the y-axis will move it up on screen.
+This is intentional.
+The goal is to provide an elegant interface which is abstracted as much as possible from implementation details.
 
 
 ### Creating graphics
@@ -173,22 +173,14 @@ align them to the left, to the top, etc.
 @docs Point, opposite
 
 
-# Collages
-
-@docs Collage, BasicCollage, group
-
-
-## Transforming Collages
-
-@docs shift, scale, rotate, opacity
-
-
 # Shapes
 
 
 ## Drawing Shapes
 
-@docs Shape, polygon, ngon, triangle, rectangle, square, ellipse, circle, Style
+_Rounded rectangles and squares are on the todo list..._
+
+@docs Shape, polygon, ngon, triangle, rectangle, square, ellipse, circle
 
 
 ## Turning Shapes into Collages
@@ -227,7 +219,29 @@ align them to the left, to the top, etc.
 @docs included, embedded
 
 
+# Collages
+
+@docs Collage, BasicCollage, group
+
+
+## Transforming Collages
+
+@docs shift, scale, rotate, opacity
+
+
 # Styling
+
+There are three kind of styles:
+
+  - Fill styles
+  - Line styles
+  - Text styles
+
+Fill style
+Text styles are defined in the Collage.Text module,
+you can read all about them there.
+
+@docs Style
 
 
 ## Fill Styles
@@ -235,15 +249,35 @@ align them to the left, to the top, etc.
 For now we have only uniform fillings and a transparent filling.
 Gradients and pattern fills are on the todo list.
 
-@docs FillStyle, uniform, transparent
+@docs FillStyle, transparent
+
+
+### Uniform fills
+
+@docs uniform
+
+
+### Gradient fills
+
+_These are on the todo list..._
+
+
+### Pattern fills
+
+_These are on the todo list..._
 
 
 ## Line Styles
 
-@docs LineStyle, invisible, solid, broken, dot, dash, longdash, dashdot
+@docs LineStyle, invisible
 
 
-### Line Thickness
+### Line dashing
+
+@docs solid, broken, dot, dash, longdash, dashdot
+
+
+### Line thickness
 
 We provide some sensible defaults for line thickness.
 They are bluntly stolen from TikZ.
@@ -251,7 +285,7 @@ They are bluntly stolen from TikZ.
 @docs ultrathin, verythin, thin, semithick, thick, verythick, ultrathick
 
 
-### Caps and Joins
+### Line caps and joins
 
 @docs LineCap, LineJoin
 
@@ -273,7 +307,14 @@ type alias Point =
     ( Float, Float )
 
 
-{-| -}
+{-| Calcualate the point at the opposite side of the origin.
+
+Simply negates the coordinates:
+
+    opposite ( x, y ) =
+        ( -x, -y )
+
+-}
 opposite : Point -> Point
 opposite ( x, y ) =
     ( -x, -y )
@@ -327,16 +368,19 @@ group =
 -- * add skew in x and y with nice names: slant and tilt ???
 
 
-{-| | Shift a collage by the given amount (x,y) _within its local space_.
+{-| Shift a collage by the given amount (x,y) within its local space.
 
-Shifting a collage by, for example `(5,10)` will move the collage
-_five pixels right_ and
-_ten pixels down_,
-which is consistent with te coordinate system used by Svg.
-This is equivalent of moving its local origin with `(-5,-10)`.
+This is a relative translation,
+so
 
-Note that this influences the way collages are composed with the `Collage.Layout` module,
+    collage
+        |> shift (5,10)
+
+would shift `collage` five pixels to the right and ten pixels up.
+
+Note that this influences the way collages are composed with the Collage.Layout module,
 since collages are always composed with respect to their local origins.
+Shifting a collage with `(5,10)` is equivalent to moving its local origin with `(-5,-10)`.
 
 -}
 shift : ( Float, Float ) -> Collage msg -> Collage msg
@@ -348,24 +392,36 @@ shift ( dx, dy ) collage =
     { collage | origin = ( x + dx, y + dy ) }
 
 
-{-| Scale a collage by a given factor. Scaling by 2 doubles both dimensions,
-and quadruples the area.
+{-| Scale a collage by a given factor.
+
+Scaling by 2 doubles both dimensions and quadruples the area.
+
 -}
 scale : Float -> Collage msg -> Collage msg
 scale s collage =
     { collage | scale = collage.scale * s }
 
 
-{-| Rotate a collage by a given angle. Rotate takes standard Elm angles (radians)
-and turns things counterclockwise. So to turn `collage` 30&deg; to the left
-you would say, `(rotate (degrees 30) collage)`.
+{-| Rotate a collage by a given angle.
+
+Rotate takes standard Elm angles,
+which are **radians**,
+and turns things **counterclockwise**.
+So to turn `collage` 30&deg; to the left you would say:
+
+    collage
+        |> rotate (degrees 30)
+
 -}
 rotate : Float -> Collage msg -> Collage msg
 rotate t collage =
     { collage | theta = collage.theta + t }
 
 
-{-| Set the alpha of a `Collage msg`. The default is 1, and 0 is totally transparent.
+{-| Set the opacity of a collage.
+
+The default is 1, and 0 is totally transparent.
+
 -}
 opacity : Float -> Collage msg -> Collage msg
 opacity a collage =
@@ -378,8 +434,11 @@ opacity a collage =
 -- * add more primitive shapes: <circle>, <rect>
 
 
-{-| A polygon or an ellipse. Only describes the size and shape of the figure.
+{-| Any kind of shape that can be filled and/or outlined.
+
+Shapes only describe the dimensions of the figure.
 Position, color, thickness, etc. are all specified later.
+
 -}
 type alias Shape =
     Core.Shape
@@ -389,16 +448,21 @@ type alias Shape =
 -- Creating Shapes -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -
 
 
-{-| `polygon points` is a polygon bounded by `points`.
+{-| Create an arbitrary polygon by specifying its corners in order.
+
+`polygon` will automatically close all shapes, so the given list of points does not need to start and end with the same position.
+
 -}
 polygon : List Point -> Shape
 polygon =
     Core.Polygon
 
 
-{-| A regular polygon with a given number of sides and radius.
+{-| A regular polygon with _n_ sides.
 
-Examples:
+The first argument specifies the number of sides and the second is the radius.
+
+Some ngon's with radius 50:
 
     ngon 3 50  -- triangle
     ngon 5 50  -- pentagon
@@ -422,9 +486,11 @@ ngon n r =
 
 {-| A triangle pointing upwards with given base.
 
-Note the difference between the `triangle` function and the `ngon`:
+Note the difference between using `triangle` and `ngon 3`.
+Both produce a triangle pointing upwards with its origin in the center,
+however:
 
-  - `triangle base` gives us a triangle pointing upwards
+  - `triangle base` gives us a triangle
     with three equal sides of length `base`
     and a distance from point to center of `sqrt 7 / 4 * base`.
   - `ngon 3 radius` gives us a similar triangle
@@ -479,9 +545,14 @@ square n =
 -- TODO: add roundedRect and roundedSquare
 
 
-{-| An ellipse of given horizontal and vertical radii.
+{-| An ellipse with given horizontal and vertical radii.
 
-  - Note: this function was called `oval` in original lib.
+  - Note:
+    the function `oval` in the original library acts a little bit different.
+    It draws an oval of given width and height,
+    so
+
+    oval w h == ellipse (w/2) (h/2)
 
 -}
 ellipse : Float -> Float -> Shape
@@ -505,26 +576,60 @@ circle r =
 -- Turning Shapes into Collages -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
 
 
-{-| Fills in a shape, making it into a 'Collage'. The argument
-specifies the texture of the fill. The line is left transparent.
+{-| Adds a fills to a shape, turining it into a collage.
+
+The argument specifies the style of the fill.
+The **outline is left invisible**.
+To draw a red circle of radius 50 you say:
+
+    circle 50
+        |> filled (uniform red)
+
+See below for possible fill styles.
+
 -}
 filled : FillStyle -> Shape -> Collage msg
 filled fill =
     styled ( fill, invisible )
 
 
-{-| Adds a line to a shape, making it into a 'Collage'. The arguments
-specify the thickness and texture of the line, respectiverly. The fill is
-left transparent.
+{-| Adds an outline to a shape, turning it into a collage.
+
+The arguments specify the style of the outline.
+The **fill is left transparent**.
+To draw a square with edge length 30 with a thin black dashed outline you say:
+
+    square 30
+        |> outlined (dot thin (uniform black))
+
+See below for more possible line styles.
+
 -}
 outlined : LineStyle -> Shape -> Collage msg
 outlined line =
     styled ( transparent, line )
 
 
-{-| Adds a fill and line to a 'Shape', making it into a 'Collage'. The
-first argument specifies the fill texture, and the second two arguments
-specify the line thickness and texture, respectively.
+{-| Adds a fill and an outline to a shape, turning it into a collage.
+
+The tuple argument contains fill style and a line style.
+To draw an thick black outlined green triangle with base 30 you say:
+
+    triangle 30
+        |> styled (uniform green, solid thick (uniform black))
+
+The tuple form helps in defining your own reusable styles.
+For example, if you like all you shapes to have a thick black outline,
+you could rewrite above example to:
+
+    thickOutlinedAndFilled fillColor =
+        (uniform fillColor, solid thick (uniform black))
+
+    triangle 30
+        |> styled (thickOutlinedAndFilled green)
+
+See below for all possible fill and line styles.
+
 -}
 styled : ( FillStyle, LineStyle ) -> Shape -> Collage msg
 styled style =

@@ -1,4 +1,4 @@
-module Main exposing (..)
+module Composition exposing (main)
 
 import Collage exposing (..)
 import Collage.Events exposing (onClick)

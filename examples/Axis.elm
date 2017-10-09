@@ -1,4 +1,4 @@
-module Axis exposing (..)
+module Axis exposing (main)
 
 import Collage exposing (..)
 import Collage.Render exposing (..)
@@ -49,4 +49,4 @@ main =
         , box
         , ellipse 20 40 |> filled (uniform red) |> shift ( 50, 50 )
         ]
-        |> svgBox ( 220, 220 )
+        |> svg

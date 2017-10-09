@@ -1,4 +1,4 @@
-module Main exposing (..)
+module Lines exposing (lines, main)
 
 import Collage exposing (..)
 import Collage.Layout exposing (..)

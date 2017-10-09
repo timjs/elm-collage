@@ -53,7 +53,24 @@ It uses the automatically calculated envelope from the Collage.Layout module as 
 -}
 svg : Collage msg -> Html msg
 svg collage =
-    svgBox ( Layout.width collage, Layout.height collage ) collage
+    let
+        w =
+            toString <| Layout.width collage
+
+        h =
+            toString <| Layout.height collage
+    in
+    Html.div
+        []
+        [ Svg.svg
+            [ Svg.width w
+            , Svg.height h
+            , Svg.version "1.1"
+            ]
+          <|
+            Tuple.second <|
+                render (Layout.align Layout.topLeft collage) 0
+        ]
 
 
 render : Collage msg -> Int -> ( Int, List (Svg msg) )

@@ -26,6 +26,23 @@ and the origin in the center.
 -}
 svgBox : ( Float, Float ) -> Collage msg -> Html msg
 svgBox ( width, height ) collage =
+    svgAbsolute ( width, height ) <|
+        Collage.shift ( width / 2, -height / 2 ) collage
+
+
+{-| Take a collage and render it to Html using Svg.
+
+It uses the automatically calculated envelope from the Collage.Layout module as the viewbox.
+
+-}
+svg : Collage msg -> Html msg
+svg collage =
+    svgAbsolute ( Layout.width collage, Layout.height collage ) <|
+        Layout.align Layout.topLeft collage
+
+
+svgAbsolute : ( Float, Float ) -> Collage msg -> Html msg
+svgAbsolute ( width, height ) collage =
     let
         w =
             toString width
@@ -42,34 +59,7 @@ svgBox ( width, height ) collage =
             ]
           <|
             Tuple.second <|
-                render (Collage.shift ( width / 2, -height / 2 ) collage) 0
-        ]
-
-
-{-| Take a collage and render it to Html using Svg.
-
-It uses the automatically calculated envelope from the Collage.Layout module as the viewbox.
-
--}
-svg : Collage msg -> Html msg
-svg collage =
-    let
-        w =
-            toString <| Layout.width collage
-
-        h =
-            toString <| Layout.height collage
-    in
-    Html.div
-        []
-        [ Svg.svg
-            [ Svg.width w
-            , Svg.height h
-            , Svg.version "1.1"
-            ]
-          <|
-            Tuple.second <|
-                render (Layout.align Layout.topLeft collage) 0
+                render collage 0
         ]
 
 

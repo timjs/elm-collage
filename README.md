@@ -37,12 +37,97 @@ but more powerful.
 
 Although theoretically, there could be multiple backends to render collages,
 for now, we only provide a Svg backend in `Collage.Render`.
-It has good performance, and excellent hit detection.
+It has good performance and excellent hit detection.
 
-You can find a couple of examples in the `examples` directory of the repository.
+
+## Please give me an example!
+
+Ok, here is an example of a blue rectangle and on its top left corner a red circle:
+
+```elm
+import Collage exposing (circle, rectangle, filled, uniform)
+import Collage.Layout exposing (at, topLeft)
+import Collage.Render exposing (svg)
+import Color
+
+main =
+    let
+        circ =
+            circle 50
+                |> filled (uniform Color.red)
+
+        rect =
+            rectangle 200 100
+                |> filled (uniform Color.blue)
+    in
+    rect
+        |> at topLeft circ
+        |> svg
+```
+
+And [this is the output](https://github.com/timjs/elm-collage/blob/master/examples/Simple.html)!
+
+You can find more examples in the `examples` directory of the repository.
+
+
+## How does this library compare to...?
+
+  - [Elm Graphics](http://package.elm-lang.org/packages/evancz/elm-graphics/1.0.1)
+
+    This was the original Elm drawing library.
+    It is a big inspiration and you'll find a lot of similarities,
+    from the way you draw shapes and paths, to styling them.
+
+    In Elm Collage we do not make the distinction between Forms and Elements,
+    there are just Collages.
+    After Elm's [transition to commands and subscriptions](http://elm-lang.org/blog/farewell-to-frp),
+    Elements could not be interactive anymore.
+    Collages can be made interactive in the same way you are used to with the Elm Html and Svg libraries.
+
+  - [Elm Render](http://package.elm-lang.org/packages/Kwarrtz/render/2.0.0)
+
+    This library is actually a fork of this excellent work by @Kwarrtz.
+    The module organisation changed a bit,
+    as well as some styling functions,
+    but the code to render Svg is almost untouched.
+    In this reincarnation, you will find new ways to position and align your graphics
+    using the Collage.Layout module.
+
+  - [Elm GraphicSVG](http://package.elm-lang.org/packages/MacCASOutreach/graphicsvg/2.1.0)
+
+    Also an inspiration for this library.
+    However, I think Elm Collage is a bit more structured
+    and provides more guidance by using well-chosen types.
+    You cannot make a rectangle "italic" in Elm Collage for example.
+
+  - [Elm Diagrams](http://package.elm-lang.org/packages/vilterp/elm-diagrams/7.2.0)
+
+    @vilterp's Elm port of the great Haskell library with the same name.
+    You can create all sorts of diagrams and position them next to, above, and atop of each other.
+    It used to render using Elm Graphics
+    and implement its own hit detection and mouse interaction.
+
+    Elm Diagrams is not ported to Elm 0.18.
+    In Elm Collage we use the browsers native hit detection when rendering to Svg.
+    Also, we explicitly separate creating and styling forms on one hand,
+    and transforming collages on the other.
+    Although the layout capabilities of Elm Collage are not as extensive as those in Elm Diagrams,
+    I think the Api is a bit simpler.
+
+  - [Haskell Diagrams](https://archives.haskell.org/projects.haskell.org/diagrams/)
+
+    Our big cousin!
+    It is awesome and overly complex.
+    Interaction is [hard](http://www.cmears.id.au/articles/diagrams-gtk-mouse.html) though...
+
+  - [Clean Scalable Graphics](https://dl.acm.org/citation.cfm?id=2746329)
+
+    Our small cousin!
+    First to introduce interaction.
+    Does not have such nice layout combinators as other libraries though...
 
 
 ## Have fun!
 
 This library is under construction.
-Please fill out issues on GitHub and help making Elm Collage awesome!
+Please fill out issues on GitHub and help to make Elm Collage awesome!

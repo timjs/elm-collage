@@ -1,8 +1,8 @@
 {
-    "version": "0.1.0",
-    "summary": "Lightweight graphics similar to original Elm librarary but backed by SVG",
+    "version": "1.0.0",
+    "summary": "Create interactive scalable vector graphics which can automatically be positioned relative to each other",
     "repository": "https://github.com/timjs/elm-collage.git",
-    "license": "MIT",
+    "license": "BSD-3-Clause",
     "source-directories": [
         "src"
     ],

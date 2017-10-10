@@ -65,8 +65,6 @@ main =
         |> svg
 ```
 
-And [this is the output](https://github.com/timjs/elm-collage/blob/master/examples/Simple.html)!
-
 You can find more examples in the `examples` directory of the repository.
 
 

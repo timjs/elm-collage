@@ -74,12 +74,12 @@ The goal is to provide an elegant interface which is abstracted as much as possi
 ### Creating graphics
 
 To create a graphic you start with creating some form: a _shape_, a _path_ or a chunk of _text_.
-Now you can _style_ a form.
+After creating a form, you can _style_ it.
 It depends on the kind of form you created how you can style it.
 A shape, for example can be filled with an uniform color,
 outlined with a dotted line,
-or both;
-a path only can be traced with a line style;
+or both.
+A path only can be traced with a line style
 and a piece of text can be made monospaced, bold, italic, underlined etc.
 You can think of a form as some kind of _stencil_,
 dipping it in different colors of ink and stamp it onto the screen once or multiple times.
@@ -97,43 +97,8 @@ before you can transform you drawing,
 you have to style it (i.e. turn it into a _collage_),
 only after styling you can shift, rotate, scale, etc.
 Including an external image or a piece of raw Html also belongs to the possiblilities.
-
-
-### Interactive graphics
-
-You can make your collages interactive by using the events from the Collage.Event module.
-See the documentation of that module for more information.
-
-
-### Automatic relative positioning
-
-The Collage.Layout module is designed to help you place collages with respect to each other.
-By keeping track of the dimensions,
-the module can place collages next to each other, above each other,
-align them to the left, to the top, etc.
-
-
-## Main Design Goals
-
-  - You can create _shapes_ like rectangles, circles, ellipses, polygons etc.
-    By filling and/or outlining them, you turn them into a _collage_.
-
-  - Something similar applies to _paths_.
-    You can draw lines, line segments and paths.
-    (Bezier curves are on the todo list!)
-    By _tracing_ them, you turn them into a _collage_.
-
-  - Other ways to create a collage are by including text, images or raw Html.
-
-  - A _collage_ itself can than be transformed and grouped.
-    Transformations include shifting, scaling, rotating, skewing, mirroring etc.
-    By grouping collages they can be transformed as one.
-
-  - Events can easily be added to a collage using the `Collage.Event` module.
-
-  - You can laying out multiple collages in a compositional way by using the `Collage.Layout` module.
-    This is similar to the functionality provided by the old `Graphics.Element` module
-    and promoted by the popular Haskell [Diagrams library]().
+And off course they can be shifted, rotated, scaled, ...
+Ok, you get the grip!
 
 
 ### Summary
@@ -176,27 +141,29 @@ align them to the left, to the top, etc.
 # Shapes
 
 
-## Drawing Shapes
+## Drawing shapes
 
-_Rounded rectangles and squares are on the todo list..._
+_Rectangles and squares with rounded rectangles are on the todo list..._
 
-@docs Shape, polygon, ngon, triangle, rectangle, square, ellipse, circle
+@docs Shape, rectangle, square, ellipse, circle, polygon, ngon, triangle
 
 
-## Turning Shapes into Collages
+## Turning shapes into collages
 
 @docs filled, outlined, styled
 
 
 # Paths
 
+_Curves and arcs (aka Bezier paths) are on the todo list..._
 
-## Drawing Paths
+
+## Drawing paths
 
 @docs Path, line, segment, path
 
 
-## Turning Paths into Collages
+## Turning paths into collages
 
 @docs traced, loop
 
@@ -209,12 +176,12 @@ _Rounded rectangles and squares are on the todo list..._
 (See text module)
 
 
-## Turning Text into Collages
+## Turning text into collages
 
 @docs rendered
 
 
-# Other Content
+# Other content
 
 @docs image, html
 
@@ -224,7 +191,7 @@ _Rounded rectangles and squares are on the todo list..._
 @docs Collage, BasicCollage, group
 
 
-## Transforming Collages
+## Transforming collages
 
 @docs shift, scale, rotate, opacity
 
@@ -244,30 +211,15 @@ you can read all about them there.
 @docs Style
 
 
-## Fill Styles
+## Fill styles
 
 For now we have only uniform fillings and a transparent filling.
-Gradients and pattern fills are on the todo list.
+_Gradients and pattern fills are on the todo list..._
 
-@docs FillStyle, transparent
-
-
-### Uniform fills
-
-@docs uniform
+@docs FillStyle, transparent, uniform
 
 
-### Gradient fills
-
-_These are on the todo list..._
-
-
-### Pattern fills
-
-_These are on the todo list..._
-
-
-## Line Styles
+## Line styles
 
 @docs LineStyle, invisible
 
@@ -301,7 +253,7 @@ import Html exposing (Html)
 
 
 {-| A 2-tuple of `Float`s representing a 2D point. `(0,0)` represents
-a point in the center of the viewport.
+a point in the center of the canvas.
 -}
 type alias Point =
     ( Float, Float )
@@ -350,7 +302,7 @@ type alias BasicCollage msg =
 
 
 
--- Grouping Collages -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
+-- Grouping collages -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
 
 
 {-| Takes a list of `Collage`s and combines them into a single `Collage`.
@@ -362,7 +314,7 @@ group =
 
 
 
--- Transforming Collages -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -
+-- Transforming collages -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -
 -- TODO:
 -- * add scale in x and in y with nice names: widen/broaden and lengthen/stretch ???
 -- * add skew in x and y with nice names: slant and tilt ???
@@ -445,12 +397,17 @@ type alias Shape =
 
 
 
--- Creating Shapes -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -
+-- Creating shapes -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -
 
 
 {-| Create an arbitrary polygon by specifying its corners in order.
 
-`polygon` will automatically close all shapes, so the given list of points does not need to start and end with the same position.
+`polygon` will automatically close all shapes,
+so the given list of points does not need to start and end with the same position.
+
+  - Note:
+    Be sure the origin of your polygon is at the right position if you like to automatically position collages.
+    E.g. use `center` or `align topLeft` from the Collage.Layout module to fix this.
 
 -}
 polygon : List Point -> Shape
@@ -459,7 +416,6 @@ polygon =
 
 
 {-| A regular polygon with _n_ sides.
-
 The first argument specifies the number of sides and the second is the radius.
 
 Some ngon's with radius 50:
@@ -484,7 +440,7 @@ ngon n r =
     Core.Polygon <| List.map f (List.range 0 n)
 
 
-{-| A triangle pointing upwards with given base.
+{-| An equilateral triangle pointing upwards with given base.
 
 Note the difference between using `triangle` and `ngon 3`.
 Both produce a triangle pointing upwards with its origin in the center,
@@ -552,7 +508,7 @@ square n =
     It draws an oval of given width and height,
     so
 
-    oval w h == ellipse (w/2) (h/2)
+        oval w h  ==  ellipse (w/2) (h/2)
 
 -}
 ellipse : Float -> Float -> Shape
@@ -562,7 +518,7 @@ ellipse =
 
 {-| A circle of given radius.
 
-As with a square, using `circle` is the same as using `ellips` with the same x and y radii:
+As with a square, using `circle` is the same as using `ellipse` with the same x and y radii:
 
     circle radius  ==  ellipse radius radius
 
@@ -573,7 +529,7 @@ circle r =
 
 
 
--- Turning Shapes into Collages -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
+-- Turning shapes into collages -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
 
 
 {-| Adds a fills to a shape, turining it into a collage.
@@ -612,18 +568,21 @@ outlined line =
 
 {-| Adds a fill and an outline to a shape, turning it into a collage.
 
-The tuple argument contains fill style and a line style.
+The tuple argument contains a fill style and a line style.
 To draw an thick black outlined green triangle with base 30 you say:
 
     triangle 30
-        |> styled (uniform green, solid thick (uniform black))
+        |> styled
+            ( uniform green
+            , solid thick (uniform black)
+            )
 
 The tuple form helps in defining your own reusable styles.
-For example, if you like all you shapes to have a thick black outline,
+For example, if you want more of you shapes to have a thick black outline,
 you could rewrite above example to:
 
     thickOutlinedAndFilled fillColor =
-        (uniform fillColor, solid thick (uniform black))
+        ( uniform fillColor, solid thick (uniform black) )
 
     triangle 30
         |> styled (thickOutlinedAndFilled green)
@@ -642,23 +601,36 @@ styled style =
 -- * add more primitive paths: <line>, <path>
 
 
-{-| A segment of a line or curve. Only describes the shape of the line.
+{-| A 2D line or curve that can be traced.
+
+Paths only describes the shape of the line.
 Position, color, thickness, etc. are all specified later.
+Paths can **only be traced** by a line style,
+not filled.
+If you like to fill a path,
+you have to _close_ it.
+This will turn a path it into a shape,
+which can be filled and outlined.
+
 -}
 type alias Path =
     Core.Path
 
 
 
--- Creating Paths -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
+-- Creating paths -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
 -- TODO: add curves (aka Bezier paths), arcs (part of Bezier paths)
 -- TODO: add way to close a path so it can be filled?
 --       something like `close : Path -> Shape`
 
 
-{-| | Draw a horizontal line with a given length.
+{-| Draw a horizontal line with a given length.
 
 The origin of the line will be `(0,0)`.
+Here is a thick dotted yellow horizontal line of length 20:
+
+    line 20
+        |> traced (dot thick (uniform yellow))
 
 -}
 line : Float -> Path
@@ -666,18 +638,30 @@ line l =
     path [ ( -l / 2, 0 ), ( l / 2, 0 ) ]
 
 
-{-| `segment (x1,y1) (x2,y2)` is a line segment with
-endpoints at `(x1,y1)` and `(x2,y2)`.
+{-| Create a path along a given line segment.
+Takes the start and end points of the segement as arguments.
+
+To draw a sloped blue line from (0,5) to (5,0) you say:
+
+    segment ( 0, 5 ) ( 5, 0 )
+        |> traced (uniform blue)
+
+  - Note:
+    If you like to automatically position lines,
+    be sure the origin is at the right position.
+    E.g. use `center` or `align topLeft` from Collage.Layout.
+    Most of the time using the `line` function above and rotating or shifting it makes things more clear.
+
 -}
 segment : Point -> Point -> Path
 segment a b =
     path [ a, b ]
 
 
-{-| `polyline points` is a polyline with vertices
-at `points`. (A polyline is a collection of connected
-line segments. It can be thought of as drawing a
-"connect-the-dots" line through a list of points.)
+{-| Create a path that follows a sequence of points.
+
+It can be thought of as drawing a "connect-the-dots" line through a list of points.
+
 -}
 path : List Point -> Path
 path =
@@ -685,7 +669,7 @@ path =
 
 
 
--- Turning Paths into Collages -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -
+-- Turning paths into collages -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -
 {-
    -- ORIG
    segment (0,0) (1,1)
@@ -846,8 +830,10 @@ solid =
 
 
 {-| A custom line defined by a list of (on,off):
-broken [(10,5)] 5 -- a line that with dashes 10 long and spaces 5 long
-broken [(10,5),(20,5)] -- on for 10, off 5, on 20, off 5
+
+    broken [(10,5)] 5       -- a line that with dashes 10 long and spaces 5 long
+    broken [(10,5),(20,5)]  -- on for 10, off 5, on 20, off 5
+
 -}
 broken : List ( Int, Int ) -> Float -> FillStyle -> LineStyle
 broken dash thickness fill =

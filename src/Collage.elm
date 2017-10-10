@@ -163,20 +163,14 @@ _Curves and arcs (aka Bezier paths) are on the todo list..._
 @docs Path, line, segment, path
 
 
-## Turning paths into collages
+## Turning paths into collages or shapes
 
 @docs traced, close
 
 
 # Text
 
-
-## Creating text
-
-(See text module)
-
-
-## Turning text into collages
+To create and style text take a look at the Collage.Text module
 
 @docs rendered
 
@@ -188,12 +182,17 @@ _Curves and arcs (aka Bezier paths) are on the todo list..._
 
 # Collages
 
-@docs Collage, BasicCollage, group
+@docs Collage, BasicCollage
 
 
 ## Transforming collages
 
 @docs shift, scale, rotate, opacity
+
+
+## Grouping collages
+
+@docs group
 
 
 # Styling
@@ -276,27 +275,16 @@ opposite ( x, y ) =
 -- Collages -----------------------------------------------------------------------
 
 
-{-| Anything that can be rendered on the screen. A `Collage` could be a
-red circle, a line of text, or an arbitrary HTML element.
-
-    redCircle : Collage
-    redCircle =
-        circle 10 |> solidFill (rgb 255 0 0) |> position ( -20, 0 )
-
-    blueCircle : Collage
-    blueCircle =
-        circle 10 |> solidFill (rgb 0 0 255)
-
-    circles : Collage
-    circles =
-        group [ redCircle, blueCircle ]
-
+{-| An opaque type representing any styled form or group of forms that can be shifted, rotated, scaled, etc.
+A collage could be a red circle, a dotted line, a chunk of text, or an arbitrary Html element.
 -}
 type alias Collage msg =
     Core.Collage Core.FillStyle LineStyle Text.Style msg
 
 
-{-| -}
+{-| Used at the core of a collage.
+Only for internal usage.
+-}
 type alias BasicCollage msg =
     Core.BasicCollage Core.FillStyle LineStyle Text.Style msg
 
@@ -305,7 +293,13 @@ type alias BasicCollage msg =
 -- Grouping collages -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
 
 
-{-| Takes a list of `Collage`s and combines them into a single `Collage`.
+{-| Take a list of collages and combine them into a single collage,
+which again can be shifted, rotated, scaled, etc.
+
+    group [drawing1, drawing2, drawing3]
+        |> scale 2
+        |> rotate (degrees 30)
+
 -}
 group : List (Collage msg) -> Collage msg
 group =
@@ -700,13 +694,23 @@ path =
 
 
 {-| Trace a path with a given line style.
+
+Here is a red zig-zag:
+
+    path [( 0, 5 ), ( 5, 0 ), ( 5, 5 )]
+        |> traced (solid thin uniform red)
+
+Paths can only be traced.
+If you like to fill a path,
+you have to turn it into a shape by _closing_ it first.
+
 -}
 traced : LineStyle -> Path -> Collage msg
 traced style path =
     Core.collage <| Core.Path style path
 
 
-{-| Close a path so that it can be outlined and filled.
+{-| Close a path so that it also can be filled.
 -}
 close : Path -> Shape
 close =
@@ -717,31 +721,39 @@ close =
 -- Text ------------------------------------------------------------------------
 
 
-{-| -}
+{-| Render a chunk of styled text and turn it into a collage.
+
+    Text.fromString "Hello Collage!"
+        |> Text.shape Text.Italic
+        |> Text.size huge
+        |> rendered
+
+See the Collage.Text module for all the possibilities to create and style text.
+
+-}
 rendered : Text -> Collage msg
 rendered text =
     Core.collage <| Core.Text ( Text.width text, Text.height text ) text
 
 
 
--- Images ----------------------------------------------------------------------
+-- Raw Content -----------------------------------------------------------------
 
 
-{-| An image. The arguments specify the image's thickness, height and url.
+{-| Create an image given a width, height, and image source.
+
+    image 100 100 "elm-logo.jpg"
+
 -}
 image : ( Float, Float ) -> String -> Collage msg
 image dims =
     Core.collage << Core.Image dims
 
 
+{-| Create a collage from an arbitrary Html element.
 
--- Raw Content -----------------------------------------------------------------
+The resulting collage is subject to all of the regular transformations.
 
-
-{-| Creates a `Collage` from an arbitrary `Html` element. The
-resulting collage is subject to all of the regular manipulations.
-Note that if you are compiling to SVG, then this functionality
-is not supported in Internet Explorer.
 -}
 html : ( Float, Float ) -> Html msg -> Collage msg
 html dims =

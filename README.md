@@ -2,7 +2,8 @@
 
 With this library, you can create interactive scalable vector graphics.
 Its interface is based on the classic [Elm Graphics library](http://package.elm-lang.org/packages/evancz/elm-graphics/latest).
-However, you'll find that a couple of things are different.
+However, you'll find that a couple of things are different
+and a lot of functionality has been added.
 You can find all the details in the module documentation.
 
 The library consists of four main modules:
@@ -65,7 +66,8 @@ main =
         |> svg
 ```
 
-You can find more examples in the `examples` directory of the repository.
+You can find more examples in the [examples directory](https://github.com/timjs/elm-collage/tree/master/examples)
+of the repository.
 
 
 ## How does this library compare to...?
@@ -84,7 +86,7 @@ You can find more examples in the `examples` directory of the repository.
 
   - [Elm Render](http://package.elm-lang.org/packages/Kwarrtz/render/2.0.0)
 
-    This library is actually a fork of this excellent work by @Kwarrtz.
+    Elm Collage is actually a fork of this excellent work by @Kwarrtz.
     The module organisation changed a bit,
     as well as some styling functions,
     but the code to render Svg is almost untouched.

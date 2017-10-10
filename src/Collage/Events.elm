@@ -23,7 +23,7 @@ Will send the message `Clicked` to your update function where you can handle it.
 You will probably need some way to identify your objects to keep track of _which_ object the user clicked on:
 
     drawing.collage
-        |> onClick (Clicked drawing.id)
+        |> onClick (ClickedOn drawing.id)
 
 where `drawing : { r | collage : Collage, id : Id }`
 

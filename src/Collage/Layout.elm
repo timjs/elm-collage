@@ -481,6 +481,8 @@ This actually is the same as the `group` operation in the Collage module.
 
 (Yes, `b` and `c` are somewhere below `a`...)
 
+The new origin will be the origin of the first element in the list.
+
   - Note: this is called `concat` in Diagrams.
 
   - Note: when we create an operator `(<>)` like
@@ -490,8 +492,6 @@ This actually is the same as the `group` operation in the Collage module.
 
     then `(<>)` forms a monoid together with `empty`.
     `(<>)` is called `atop` in Diagrams.
-
-The new origin will be the origin of the first element in the list.
 
 -}
 stack : List (Collage msg) -> Collage msg

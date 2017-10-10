@@ -152,7 +152,7 @@ Ok, you get the grip!
 
 ## Drawing shapes
 
-_Rectangles and squares with rounded rectangles are on the todo list..._
+_Rectangles and squares with rounded corners are on the todo list..._
 
 @docs Shape, rectangle, square, ellipse, circle, polygon, ngon, triangle
 
@@ -867,7 +867,7 @@ broken dash thickness fill =
     }
 
 
-{-| The same as `solid`, except the line is dots.
+{-| The same as `solid`, except the line is dotted.
 
 Calculates the length of the dots based on the given line thickness.
 

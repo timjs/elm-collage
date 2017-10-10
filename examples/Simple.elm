@@ -4,8 +4,10 @@ import Collage exposing (circle, filled, rectangle, uniform)
 import Collage.Layout exposing (at, topLeft)
 import Collage.Render exposing (svg)
 import Color
+import Html exposing (Html)
 
 
+main : Html msg
 main =
     let
         circ =

@@ -113,6 +113,7 @@ We can imagine some possible extensions which could aid in designing composable 
 
 import Collage exposing (..)
 import Collage.Core as Core
+import Collage.Super exposing (..)
 import Color
 import Maybe.Extra exposing ((?))
 import Tuple exposing (first, second)

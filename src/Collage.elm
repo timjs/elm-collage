@@ -1,8 +1,6 @@
 module Collage
     exposing
-        ( BasicCollage
-          --(.)
-        , Collage
+        ( Collage
           --(.)
         , FillStyle
           --(.)
@@ -136,7 +134,7 @@ Ok, you get the grip!
 
 # Basics
 
-@docs Point, opposite, Collage, BasicCollage
+@docs Point, opposite, Collage
 
 
 ## Transforming collages
@@ -281,13 +279,6 @@ A collage could be a red circle, a dotted line, a chunk of text, or an arbitrary
 -}
 type alias Collage msg =
     Core.Collage Core.FillStyle LineStyle Text.Style msg
-
-
-{-| Used at the core of a collage.
-Only for internal usage.
--}
-type alias BasicCollage msg =
-    Core.BasicCollage Core.FillStyle LineStyle Text.Style msg
 
 
 

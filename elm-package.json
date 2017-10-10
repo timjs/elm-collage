@@ -1,5 +1,5 @@
 {
-    "version": "1.0.0",
+    "version": "1.0.1",
     "summary": "Create interactive vector graphics and position them relative to each other",
     "repository": "https://github.com/timjs/elm-collage.git",
     "license": "BSD-3-Clause",

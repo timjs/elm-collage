@@ -17,6 +17,7 @@ module Collage
         , Style
         , broken
         , circle
+        , close
         , dash
         , dashdot
         , dot
@@ -28,7 +29,6 @@ module Collage
         , invisible
         , line
         , longdash
-        , loop
         , ngon
         , opacity
         , opposite
@@ -165,7 +165,7 @@ _Curves and arcs (aka Bezier paths) are on the todo list..._
 
 ## Turning paths into collages
 
-@docs traced, loop
+@docs traced, close
 
 
 # Text
@@ -708,8 +708,8 @@ traced style path =
 
 {-| Close a path so that it can be outlined and filled.
 -}
-loop : Path -> Shape
-loop =
+close : Path -> Shape
+close =
     Core.Loop
 
 

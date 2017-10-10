@@ -247,7 +247,7 @@ handleBasic dir theta basic =
         Core.Image dims _ ->
             handleBox dir (rotate dims)
 
-        Core.Element dims _ ->
+        Core.Html dims _ ->
             handleBox dir (rotate dims)
 
         --| Groups

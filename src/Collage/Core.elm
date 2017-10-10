@@ -44,7 +44,7 @@ type BasicCollage fill line text msg
     | Path line Path
     | Text ( Float, Float ) (Text text)
     | Image ( Float, Float ) String
-    | Element ( Float, Float ) (Html msg)
+    | Html ( Float, Float ) (Html msg)
     | Group (List (Collage fill line text msg))
     | Subcollage (Collage fill line text msg) (Collage fill line text msg)
 

@@ -21,10 +21,10 @@ module Collage
         , dashdot
         , dot
         , ellipse
-        , embedded
         , filled
         , group
-        , included
+        , html
+        , image
         , invisible
         , line
         , longdash
@@ -148,7 +148,7 @@ align them to the left, to the top, etc.
     - oval           |            |               |           |
     - circle         |            |               |           |
       |              |            |               |           |
-    filled         traced       rendered        included    embedded
+    filled         traced       rendered        image       html
     outlined         |            |               |           |
     styled           |            |               |           |
       |              |            |               |           |
@@ -216,7 +216,7 @@ _Rounded rectangles and squares are on the todo list..._
 
 # Other Content
 
-@docs included, embedded
+@docs image, html
 
 
 # Collages
@@ -745,8 +745,8 @@ rendered text =
 
 {-| An image. The arguments specify the image's thickness, height and url.
 -}
-included : ( Float, Float ) -> String -> Collage msg
-included dims =
+image : ( Float, Float ) -> String -> Collage msg
+image dims =
     Core.collage << Core.Image dims
 
 
@@ -759,9 +759,9 @@ resulting collage is subject to all of the regular manipulations.
 Note that if you are compiling to SVG, then this functionality
 is not supported in Internet Explorer.
 -}
-embedded : ( Float, Float ) -> Html msg -> Collage msg
-embedded dims =
-    Core.collage << Core.Element dims
+html : ( Float, Float ) -> Html msg -> Collage msg
+html dims =
+    Core.collage << Core.Html dims
 
 
 

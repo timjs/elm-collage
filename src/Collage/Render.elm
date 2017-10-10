@@ -132,7 +132,7 @@ render collage id =
               ]
             )
 
-        Core.Element ( width, height ) elem ->
+        Core.Html ( width, height ) html ->
             let
                 tx =
                     toString <| -(width / 2)
@@ -149,7 +149,7 @@ render collage id =
             ( id
             , [ Svg.g [ Svg.transform <| String.concat [ "translate(", tx, ",", ty, ")" ] ]
                     [ Svg.foreignObject ([ Svg.width w, Svg.height h ] ++ attrs collage id ++ events collage)
-                        [ elem ]
+                        [ html ]
                     ]
               ]
             )

@@ -20,6 +20,7 @@ module Collage
         , close
         , dash
         , dashdot
+        , defaultLineStyle
         , dot
         , ellipse
         , filled
@@ -135,7 +136,17 @@ Ok, you get the grip!
 
 # Basics
 
-@docs Point, opposite
+@docs Point, opposite, Collage, BasicCollage
+
+
+## Transforming collages
+
+@docs shift, scale, rotate, opacity
+
+
+## Grouping collages
+
+@docs group
 
 
 # Shapes
@@ -180,21 +191,6 @@ To create and style text take a look at the Collage.Text module
 @docs image, html
 
 
-# Collages
-
-@docs Collage, BasicCollage
-
-
-## Transforming collages
-
-@docs shift, scale, rotate, opacity
-
-
-## Grouping collages
-
-@docs group
-
-
 # Styling
 
 There are three kind of styles:
@@ -203,7 +199,11 @@ There are three kind of styles:
   - Line styles
   - Text styles
 
-Fill style
+Fill styles are used to fill a shape
+or color a line.
+Therefore, line styles contain a fill style.
+Line styles can be used to trace paths
+or outline shapes.
 Text styles are defined in the Collage.Text module,
 you can read all about them there.
 
@@ -213,6 +213,7 @@ you can read all about them there.
 ## Fill styles
 
 For now we have only uniform fillings and a transparent filling.
+
 _Gradients and pattern fills are on the todo list..._
 
 @docs FillStyle, transparent, uniform
@@ -220,7 +221,7 @@ _Gradients and pattern fills are on the todo list..._
 
 ## Line styles
 
-@docs LineStyle, invisible
+@docs LineStyle, invisible, defaultLineStyle
 
 
 ### Line dashing
@@ -297,8 +298,8 @@ type alias BasicCollage msg =
 which again can be shifted, rotated, scaled, etc.
 
     group [drawing1, drawing2, drawing3]
-        |> scale 2
-        |> rotate (degrees 30)
+        |> scale 3
+        |> rotate (degrees 90)
 
 -}
 group : List (Collage msg) -> Collage msg
@@ -654,7 +655,7 @@ segment a b =
 
 {-| Create a path that follows a sequence of points.
 
-It can be thought of as drawing a "connect-the-dots" line through a list of points.
+It can be thought of as drawing a “connect-the-dots” line through a list of points.
 
 -}
 path : List Point -> Path
@@ -765,7 +766,6 @@ html dims =
 
 
 {-| Convenience shorthand for styling.
-FIXME: good idea???
 -}
 type alias Style =
     ( FillStyle, LineStyle )
@@ -775,21 +775,23 @@ type alias Style =
 -- Fill Styles -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
 
 
-{-| Describes the texture of a shape or line. It can be a uniform color,
-gradient, or tiled texture.
+{-| Describes the fill of a shape or line.
+
+For now, it can only be a a uniform color or no fill at all.
+
 -}
 type alias FillStyle =
     Core.FillStyle
 
 
-{-| Uniform color fill
+{-| Uniform color fill.
 -}
 uniform : Color -> FillStyle
 uniform =
     Core.Uniform
 
 
-{-| Transparent texture
+{-| Transparent fill.
 -}
 transparent : FillStyle
 transparent =
@@ -800,9 +802,13 @@ transparent =
 -- Line Styles -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
 
 
-{-| Speficies the styling (color, thickness, dashing, etc.) of a line.
+{-| All of the attributes of a line style.
 
-    -- defines a red, dashed line with a thickness of 5px
+This lets you build up a line style however you want.
+You can also update existing line styles with record updates.
+
+To define a red, dashed line style with a thickness of 5px:
+
     { color = rgb 255 20 20
     , thickness = 5
     , cap = Flat
@@ -810,8 +816,6 @@ transparent =
     , dashing = [8,4]
     , dashOffset = 0
     }
-
-(Record is not shown due to technical limitations of interal exports in Elm.)
 
 -}
 type alias LineStyle =
@@ -824,47 +828,57 @@ type alias LineStyle =
     }
 
 
-{-| Invisible line
+{-| The default line style, which is solid black with flat caps and sharp joints.
+
+You can use record updates to build the line style you want.
+For example, to make a thicker line, you could say:
+
+    { defaultLineStyle | width = verythick }
+
+-}
+defaultLineStyle : LineStyle
+defaultLineStyle =
+    { fill = uniform Color.black
+    , thickness = thin
+    , cap = Flat
+    , join = Sharp
+    , dashPattern = []
+    , dashPhase = 0
+    }
+
+
+{-| Invisible line.
 -}
 invisible : LineStyle
 invisible =
     solid 0 transparent
 
 
-{-| Creates a Collage representing a solid line from a
-'Path' object. The first argument specifies the line
-thickness and the second argument specifies the texture
-to use for the line stroke.
+{-| A line style representing a solid line of given thickness and color.
 -}
 solid : Float -> FillStyle -> LineStyle
 solid =
     broken []
 
 
-{-| A custom line defined by a list of (on,off):
+{-| A custom line defined by a list of `(on, off)` dash length:
 
-    broken [(10,5)] 5       -- a line that with dashes 10 long and spaces 5 long
+    broken [(10,5)]         -- a line that with dashes 10 long and spaces 5 long
     broken [(10,5),(20,5)]  -- on for 10, off 5, on 20, off 5
 
 -}
 broken : List ( Int, Int ) -> Float -> FillStyle -> LineStyle
 broken dash thickness fill =
-    { fill = fill
-    , thickness = thickness
-    , cap = Flat
-    , join = Sharp
-    , dashPattern = dash
-    , dashPhase = 0
+    { defaultLineStyle
+        | fill = fill
+        , thickness = thickness
+        , dashPattern = dash
     }
-
-
-
---FIXME: good idea to calculate lenght based on thickness?
 
 
 {-| The same as `solid`, except the line is dots.
 
-Calulates the length of the dots based on the line thickness.
+Calulates the length of the dots based on the given line thickness.
 
 -}
 dot : Float -> FillStyle -> LineStyle
@@ -877,6 +891,9 @@ dot thickness =
 
 
 {-| The same as `solid`, except the line is dashed.
+
+Calulates the length of the dashes based on the given line thickness.
+
 -}
 dash : Float -> FillStyle -> LineStyle
 dash thickness =
@@ -887,7 +904,7 @@ dash thickness =
     broken [ ( d * 5, d * 2 ) ] thickness
 
 
-{-| Define a dashed line type with the given thickness, where the dashes are longer than normal.
+{-| A dashed line type with the given thickness, where the dashes are longer than normal.
 -}
 longdash : Float -> FillStyle -> LineStyle
 longdash thickness =
@@ -898,7 +915,7 @@ longdash thickness =
     broken [ ( d * 12, d * 6 ) ] thickness
 
 
-{-| Define a line type with the given thickness, including alternating dots and dashes.
+{-| A dashed line type with the given thickness, including alternating dots and dashes.
 -}
 dashdot : Float -> FillStyle -> LineStyle
 dashdot thickness =
@@ -966,16 +983,13 @@ ultrathick =
 -- Line Caps and Joins -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
 
 
-{-| Describes the cap style of a line. `Flat` capped lines have
-no endings, `Padded` capped lines have flat endings that extend
-slightly past the end of the line, and `Round` capped lines have
-hemispherical endings.
+{-| The shape of the end of a line.
 
-In TikZ and Css these options are called:
+`Flat` capped lines have no endings,
+`Padded` capped lines have flat endings that extend slightly past the end of the line,
+and `Round` capped lines have hemispherical endings.
 
-    = Butt
-    | Round
-    | Rect
+In TikZ and Css these options are called butt, rect, and round.
 
 -}
 type LineCap
@@ -984,16 +998,16 @@ type LineCap
     | Padded
 
 
-{-| Describes the join style of a line.
 
-In TikZ and Css these options are called:
+--TODO: Sharp takes an argument to limit the length of the joint. This defaults to 10.
 
-    = Round
-    | Bevel
-    | Miter
+
+{-| The shape of the “joints” of a line, where each line segment meets.
+
+In TikZ and Css these options have the nondescriptive names round, miter, and bevel.
 
 -}
 type LineJoin
     = Smooth
-    | Clipped
     | Sharp
+    | Clipped

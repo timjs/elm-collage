@@ -357,9 +357,9 @@ spacer w h =
 
     horizontal [ a, if showMore then b else empty ]
 
-        +–––+––––––––––+
-        | a | maybe b? |
-        +–––+––––––––––+
+        +–––+– – – – – –+
+        |(a)|  maybe b? |
+        +–––+– – – – – –+
 
   - Note: this is the identity element of the monoid on collages.
 

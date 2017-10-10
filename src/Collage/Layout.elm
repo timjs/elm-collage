@@ -238,10 +238,11 @@ handleBasic dir theta basic =
             -- Use the same calculations as for paths
             handleBasic dir theta (Core.Path line path)
 
-        --| Elements
+        --| Paths
         Core.Path line (Core.Polyline ps) ->
             handlePath dir (List.map rotate ps)
 
+        --| Boxes
         Core.Text dims _ ->
             handleBox dir (rotate dims)
 
@@ -265,11 +266,8 @@ handleBasic dir theta basic =
 handlePath : Direction -> List Point -> Float
 handlePath dir ps =
     let
-        xs =
-            List.map first ps
-
-        ys =
-            List.map second ps
+        ( xs, ys ) =
+            List.unzip ps
     in
     case dir of
         Up ->

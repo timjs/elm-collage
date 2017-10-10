@@ -57,7 +57,7 @@ module Collage
         )
 
 {-| The collage module is here to help you create freeform graphics.
-You can style all sorts of forms including shapes, paths, text and images,
+You can style all sorts of forms including shapes, paths, text, and images,
 and then shift, rotate, scale, and group them.
 
 
@@ -75,7 +75,7 @@ The goal is to provide an elegant interface which is abstracted as much as possi
 To create a graphic you start with creating some form: a _shape_, a _path_ or a chunk of _text_.
 After creating a form, you can _style_ it.
 It depends on the kind of form you created how you can style it.
-A shape, for example can be filled with an uniform color,
+A shape, for example, can be filled with a uniform color,
 outlined with a dotted line,
 or both.
 A path only can be traced with a line style
@@ -84,19 +84,19 @@ You can think of a form as some kind of _stencil_,
 dipping it in different colors of ink and stamp it onto the screen once or multiple times.
 
 Styling a form will turn it into a _collage_.
-Collages are the most powerfull object of this library.
-They cannot be styled any more,
+Collages are the most powerful object of this library.
+They cannot be styled anymore,
 but they can be shifted, rotated, scaled, made partially transparent, and grouped into a new collage.
 Yeah, you read that correctly:
 you can group multiple collages into a new one,
 which you can shift, rotate, scale, and group again!
 
-So rembember:
-before you can transform you drawing,
+So remember:
+before you can transform your drawing,
 you have to style it (i.e. turn it into a _collage_),
 only after styling you can shift, rotate, scale, etc.
-Including an external image or a piece of raw Html also belongs to the possiblilities.
-And off course they can be shifted, rotated, scaled, ...
+Including an external image or a piece of raw Html also belongs to the possibilities.
+And of course they can be shifted, rotated, scaled, ...
 Ok, you get the grip!
 
 
@@ -179,7 +179,7 @@ _Curves and arcs (aka Bezier paths) are on the todo list..._
 
 # Text
 
-To create and style text take a look at the Collage.Text module
+To create and style text, take a look at the Collage.Text module.
 
 @docs rendered
 
@@ -191,7 +191,7 @@ To create and style text take a look at the Collage.Text module
 
 # Styling
 
-There are three kind of styles:
+There are three kinds of styles:
 
   - Fill styles
   - Line styles
@@ -210,7 +210,7 @@ you can read all about them there.
 
 ## Fill styles
 
-For now we have only uniform fillings and a transparent filling.
+For now, we have only uniform fillings and a transparent filling.
 
 _Gradients and pattern fills are on the todo list..._
 
@@ -257,7 +257,7 @@ type alias Point =
     ( Float, Float )
 
 
-{-| Calcualate the point at the opposite side of the origin.
+{-| Calculate the point at the opposite side of the origin.
 
 Simply negates the coordinates:
 
@@ -434,7 +434,7 @@ however:
 
   - `triangle base` gives us a triangle
     with three equal sides of length `base`
-    and a distance from point to center of `sqrt 7 / 4 * base`.
+    and a distance from each corner to the center of `sqrt 7 / 4 * base`.
   - `ngon 3 radius` gives us a similar triangle
     but with three equal sides of length `4 / sqrt 7 * radius`
     and a radius of `radius`.
@@ -473,7 +473,7 @@ rectangle w h =
 
 {-| A square of given size.
 
-Off course this is equal to using `rectangle` with the same width and height:
+Of course this is equal to using `rectangle` with the same width and height:
 
     square size  ==  rectangle size size
 
@@ -518,7 +518,7 @@ circle r =
 -- Turning shapes into collages -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
 
 
-{-| Adds a fills to a shape, turining it into a collage.
+{-| Adds a fills to a shape, turning it into a collage.
 
 The argument specifies the style of the fill.
 The **outline is left invisible**.
@@ -544,7 +544,7 @@ To draw a square with edge length 30 with a thin black dashed outline you say:
     square 30
         |> outlined (dot thin (uniform black))
 
-See below for more possible line styles.
+See below for the possible line styles.
 
 -}
 outlined : LineStyle -> Shape -> Collage msg
@@ -555,7 +555,7 @@ outlined line =
 {-| Adds a fill and an outline to a shape, turning it into a collage.
 
 The tuple argument contains a fill style and a line style.
-To draw an thick black outlined green triangle with base 30 you say:
+To draw a thick black outlined green triangle with base 30 you say:
 
     triangle 30
         |> styled
@@ -589,7 +589,7 @@ styled style =
 
 {-| A 2D line or curve that can be traced.
 
-Paths only describes the shape of the line.
+Paths only describe the shape of the line.
 Position, color, thickness, etc. are all specified later.
 Paths can **only be traced** by a line style,
 not filled.
@@ -625,7 +625,7 @@ line l =
 
 
 {-| Create a path along a given line segment.
-Takes the start and end points of the segement as arguments.
+Takes the start and end points of the segment as arguments.
 
 To draw a sloped blue line from (0,5) to (5,0) you say:
 
@@ -768,7 +768,7 @@ type alias Style =
 
 {-| Describes the fill of a shape or line.
 
-For now, it can only be a a uniform color or no fill at all.
+For now, it can only be a uniform color or no fill at all.
 
 -}
 type alias FillStyle =
@@ -869,7 +869,7 @@ broken dash thickness fill =
 
 {-| The same as `solid`, except the line is dots.
 
-Calulates the length of the dots based on the given line thickness.
+Calculates the length of the dots based on the given line thickness.
 
 -}
 dot : Float -> FillStyle -> LineStyle
@@ -883,7 +883,7 @@ dot thickness =
 
 {-| The same as `solid`, except the line is dashed.
 
-Calulates the length of the dashes based on the given line thickness.
+Calculates the length of the dashes based on the given line thickness.
 
 -}
 dash : Float -> FillStyle -> LineStyle

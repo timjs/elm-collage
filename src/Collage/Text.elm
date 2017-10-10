@@ -43,14 +43,14 @@ follow the next steps:
 1.  Create some text chunk with `fromString`.
 2.  Style it using the functions in this module.
 3.  Make a collage out of it, i.e. render it using `Collage.rendered`.
-    From this point you cannot style you text any more.
+    From this point, you cannot style your text any more.
     What you _can_ do however is...
 4.  Transform the collage using the functions in the Collage module:
     shift it, rotate it, scale it etc.
     Or use the placement functions in Collage.Layout.
 
 So the most important thing to remember is that after you have turned your text into a collage,
-you cannot style it any more!
+you cannot style it anymore!
 
 
 # Text
@@ -224,7 +224,7 @@ defaultStyle =
 
 {-| Possible typefaces for text.
 
-`Serif`, `Sansserif` and `Monospace` correspond to the default browser fonts of the user.
+`Serif`, `Sansserif`, and `Monospace` correspond to the default browser fonts of the user.
 Use `Font` to specify a concrete typeface.
 
 -}
@@ -378,7 +378,7 @@ type Stretch
 -- Decoration -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
 
 
-{-| Styles for lines on text.
+{-| Styles for lines on or over some text.
 -}
 type Line
     = None
@@ -425,7 +425,7 @@ line line (Core.Chunk style str) =
 -- Calculations ----------------------------------------------------------------
 
 
-{-| Width of the text when displayed on the user screen.
+{-| The width of the text when displayed on the user screen.
 
   - **Warning!**
     Use this function sporadically.
@@ -438,7 +438,7 @@ width (Core.Chunk style string) =
     Native.Text.width (toCssFontSpec style) string
 
 
-{-| Height of the text.
+{-| The height of the text when displayed on the user screen.
 
 This is equal to the text size:
 

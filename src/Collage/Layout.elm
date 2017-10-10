@@ -30,17 +30,17 @@ module Collage.Layout
         , width
         )
 
-{-| With this module you can compose collages in a more automatic way.
+{-| With this module, you can compose collages in a more automatic way.
 Instead of shifting collages manually,
 this module figures out the dimensions of each part of your drawing
-and places them seamlesly next to each other, above each other or on top of each other.
+and places them seamlessly next to each other, above each other or on top of each other.
 This is all possible by keeping track of the _envelope_ or _bounding box_ of each collage.
 
 Collages are positioned relative to their _internal origin_.
 By default, a collage's internal origin lays in its exact center.
 By _shifting_ a collage, we change its internal origin
 and the way it composes with other collages.
-Another method to change the origin, is by using _alignments_.
+Another method to change the origin is by using _alignments_.
 
 All these ideas are based on the [Diagrams library](https://archives.haskell.org/projects.haskell.org/diagrams/) for Haskell
 and the [Scalable Graphics library](https://dl.acm.org/citation.cfm?id=2746329) for Clean.

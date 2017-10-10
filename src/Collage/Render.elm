@@ -21,7 +21,7 @@ import Svg.Events as Svg
 import Tuple
 
 
-{-| Render a collage as Svg in a viewbox of given width and height,
+{-| Render a collage as Svg in a view box of given width and height,
 and the origin in the center.
 -}
 svgBox : ( Float, Float ) -> Collage msg -> Html msg
@@ -32,7 +32,7 @@ svgBox ( width, height ) collage =
 
 {-| Take a collage and render it to Html using Svg.
 
-It uses the automatically calculated envelope from the Collage.Layout module as the viewbox.
+It uses the automatically calculated envelope from the Collage.Layout module as the view box.
 
 -}
 svg : Collage msg -> Html msg

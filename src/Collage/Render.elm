@@ -334,7 +334,7 @@ evalTransform collage =
             toString <| -(Tuple.second collage.origin)
 
         theta =
-            toString <| collage.theta / 2 / pi * 360
+            toString <| -collage.theta / 2 / pi * 360
 
         scale =
             toString <| collage.scale

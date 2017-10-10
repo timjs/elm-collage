@@ -160,15 +160,15 @@ opposite dir =
 {-| Calculate the envelope of a collage relative to its internal origin.
 
 The figure below illustrates the four distances that can be calculated.
-We represent the origin with `X`.
+We represent the origin with `(X)`.
 When calling, for example, `envelope Up`,
-we calculate the distance from `X` to the upper edge of the rectangle.
+we calculate the distance from `(X)` to the upper edge of the rectangle.
 
         +–––––––––––––––+
         |       ˄       |
         |    Up |       |
         |       | Right |
-        | ˂–––– X ––––˃ |
+        | ˂––––(X)––––˃ |
         |  Left |       |
         |       | Down  |
         |       ˅       |
@@ -431,7 +431,7 @@ The first element in the list will be on the left, the last on the right.
     horizontal [a, b, c]
 
         +–––+–––+–––+
-        | a | b | c |
+        |(a)| b | c |
         +–––+–––+–––+
 
 The new origin will be the origin of the first element in the list.
@@ -451,7 +451,7 @@ The first element in the list will be on the top, the last on the bottom.
     vertical [a, b, c]
 
         +–––+
-        | a |
+        |(a)|
         +–––+
         | b |
         +–––+
@@ -476,7 +476,7 @@ This actually is the same as the `group` operation in the Collage module.
     stack [a, b, c]
 
         +–––+
-        | a |
+        |(a)|
         +–––+
 
 (Yes, `b` and `c` are somewhere below `a`...)
@@ -510,7 +510,7 @@ The envelope of `fore` will be "forgotten"
 and `back` will be used to calculate the envelope of the resulting collage.
 
         +–––––––––––+
-        | b +–––+   |
+        |(b)+–––+   |
         |   | a |   | <-- new envelope
         |   +–––+   |
         +–––––––––––+
@@ -537,7 +537,7 @@ Use this, for example, when you like to align some collages to the top:
         |> List.map (align top)
         |> horizontal
 
-        +––X––+––––X––––+–X–+
+        +–(X)–+––––X––––+–X–+
         |  a  |    b    | c |
         |     +–––––––––+   |
         +–––––+         |   |
@@ -606,7 +606,7 @@ type alias Anchor msg =
 
 {-|
 
-        +-X-+
+        +(X)+
         |   |
         +–––+
 
@@ -618,7 +618,7 @@ top collage =
 
 {-|
 
-        +–––X
+        +––(X)
         |   |
         +–––+
 
@@ -631,7 +631,7 @@ topRight collage =
 {-|
 
         +–––+
-        |   X
+        |  (X)
         +–––+
 
 -}
@@ -644,7 +644,7 @@ right collage =
 
         +–––+
         |   |
-        +–––X
+        +––(X)
 
 -}
 bottomRight : Anchor msg
@@ -656,7 +656,7 @@ bottomRight collage =
 
         +–––+
         |   |
-        +-X-+
+        +(X)+
 
 -}
 bottom : Anchor msg
@@ -668,7 +668,7 @@ bottom collage =
 
         +–––+
         |   |
-        X–––+
+       (X)––+
 
 -}
 bottomLeft : Anchor msg
@@ -679,7 +679,7 @@ bottomLeft collage =
 {-|
 
         +–––+
-        X   |
+       (X)  |
         +–––+
 
 -}
@@ -690,7 +690,7 @@ left collage =
 
 {-|
 
-        X–––+
+       (X)––+
         |   |
         +–––+
 
@@ -703,7 +703,7 @@ topLeft collage =
 {-|
 
         +–––+
-        | X |
+        |(X)|
         +–––+
 
 -}

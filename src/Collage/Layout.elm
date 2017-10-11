@@ -274,65 +274,59 @@ distances collage =
 
 handleBasic : Float -> BasicCollage msg -> Distances
 handleBasic theta basic =
-    -- let
-    --     thicken t ( x, y ) =
-    --         ( if x < 0 then
-    --             x - t / 2
-    --           else
-    --             x + t / 2
-    --         , if y < 0 then
-    --             y - t / 2
-    --           else
-    --             y + t / 2
-    --         )
-    -- in
     case basic of
         -- Shapes --
-        Core.Shape ( _, _ ) (Core.Ellipse rx ry) ->
-            handleEllipse theta ( rx, ry )
+        Core.Shape ( _, { thickness } ) (Core.Ellipse rx ry) ->
+            handleEllipse theta ( rx + thickness / 2, ry + thickness / 2 )
 
-        Core.Shape ( _, _ ) (Core.Polygon ps) ->
-            handlePoints theta ps
+        Core.Shape ( _, { thickness } ) (Core.Polygon ps) ->
+            handlePoints theta thickness ps
 
         Core.Shape ( _, line ) (Core.Loop path) ->
             --NOTE: Use the same calculations as for paths
             handleBasic theta (Core.Path line path)
 
         -- Paths --
-        Core.Path _ (Core.Polyline ps) ->
-            handlePoints theta ps
+        Core.Path { thickness, cap } (Core.Polyline ps) ->
+            handlePoints theta
+                (if cap == Flat then
+                    0
+                 else
+                    thickness
+                )
+                ps
 
         -- Boxes --
         Core.Text dims _ ->
-            handleRectangle theta dims
+            handleRectangle theta 0 dims
 
         Core.Image dims _ ->
-            handleRectangle theta dims
+            handleRectangle theta 0 dims
 
         Core.Html dims _ ->
-            handleRectangle theta dims
+            handleRectangle theta 0 dims
 
         -- Groups --
         Core.Group collages ->
             collages
                 |> List.map (distances >> unpack)
                 |> List.concat
-                |> handlePoints theta
+                |> handlePoints theta 0
 
         Core.Subcollage _ back ->
             --NOTE: We ignore the foreground and only calculate the distances of the background
             --NOTE: We have to handle the rotation before returning!
             distances back
                 |> unpack
-                |> handlePoints theta
+                |> handlePoints theta 0
 
 
-handlePoints : Float -> List Point -> Distances
-handlePoints theta points =
+handlePoints : Float -> Float -> List Point -> Distances
+handlePoints theta thickness points =
     let
         ( xs, ys ) =
             points
-                |> List.map rotate
+                |> List.map (thicken >> rotate)
                 |> List.unzip
 
         rotate ( x, y ) =
@@ -344,6 +338,21 @@ handlePoints theta points =
                     sin theta
             in
             ( c * x - s * y, s * x + c * y )
+
+        thicken ( x, y ) =
+            let
+                t =
+                    thickness / 2
+            in
+            ( if x < 0 then
+                x - t
+              else
+                x + t
+            , if y < 0 then
+                y - t
+              else
+                y + t
+            )
     in
     { up =
         List.maximum ys ? 0
@@ -356,8 +365,8 @@ handlePoints theta points =
     }
 
 
-handleRectangle : Float -> ( Float, Float ) -> Distances
-handleRectangle theta ( width, height ) =
+handleRectangle : Float -> Float -> ( Float, Float ) -> Distances
+handleRectangle theta thickness ( width, height ) =
     let
         x =
             width / 2
@@ -366,6 +375,7 @@ handleRectangle theta ( width, height ) =
             height / 2
     in
     handlePoints theta
+        thickness
         [ ( -x, -y )
         , ( x, -y )
         , ( x, y )

@@ -434,7 +434,7 @@ line line (Core.Chunk style str) =
 
 -}
 width : Text -> Float
-width (Core.Chunk style string) =
+width ((Core.Chunk style string) as text) =
     -- height text / 2 * toFloat (String.length string)
     Native.Text.width (toCssFontSpec style) string
 

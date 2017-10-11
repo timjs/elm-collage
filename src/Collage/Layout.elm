@@ -53,12 +53,16 @@ You can regard this module as a simplified version of above libraries.
 # Envelopes
 
 An _envelope_ defines the bounding box of a collage.
-It is sometimes referred to as a _span box_.
+It is similar to a _bounding box_.
 [Envelopes](https://archives.haskell.org/projects.haskell.org/diagrams/doc/manual.html#envelopes-and-local-vector-spaces)
 can become quite complex when we calculate them in all possible directions.
-Here, we restrict ourselves to four directions: up, down, right and left.
+Here, we restrict ourselves to four: up, down, right and left.
 
-@docs distances, Distances, envelope, Direction, opposite, width, height
+Envelopes answer the question:
+“If I want to put my collage in a rectangular envelope,
+what are the distances from its local origin to the envelope edges?”
+
+@docs envelope, Direction, opposite, distances, Distances, width, height
 
 
 # Layouting
@@ -203,7 +207,8 @@ envelope dir collage =
 -- Distances -------------------------------------------------------------------
 
 
-{-| -}
+{-| Type alias collecting envelope distances in all four directions.
+-}
 type alias Distances =
     { up : Float
     , down : Float
@@ -212,6 +217,8 @@ type alias Distances =
     }
 
 
+{-| Unpack a distances record in a list of points representing the corners of the envelope.
+-}
 unpack : Distances -> List Point
 unpack { up, down, right, left } =
     [ ( -left, -down )
@@ -221,7 +228,15 @@ unpack { up, down, right, left } =
     ]
 
 
-{-| -}
+{-| Calculate the envelope in all four directions at once.
+
+The result is a `Distances` record with up, down, right, and left fields.
+Use this function if you need envelopes in multiple directions at the same time.
+
+    {up, down} = distances collage
+    ...use up and down...
+
+-}
 distances : Collage msg -> Distances
 distances collage =
     let

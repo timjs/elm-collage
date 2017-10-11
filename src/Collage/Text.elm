@@ -52,6 +52,12 @@ follow the next steps:
 So the most important thing to remember is that after you have turned your text into a collage,
 you cannot style it anymore!
 
+**Note:**
+Function and type names in this module clash with those from Collage and Collage.Layout.
+Best way to use is a qualified import like:
+
+    import Collage.Text as Text exposing(Text, fromString)
+
 
 # Text
 

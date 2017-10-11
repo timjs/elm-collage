@@ -264,6 +264,8 @@ Simply negates the coordinates:
     opposite ( x, y ) =
         ( -x, -y )
 
+**Will probably be DEPRICATED in the next version.**
+
 -}
 opposite : Point -> Point
 opposite ( x, y ) =
@@ -867,7 +869,7 @@ broken dash thickness fill =
     }
 
 
-{-| The same as `solid`, except the line is dotted.
+{-| A dotted line type with the given thickness.
 
 Calculates the length of the dots based on the given line thickness.
 
@@ -881,7 +883,7 @@ dot thickness =
     broken [ ( d, d ) ] thickness
 
 
-{-| The same as `solid`, except the line is dashed.
+{-| A dashed line type with the given thickness.
 
 Calculates the length of the dashes based on the given line thickness.
 
@@ -896,6 +898,9 @@ dash thickness =
 
 
 {-| A dashed line type with the given thickness, where the dashes are longer than normal.
+
+Calculates the length of the dashes based on the given line thickness.
+
 -}
 longdash : Float -> FillStyle -> LineStyle
 longdash thickness =
@@ -907,6 +912,9 @@ longdash thickness =
 
 
 {-| A dashed line type with the given thickness, including alternating dots and dashes.
+
+Calculates the length of the dashes based on the given line thickness.
+
 -}
 dashdot : Float -> FillStyle -> LineStyle
 dashdot thickness =

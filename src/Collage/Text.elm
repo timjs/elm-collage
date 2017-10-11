@@ -56,10 +56,23 @@ you cannot style it anymore!
 Function and type names in this module clash with those from Collage and Collage.Layout.
 Best way to use is a qualified import like:
 
-    import Collage.Text as Text exposing(Text, fromString)
+    import Collage.Text as Text exposing (Text, fromString)
 
 
-# Text
+### Contents
+
+  - [Basics](#basics)
+  - [Creating text](#creating-text)
+  - [Styling text](#styling-text)
+      - [Typeface and color](#typeface-and-color)
+      - [Size](#size)
+      - [Shape and weight](#shape-and-weight)
+      - [Decorations](#decorations)
+      - [Creating styles](#creating-styles)
+  - [Measuring text](#measuring-text)
+
+
+# Basics
 
 @docs Text
 

@@ -51,6 +51,16 @@ and the [Scalable Graphics library](https://dl.acm.org/citation.cfm?id=2746329) 
 You can regard this module as a simplified version of above libraries.
 
 
+### Contents
+
+  - [Envelopes](#envelopes)
+  - [Layouting](#layouting)
+  - [Spacers](#spacers)
+  - [Aligning](#aligning)
+      - [Anchors](#anchors)
+  - [Debugging](#debugging)
+
+
 # Envelopes
 
 An _envelope_ defines the bounding box of a collage.

@@ -28,17 +28,24 @@ You will probably need some way to identify your objects to keep track of _which
 where `drawing : { r | collage : Collage, id : Id }`
 
 
-# Mouse Events
+### Contents
+
+  - [Mouse events](#mouse-events)
+  - [Focus events](#focus-events)
+  - [Custom events](#custom-events)
+
+
+# Mouse events
 
 @docs onClick, onDoubleClick, onMouseDown, onMouseUp, onMouseEnter, onMouseLeave, onMouseOver, onMouseOut
 
 
-# Focus Events
+# Focus events
 
 @docs onFocusIn, onFocusOut
 
 
-# Custom Events
+# Custom events
 
 @docs on
 

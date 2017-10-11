@@ -61,6 +61,27 @@ You can style all sorts of forms including shapes, paths, text, and images,
 and then shift, rotate, scale, and group them.
 
 
+### Contents
+
+  - [Basics](#basics)
+      - [Transforming collages](#transforming-collages)
+      - [Grouping collages](#grouping-collages)
+  - [Shapes](#shapes)
+      - [Drawing shapes](#drawing-shapes)
+      - [Turning shapes into collages](#turning-shapes-into-collages)
+  - [Paths](#paths)
+      - [Drawing paths](#drawing-paths)
+      - [Turning paths into collages or shapes](#turning-paths-into-collages-or-shapes)
+  - [Text](#text)
+  - [Images and Html](#images-and-html)
+  - [Styling](#styling)
+      - [Fill styles](#fill-styles)
+      - [Line styles](#line-styles)
+          - [Line dashing](#line-dashing)
+          - [Line thickness](#line-thickness)
+          - [Line caps and joins](#line-caps-and-joins)
+
+
 ### Coordinate system
 
 Collages use the same coordinate system you might see in an algebra or physics problem.
@@ -184,7 +205,7 @@ To create and style text, take a look at the Collage.Text module.
 @docs rendered
 
 
-# Other content
+# Images and Html
 
 @docs image, html
 

@@ -17,7 +17,7 @@ main =
         right =
             triangle 10
                 |> filled (uniform black)
-                |> rotate (degrees 90)
+                |> rotate (degrees -90)
 
         xAxis =
             segment ( -100, 0 ) ( 100, 0 )

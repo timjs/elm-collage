@@ -2,6 +2,7 @@ module Collage.Layout
     exposing
         ( Anchor
         , Direction(..)
+        , Distances
         , align
         , at
         , base
@@ -10,6 +11,8 @@ module Collage.Layout
         , bottomLeft
         , bottomRight
         , center
+        , debug
+        , distances
         , empty
         , envelope
         , height
@@ -55,7 +58,7 @@ It is sometimes referred to as a _span box_.
 can become quite complex when we calculate them in all possible directions.
 Here, we restrict ourselves to four directions: up, down, right and left.
 
-@docs envelope, Direction, opposite, width, height
+@docs distances, Distances, envelope, Direction, opposite, width, height
 
 
 # Layouting
@@ -97,7 +100,7 @@ These two collages are invisible and only take up some space.
 
 These two functions can aid in discovering how collages are composed.
 
-@docs showOrigin, showEnvelope
+@docs showOrigin, showEnvelope, debug
 
 
 # Possible extensions
@@ -116,7 +119,6 @@ import Collage.Core as Core
 import Collage.Super exposing (..)
 import Color
 import Maybe.Extra exposing ((?))
-import Tuple exposing (first, second)
 
 
 -- Directions ------------------------------------------------------------------
@@ -180,31 +182,132 @@ The same holds for the other three directions.
 envelope : Direction -> Collage msg -> Float
 envelope dir collage =
     let
-        env =
-            handleBasic dir collage.theta collage.basic
+        dist =
+            distances collage
+    in
+    case dir of
+        Up ->
+            dist.up
+
+        Down ->
+            dist.down
+
+        Right ->
+            dist.right
+
+        Left ->
+            dist.left
+
+
+
+-- Distances -------------------------------------------------------------------
+
+
+{-| -}
+type alias Distances =
+    { up : Float
+    , down : Float
+    , right : Float
+    , left : Float
+    }
+
+
+unpack : Distances -> List Point
+unpack { up, down, right, left } =
+    [ ( -left, -down )
+    , ( right, -down )
+    , ( right, up )
+    , ( -left, up )
+    ]
+
+
+{-| -}
+distances : Collage msg -> Distances
+distances collage =
+    let
+        dist =
+            handleBasic collage.theta collage.basic
 
         ( tx, ty ) =
             collage.origin
+
+        s =
+            collage.scale
     in
-    collage.scale
-        * (case dir of
-            Up ->
-                max 0 (env + ty)
-
-            Down ->
-                max 0 (env - ty)
-
-            Right ->
-                max 0 (env + tx)
-
-            Left ->
-                max 0 (env - tx)
-          )
+    { up =
+        s * max 0 (dist.up + ty)
+    , down =
+        s * max 0 (dist.down - ty)
+    , right =
+        s * max 0 (dist.right + tx)
+    , left =
+        s * max 0 (dist.left - tx)
+    }
 
 
-handleBasic : Direction -> Float -> BasicCollage msg -> Float
-handleBasic dir theta basic =
+handleBasic : Float -> BasicCollage msg -> Distances
+handleBasic theta basic =
+    -- let
+    --     thicken t ( x, y ) =
+    --         ( if x < 0 then
+    --             x - t / 2
+    --           else
+    --             x + t / 2
+    --         , if y < 0 then
+    --             y - t / 2
+    --           else
+    --             y + t / 2
+    --         )
+    -- in
+    case basic of
+        -- Shapes --
+        Core.Shape ( _, _ ) (Core.Ellipse rx ry) ->
+            handleEllipse theta ( rx, ry )
+
+        Core.Shape ( _, _ ) (Core.Polygon ps) ->
+            handlePoints theta ps
+
+        Core.Shape ( _, line ) (Core.Loop path) ->
+            --NOTE: Use the same calculations as for paths
+            handleBasic theta (Core.Path line path)
+
+        -- Paths --
+        Core.Path _ (Core.Polyline ps) ->
+            handlePoints theta ps
+
+        -- Boxes --
+        Core.Text dims _ ->
+            handleRectangle theta dims
+
+        Core.Image dims _ ->
+            handleRectangle theta dims
+
+        Core.Html dims _ ->
+            handleRectangle theta dims
+
+        -- Groups --
+        Core.Group collages ->
+            collages
+                |> List.map (distances >> unpack)
+                |> List.concat
+                |> handlePoints theta
+
+        Core.Subcollage _ back ->
+            --NOTE: We ignore the foreground and only calculate the distances of the background
+            --NOTE: We have to handle the rotation before returning!
+            distances back
+                |> unpack
+                |> handlePoints theta
+
+
+handlePoints : Float -> List Point -> Distances
+handlePoints theta points =
     let
+        ( xs, ys ) =
+            points
+                |> List.map rotate
+                |> List.unzip
+
         rotate ( x, y ) =
             let
                 c =
@@ -214,89 +317,49 @@ handleBasic dir theta basic =
                     sin theta
             in
             ( c * x - s * y, s * x + c * y )
-
-        thicken t ( x, y ) =
-            ( if x < 0 then
-                x - t / 2
-              else
-                x + t / 2
-            , if y < 0 then
-                y - t / 2
-              else
-                y + t / 2
-            )
     in
-    case basic of
-        --| Shapes
-        Core.Shape ( fill, line ) (Core.Ellipse rx ry) ->
-            handleBox dir (rotate ( 2 * rx + line.thickness, 2 * ry + line.thickness ))
-
-        Core.Shape ( _, line ) (Core.Polygon ps) ->
-            handlePath dir (List.map (thicken line.thickness << rotate) ps)
-
-        Core.Shape ( _, line ) (Core.Loop path) ->
-            -- Use the same calculations as for paths
-            handleBasic dir theta (Core.Path line path)
-
-        --| Paths
-        Core.Path line (Core.Polyline ps) ->
-            handlePath dir (List.map rotate ps)
-
-        --| Boxes
-        Core.Text dims _ ->
-            handleBox dir (rotate dims)
-
-        Core.Image dims _ ->
-            handleBox dir (rotate dims)
-
-        Core.Html dims _ ->
-            handleBox dir (rotate dims)
-
-        --| Groups
-        Core.Group forms ->
-            --FIXME: correct with translation???
-            (List.maximum <| List.map (envelope dir) forms) ? 0
-
-        Core.Subcollage _ back ->
-            --NOTE: we ignore the foreground and only calculate the envelope of the background
-            --FIXME: add rotation
-            envelope dir back
+    { up =
+        List.maximum ys ? 0
+    , down =
+        -(List.minimum ys ? 0)
+    , right =
+        List.maximum xs ? 0
+    , left =
+        -(List.minimum xs ? 0)
+    }
 
 
-handlePath : Direction -> List Point -> Float
-handlePath dir ps =
+handleRectangle : Float -> ( Float, Float ) -> Distances
+handleRectangle theta ( width, height ) =
     let
-        ( xs, ys ) =
-            List.unzip ps
+        x =
+            width / 2
+
+        y =
+            height / 2
     in
-    case dir of
-        Up ->
-            List.maximum ys ? 0
-
-        Down ->
-            -(List.minimum ys ? 0)
-
-        Right ->
-            List.maximum xs ? 0
-
-        Left ->
-            -(List.minimum xs ? 0)
+    handlePoints theta
+        [ ( -x, -y )
+        , ( x, -y )
+        , ( x, y )
+        , ( -x, y )
+        ]
 
 
-handleBox : Direction -> ( Float, Float ) -> Float
-handleBox dir ( width, height ) =
-    case dir of
-        Up ->
-            height / 2
+handleEllipse : Float -> ( Float, Float ) -> Distances
+handleEllipse theta ( rx, ry ) =
+    let
+        x =
+            sqrt (rx ^ 2 * cos theta ^ 2 + ry ^ 2 * sin theta ^ 2)
 
-        Down ->
-            height / 2
-
-        Right ->
-            width / 2
-
-        Left ->
-            width / 2
+        y =
+            sqrt (rx ^ 2 * sin theta ^ 2 + ry ^ 2 * cos theta ^ 2)
+    in
+    { up = y
+    , down = y
+    , right = x
+    , left = x
+    }
 
 
 
@@ -307,24 +370,32 @@ handleBox dir ( width, height ) =
 
 The width is equivalent to the envelopes in the left and right directions:
 
-    width collage == envelope Left collage + envelope Right collage
+    width collage  ==  envelope Left collage + envelope Right collage
 
 -}
 width : Collage msg -> Float
 width collage =
-    envelope Left collage + envelope Right collage
+    let
+        { left, right } =
+            distances collage
+    in
+    left + right
 
 
 {-| Calculates the height of a collage.
 
 The height is equivalent to the envelopes in the up and down directions:
 
-    height collage == envelope Up collage + envelope Down collage
+    height collage  ==  envelope Up collage + envelope Down collage
 
 -}
 height : Collage msg -> Float
 height collage =
-    envelope Up collage + envelope Down collage
+    let
+        { up, down } =
+            distances collage
+    in
+    up + down
 
 
 
@@ -583,7 +654,7 @@ at anchor collage host =
 
 This is the same as aligning on the base anchor:
 
-    center collage == align base collage
+    center collage  ==  align base collage
 
 -}
 center : Collage msg -> Collage msg
@@ -611,7 +682,11 @@ type alias Anchor msg =
 -}
 top : Anchor msg
 top collage =
-    ( 0, -(envelope Up collage) )
+    let
+        { up } =
+            distances collage
+    in
+    ( 0, -up )
 
 
 {-|
@@ -623,7 +698,11 @@ top collage =
 -}
 topRight : Anchor msg
 topRight collage =
-    ( -(envelope Right collage), -(envelope Up collage) )
+    let
+        { right, up } =
+            distances collage
+    in
+    ( -right, -up )
 
 
 {-|
@@ -635,7 +714,11 @@ topRight collage =
 -}
 right : Anchor msg
 right collage =
-    ( -(envelope Right collage), 0 )
+    let
+        { right } =
+            distances collage
+    in
+    ( -right, 0 )
 
 
 {-|
@@ -647,7 +730,11 @@ right collage =
 -}
 bottomRight : Anchor msg
 bottomRight collage =
-    ( -(envelope Right collage), envelope Down collage )
+    let
+        { right, down } =
+            distances collage
+    in
+    ( -right, down )
 
 
 {-|
@@ -659,7 +746,11 @@ bottomRight collage =
 -}
 bottom : Anchor msg
 bottom collage =
-    ( 0, envelope Down collage )
+    let
+        { down } =
+            distances collage
+    in
+    ( 0, down )
 
 
 {-|
@@ -671,7 +762,11 @@ bottom collage =
 -}
 bottomLeft : Anchor msg
 bottomLeft collage =
-    ( envelope Left collage, envelope Down collage )
+    let
+        { left, down } =
+            distances collage
+    in
+    ( left, down )
 
 
 {-|
@@ -683,7 +778,11 @@ bottomLeft collage =
 -}
 left : Anchor msg
 left collage =
-    ( envelope Left collage, 0 )
+    let
+        { left } =
+            distances collage
+    in
+    ( left, 0 )
 
 
 {-|
@@ -695,7 +794,11 @@ left collage =
 -}
 topLeft : Anchor msg
 topLeft collage =
-    ( envelope Left collage, -(envelope Up collage) )
+    let
+        { left, up } =
+            distances collage
+    in
+    ( left, -up )
 
 
 {-|
@@ -708,20 +811,11 @@ topLeft collage =
 base : Anchor msg
 base collage =
     let
-        left =
-            envelope Left collage
-
-        right =
-            envelope Right collage
+        { up, down, left, right } =
+            distances collage
 
         tx =
             (right - left) / 2
-
-        up =
-            envelope Up collage
-
-        down =
-            envelope Down collage
 
         ty =
             (up - down) / 2
@@ -742,6 +836,7 @@ showOrigin collage =
             circle 3
                 |> filled (uniform Color.red)
     in
+    --FIXME: use impose?
     stack [ origin, collage ]
 
 
@@ -754,5 +849,13 @@ showEnvelope collage =
             rectangle (width collage) (height collage)
                 |> outlined (dot 2 (uniform Color.red))
     in
+    --FIXME: use impose?
     collage
         |> at base outline
+
+
+{-| Show both the envelope and the origin of a collage.
+-}
+debug : Collage msg -> Collage msg
+debug =
+    showEnvelope >> showOrigin

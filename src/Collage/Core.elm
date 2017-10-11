@@ -70,6 +70,7 @@ type Shape
       -- | Rectangle Float Float
       --NOTE: Squares are just Rectangles with the same width and height, therefore we don't need them here.
       --NOTE: Circles are just Elipses with the same x- and y-radius, therefore we don't need them here.
+      --NOTE: Only reason to add them is to ease the calculation of envelopes...
     | Ellipse Float Float
     | Loop Path
 

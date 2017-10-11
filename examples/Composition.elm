@@ -46,13 +46,6 @@ border =
     solid verythin <| uniform black
 
 
-debug : Collage msg -> Collage msg
-debug collage =
-    collage
-        |> showOrigin
-        |> showEnvelope
-
-
 
 -- Text --
 
@@ -67,9 +60,9 @@ txt =
 -- Shapes --
 
 
-circ : Model -> Collage Msg
-circ model =
-    circle 100
+elps : Model -> Collage Msg
+elps model =
+    ellipse 100 50
         |> styled
             ( uniform <|
                 if model.active then
@@ -78,12 +71,13 @@ circ model =
                     lightBlue
             , border
             )
+        |> rotate (degrees -30)
         |> onClick Switch
 
 
 rect : Collage msg
 rect =
-    square 100
+    square 200
         |> styled ( uniform lightOrange, border )
 
 
@@ -116,9 +110,8 @@ alignments =
 view : Model -> Html Msg
 view model =
     vertical
-        [ rect
-        , horizontal
-            [ stack [ showEnvelope txt, circ model ]
+        [ horizontal
+            [ rect
             , vertical
                 [ tria
                 , tria |> rotate pi
@@ -126,6 +119,7 @@ view model =
                 |> center
             , debug penta
             ]
+        , stack [ showEnvelope txt, elps model ]
         ]
         |> debug
         |> svg

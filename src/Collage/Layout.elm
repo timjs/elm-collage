@@ -15,6 +15,7 @@ module Collage.Layout
         , distances
         , empty
         , envelope
+        , facing
         , height
         , horizontal
         , impose
@@ -62,7 +63,7 @@ Envelopes answer the question:
 “If I want to put my collage in a rectangular envelope,
 what are the distances from its local origin to the envelope edges?”
 
-@docs envelope, Direction, opposite, distances, Distances, width, height
+@docs envelope, Direction, facing, opposite, distances, Distances, width, height
 
 
 # Layouting
@@ -137,14 +138,14 @@ type Direction
     | Left
 
 
-{-| Calculate the opposite direction.
+{-| Calculate the facing direction.
 
     Up   <-> Down
     Left <-> Right
 
 -}
-opposite : Direction -> Direction
-opposite dir =
+facing : Direction -> Direction
+facing dir =
     case dir of
         Up ->
             Down
@@ -157,6 +158,17 @@ opposite dir =
 
         Left ->
             Right
+
+
+{-| Same as `facing`.
+
+**Will be REMOVED in the next major version in favor of `facing`.**
+This change will avoid name clashes with `Collage.opposite`.
+
+-}
+opposite : Direction -> Direction
+opposite =
+    facing
 
 
 
@@ -469,7 +481,7 @@ place : Direction -> Collage msg -> Collage msg -> Collage msg
 place dir a b =
     let
         len =
-            envelope dir a + envelope (opposite dir) b
+            envelope dir a + envelope (facing dir) b
 
         move =
             case dir of

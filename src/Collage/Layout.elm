@@ -863,8 +863,7 @@ showOrigin collage =
             circle 3
                 |> filled (uniform Color.red)
     in
-    --FIXME: use impose?
-    stack [ origin, collage ]
+    impose origin collage
 
 
 {-| Draw a red dotted box around the collage representing the envelope.
@@ -875,10 +874,9 @@ showEnvelope collage =
         outline =
             rectangle (width collage) (height collage)
                 |> outlined (dot 2 (uniform Color.red))
+                |> shift (Collage.opposite <| base collage)
     in
-    --FIXME: use impose?
-    collage
-        |> at base outline
+    impose outline collage
 
 
 {-| Show both the envelope and the origin of a collage.

@@ -1,6 +1,28 @@
 # Changelog
 
 
+## [1.3.0](https://github.com/timjs/elm-collage/compare/1.2.0...1.3.0) (2017-10-12)
+
+### Added
+
+  - Create rectangles with rounded corners
+
+### Changed
+
+  - Internal changes:
+    - Use circles, technically not needed, but eases calculation of envelopes wrt using ellipses
+    - Simplify the renderer
+      - Speed up by using `(::)` instead of `(++)`
+      - Use builtin `foldl` instead of custom build function
+      - Remove unused code for gradients and patterns (like id tracking)
+      - Use Svg's x and y attributes when generating Html tag instead of transformations
+
+### Fixed
+
+  - Bug that coused miter line caps to render wrong
+  - Bug that forgot to take collage attributes into account for impositions
+
+
 ## [1.2.0](https://github.com/timjs/elm-collage/compare/1.1.0...1.2.0) (2017-10-11)
 
 ### Added

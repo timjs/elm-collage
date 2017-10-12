@@ -180,9 +180,6 @@ type alias Style =
     , shape : Shape
     , weight : Weight
     , line : Line
-
-    --TODO: todo or not todo?
-    -- , alignment : Alignment
     }
 
 
@@ -232,8 +229,6 @@ defaultStyle =
     , shape = Upright
     , weight = Regular
     , line = None
-
-    -- , alignment = Left
     }
 
 

@@ -320,8 +320,7 @@ which again can be shifted, rotated, scaled, etc.
 -}
 group : List (Collage msg) -> Collage msg
 group =
-    --FIXME: change renderer instead of using `List.reverse`. Svg draws last element in list on top!
-    Core.collage << Core.Group << List.reverse
+    Core.collage << Core.Group
 
 
 
@@ -638,8 +637,6 @@ type alias Path =
 
 -- Creating paths -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
 -- TODO: add curves (aka Bezier paths), arcs (part of Bezier paths)
--- TODO: add way to close a path so it can be filled?
---       something like `close : Path -> Shape`
 
 
 {-| Draw a horizontal line with a given length.

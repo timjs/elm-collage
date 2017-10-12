@@ -185,10 +185,10 @@ render collage id =
               ]
             )
 
-        Core.Group forms ->
+        Core.Group collages ->
             let
-                go ( i, rs ) fs =
-                    case fs of
+                go ( i, rs ) cs =
+                    case cs of
                         [] ->
                             ( i, rs )
 
@@ -197,17 +197,17 @@ render collage id =
                                 ( i_, rs_ ) =
                                     render x i
                             in
-                            go ( i + i_, rs ++ rs_ ) xs
+                            --NOTE: Order of collages is reversed here!
+                            go ( i + i_, rs_ ++ rs ) xs
 
-                ( id_, forms_ ) =
-                    go ( id, [] ) forms
+                ( id_, collages_ ) =
+                    go ( id, [] ) collages
             in
-            ( id_, [ Svg.g (attrs collage id ++ events collage) <| forms_ ] )
+            ( id_, [ Svg.g (attrs collage id ++ events collage) <| collages_ ] )
 
         Core.Subcollage fore back ->
-            --NOTE: rendering a subcollage is the same as rendering a group, only layout calculations in `Collage.Layout` differ.
-            --FIXME: as in `Collage`: order in list should be reversed by renderer
-            render (Core.collage <| Core.Group [ back, fore ]) id
+            --NOTE: Rendering a subcollage is the same as rendering a group, only layout calculations in `Collage.Layout` differ.
+            render (Core.collage <| Core.Group [ fore, back ]) id
 
 
 events : Collage msg -> List (Attribute msg)

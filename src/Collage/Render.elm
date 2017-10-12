@@ -23,6 +23,10 @@ import Tuple
 
 {-| Render a collage as Svg in a view box of given width and height,
 and the origin in the center.
+
+_Maybe this will be removed from the next major version.
+Please open an issue if you want to keep this._
+
 -}
 svgBox : ( Float, Float ) -> Collage msg -> Html msg
 svgBox ( width, height ) collage =

@@ -167,7 +167,7 @@ render collage =
 
         Core.Subcollage fore back ->
             --NOTE: Rendering a subcollage is the same as rendering a group, only layout calculations in `Collage.Layout` differ.
-            render <| Core.collage <| Core.Group [ fore, back ]
+            render { collage | basic = Core.Group [ fore, back ] }
 
 
 events : Collage msg -> List (Attribute msg)

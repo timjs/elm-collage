@@ -77,7 +77,7 @@ elps model =
 
 rect : Collage msg
 rect =
-    square 200
+    roundedRectangle 200 250 20
         |> styled ( uniform lightOrange, border )
 
 

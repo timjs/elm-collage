@@ -57,65 +57,53 @@ svgAbsolute ( width, height ) collage =
             , Svg.height h
             , Svg.version "1.1"
             ]
-            [ Tuple.second <|
-                render collage 0
-            ]
+            [ render collage ]
         ]
 
 
-render : Collage msg -> Int -> ( Int, Svg msg )
-render collage id =
-    --FIXME: why use ids? => for gradients...
+render : Collage msg -> Svg msg
+render collage =
     case collage.basic of
         Core.Path style path ->
             case path of
                 Core.Polyline ps ->
-                    ( id
-                    , Svg.polyline
+                    Svg.polyline
                         ((Svg.points <| decodePoints ps)
-                            :: attrs collage id
+                            :: attrs collage
                             ++ events collage
                         )
                         []
-                    )
 
         Core.Shape ( fill, line ) shape ->
             case shape of
                 Core.Polygon ps ->
-                    ( id + 1
-                    , Svg.polygon
+                    Svg.polygon
                         ((Svg.points <| decodePoints ps)
-                            :: attrs collage id
+                            :: attrs collage
                             ++ events collage
                         )
                         []
-                    )
 
                 Core.Circle r ->
-                    ( id + 1
-                    , Svg.circle
+                    Svg.circle
                         ((Svg.r <| toString r)
-                            :: attrs collage id
+                            :: attrs collage
                             ++ events collage
                         )
                         []
-                    )
 
                 Core.Ellipse rx ry ->
-                    ( id + 1
-                    , Svg.ellipse
+                    Svg.ellipse
                         ([ Svg.rx <| toString rx
                          , Svg.ry <| toString ry
                          ]
-                            ++ attrs collage id
+                            ++ attrs collage
                             ++ events collage
                         )
                         []
-                    )
 
                 Core.Rectangle w h r ->
-                    ( id + 1
-                    , Svg.rect
+                    Svg.rect
                         ([ Svg.width <| toString w
                          , Svg.height <| toString h
                          , Svg.x <| toString (-w / 2)
@@ -123,34 +111,29 @@ render collage id =
                          , Svg.rx <| toString r
                          , Svg.ry <| toString r
                          ]
-                            ++ attrs collage id
+                            ++ attrs collage
                             ++ events collage
                         )
                         []
-                    )
 
                 Core.Loop path ->
                     --NOTE: Use the same rendering as for a path
-                    render { collage | basic = Core.Path line path } id
+                    render { collage | basic = Core.Path line path }
 
         Core.Text _ (Core.Chunk style str) ->
-            ( id
-            , Svg.text_ (attrs collage id ++ events collage)
+            Svg.text_ (attrs collage ++ events collage)
                 [ Svg.text str ]
-            )
 
         Core.Image ( width, height ) url ->
-            ( id
-            , Svg.image
+            Svg.image
                 ([ Svg.width <| toString width
                  , Svg.height <| toString height
                  , Svg.xlinkHref url
                  ]
-                    ++ attrs collage id
+                    ++ attrs collage
                     ++ events collage
                 )
                 []
-            )
 
         Core.Html ( width, height ) html ->
             let
@@ -166,37 +149,25 @@ render collage id =
                 h =
                     toString height
             in
-            ( id
-            , Svg.foreignObject
+            Svg.foreignObject
                 ([ Svg.width w
                  , Svg.height h
                  , Svg.x x
                  , Svg.y y
                  ]
-                    ++ attrs collage id
+                    ++ attrs collage
                     ++ events collage
                 )
                 [ html ]
-            )
 
         Core.Group collages ->
-            let
-                ( newId, rendered ) =
-                    --NOTE: Order of collages is reversed here!
-                    List.foldl renderSub ( id, [] ) collages
-
-                renderSub collage ( id, results ) =
-                    let
-                        ( next, result ) =
-                            render collage id
-                    in
-                    ( id + next, result :: results )
-            in
-            ( newId, Svg.g (attrs collage id ++ events collage) <| rendered )
+            --NOTE: Order of collages is reversed here!
+            Svg.g (attrs collage ++ events collage) <|
+                List.foldl (\col res -> render col :: res) [] collages
 
         Core.Subcollage fore back ->
             --NOTE: Rendering a subcollage is the same as rendering a group, only layout calculations in `Collage.Layout` differ.
-            render (Core.collage <| Core.Group [ fore, back ]) id
+            render <| Core.collage <| Core.Group [ fore, back ]
 
 
 events : Collage msg -> List (Attribute msg)
@@ -204,11 +175,11 @@ events { handlers } =
     List.map (uncurry Svg.on) handlers
 
 
-attrs : Collage msg -> Int -> List (Attribute msg)
-attrs collage id =
+attrs : Collage msg -> List (Attribute msg)
+attrs collage =
     case collage.basic of
         Core.Path line _ ->
-            [ Svg.stroke <| decodeFill line.fill id
+            [ Svg.stroke <| decodeFill line.fill
             , Svg.strokeOpacity <| decodeFillAlpha line.fill
             , Svg.strokeWidth <| toString line.thickness
             , Svg.strokeLinecap <| decodeCap line.cap
@@ -220,9 +191,9 @@ attrs collage id =
             ]
 
         Core.Shape ( fill, line ) _ ->
-            [ Svg.fill <| decodeFill fill id
+            [ Svg.fill <| decodeFill fill
             , Svg.fillOpacity <| decodeFillAlpha fill
-            , Svg.stroke <| decodeFill line.fill id
+            , Svg.stroke <| decodeFill line.fill
             , Svg.strokeOpacity <| decodeFillAlpha line.fill
             , Svg.strokeWidth <| toString line.thickness
             , Svg.strokeLinecap <| decodeCap line.cap
@@ -234,7 +205,7 @@ attrs collage id =
             ]
 
         Core.Text _ (Core.Chunk style str) ->
-            [ Svg.fill <| decodeFill (Core.Uniform style.color) id
+            [ Svg.fill <| decodeFill (Core.Uniform style.color)
             , Svg.fontFamily <|
                 case style.typeface of
                     Text.Serif ->
@@ -363,57 +334,8 @@ evalTransform collage =
         [ "translate(", x, ",", y, ") rotate(", theta, ") scale(", scale, ")" ]
 
 
-
-{-
-   evalFillStyle : Core.FillStyle -> Int -> List (Svg msg)
-   evalFillStyle fs id =
-       case fs of
-           Pattern w h url a ->
-                  [ Svg.defs []
-                      [ Svg.pattern
-                          [ Svg.width <| toString w
-                          , Svg.height <| toString h
-                          , Svg.patternUnits "userSpaceOnUse"
-                          , Svg.id <| "UUID" ++ toString id
-                          ]
-                          [ Svg.image
-                              [ Svg.width <| toString w
-                              , Svg.height <| toString h
-                              , Svg.xlinkHref url
-                              ]
-                              []
-                          ]
-                      ]
-                  ]
-
-              Linear theta stops ->
-                  [ Svg.defs []
-                      [ Svg.linearGradient
-                          [ Svg.id <| "UUID" ++ toString id
-                          , Svg.gradientTransform <|
-                              "rotate("
-                                  ++ toString (theta / 2 / pi * 360)
-                                  ++ ")"
-                          ]
-                        <|
-                          List.map
-                              (\( off, collage ) ->
-                                  Svg.stop
-                                      [ Svg.offset <| toString off
-                                      , Svg.stopColor <| decodeColor collage
-                                      , Svg.stopOpacity <| decodeAlpha collage
-                                      ]
-                                      []
-                              )
-                              stops
-                      ]
-                  ]
-
--}
-
-
-decodeFill : Core.FillStyle -> Int -> String
-decodeFill fs id =
+decodeFill : Core.FillStyle -> String
+decodeFill fs =
     case fs of
         Core.Uniform c ->
             decodeColor c
@@ -430,12 +352,6 @@ decodeFillAlpha fs =
 
         Core.Transparent ->
             "0"
-
-
-
-{- Pattern _ _ _ a ->
-   toString a
--}
 
 
 decodeColor : Color -> String

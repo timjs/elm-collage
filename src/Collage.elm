@@ -175,8 +175,6 @@ Ok, you get the grip!
 
 ## Drawing shapes
 
-_Rectangles and squares with rounded corners are on the todo list..._
-
 @docs Shape, rectangle, square, roundedRectangle, roundedSquare, ellipse, circle, polygon, ngon, triangle
 
 
@@ -187,7 +185,8 @@ _Rectangles and squares with rounded corners are on the todo list..._
 
 # Paths
 
-_Curves and arcs (aka Bezier paths) are on the todo list..._
+_Please fill in an issue if you want support for curves and arcs (aka Bézier paths).
+I like to know if people want this before implementing it._
 
 
 ## Drawing paths
@@ -235,7 +234,8 @@ you can read all about them there.
 
 For now, we have only uniform fillings and a transparent filling.
 
-_Gradients and pattern fills are on the todo list..._
+_Please fill in an issue if you want support for gradients and patterns.
+I like to know if people want this before implementing it._
 
 @docs FillStyle, transparent, uniform
 
@@ -392,8 +392,6 @@ opacity a collage =
 
 
 -- Shapes ----------------------------------------------------------------------
--- TODO:
--- * add more primitive shapes: <circle>, <rect>
 
 
 {-| Any kind of shape that can be filled and/or outlined.
@@ -447,7 +445,7 @@ ngon n r =
         f i =
             ( r * cos (t * toFloat i + pi / 2), r * sin (t * toFloat i + pi / 2) )
     in
-    Core.Polygon <| List.map f (List.range 0 n)
+    polygon <| List.map f (List.range 0 n)
 
 
 {-| An equilateral triangle pointing upwards with given base.
@@ -473,14 +471,14 @@ triangle b =
         y =
             sqrt 3 / 2 * x
     in
-    Core.Polygon [ ( -x, -y ), ( x, -y ), ( 0, y ) ]
+    polygon [ ( -x, -y ), ( x, -y ), ( 0, y ) ]
 
 
 {-| A rectangle of given width and height.
 -}
 rectangle : Float -> Float -> Shape
 rectangle w h =
-    Core.Rectangle w h 0
+    roundedRectangle w h 0
 
 
 {-| A square of given size.
@@ -492,7 +490,7 @@ Of course this is equal to using `rectangle` with the same width and height:
 -}
 square : Float -> Shape
 square size =
-    Core.Rectangle size size 0
+    rectangle size size
 
 
 {-| A rectangle with rounded corners.
@@ -515,7 +513,7 @@ Of course this is equal to using `roundedRectangle` with the same width and heig
 -}
 roundedSquare : Float -> Float -> Shape
 roundedSquare size =
-    Core.Rectangle size size
+    roundedRectangle size size
 
 
 {-| An ellipse with given horizontal and vertical radii.
@@ -686,30 +684,30 @@ path =
 
 -- Turning paths into collages -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -
 {-
-   -- ORIG
-   segment (0,0) (1,1)
-       |> traced (dashed red)
-   rectangle 4 5
-       |> filled red
-       AND
-       |> outlined (solid red)
+   Some possibilities for an API:
 
-   -- OLD
-   segment (0,0) (1,1)
-        |> dashed 2 (solid red)
-   -- NEW
-   segment (0,0) (1,1)
-       |> traced (dash 2) (uniform red)
-       OR
-       |> traced (dash 2 (uniform red))
-       OR
-       |> dashed 2 (uniform red)
-   rectangle 4 5
-       |> filled (uniform red)
-       AND
-       |> outlined (solid 1) (uniform red)
-       OR
-       |> outlined (solid 1 (uniform red))
+      segment (0,0) (1,1)
+          -- let traced take a dash patter + thickness and a fill color:
+          |> traced (dash 2) (uniform red)
+          -- let traced take a style:
+          |> traced (dash 2 (uniform red))
+          -- use solid, dashed, dotted etc to turn something into a collage (Elm Render):
+          |> dashed 2 (uniform red)
+          -- ommit the thickness (Elm Graphics):
+          |> traced (dashed red)
+
+      rectangle 4 5
+          |> filled (uniform red)
+          OR
+          |> filled red
+
+      rectangle 4 5
+          -- when using a style, we can reuse the functions of tracing:
+          |> outlined (solid 1 (uniform red))
+          -- otherwise we need to create a type for dash patterns (solid 1):
+          |> outlined (solid 1) (uniform red)
+          -- just the dash pattern and a color (Elm Graphics):
+          |> outlined (solid red)
 
 -}
 

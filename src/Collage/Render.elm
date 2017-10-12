@@ -313,7 +313,7 @@ decodeJoin join =
             "round"
 
         Collage.Sharp ->
-            "milter"
+            "miter"
 
         Collage.Clipped ->
             "bevel"

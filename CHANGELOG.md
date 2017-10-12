@@ -1,6 +1,13 @@
 # Changelog
 
 
+## [1.3.1](https://github.com/timjs/elm-collage/compare/1.3.0...1.3.1) (2017-10-12)
+
+### Fixed
+
+  - `Collage.opposite` is no subject for deprication, athough the documentation said so
+
+
 ## [1.3.0](https://github.com/timjs/elm-collage/compare/1.2.0...1.3.0) (2017-10-12)
 
 ### Added

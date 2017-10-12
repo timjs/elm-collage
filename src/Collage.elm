@@ -37,6 +37,8 @@ module Collage
         , rectangle
         , rendered
         , rotate
+        , roundedRectangle
+        , roundedSquare
         , scale
         , segment
         , semithick
@@ -175,7 +177,7 @@ Ok, you get the grip!
 
 _Rectangles and squares with rounded corners are on the todo list..._
 
-@docs Shape, rectangle, square, ellipse, circle, polygon, ngon, triangle
+@docs Shape, rectangle, square, roundedRectangle, roundedSquare, ellipse, circle, polygon, ngon, triangle
 
 
 ## Turning shapes into collages
@@ -472,26 +474,14 @@ triangle b =
         y =
             sqrt 3 / 2 * x
     in
-    polygon [ ( -x, -y ), ( x, -y ), ( 0, y ) ]
+    Core.Polygon [ ( -x, -y ), ( x, -y ), ( 0, y ) ]
 
 
 {-| A rectangle of given width and height.
 -}
 rectangle : Float -> Float -> Shape
 rectangle w h =
-    let
-        x =
-            w / 2
-
-        y =
-            h / 2
-    in
-    polygon
-        [ ( -x, -y )
-        , ( x, -y )
-        , ( x, y )
-        , ( -x, y )
-        ]
+    Core.Rectangle w h 0
 
 
 {-| A square of given size.
@@ -502,12 +492,31 @@ Of course this is equal to using `rectangle` with the same width and height:
 
 -}
 square : Float -> Shape
-square n =
-    rectangle n n
+square size =
+    Core.Rectangle size size 0
 
 
+{-| A rectangle with rounded corners.
 
--- TODO: add roundedRect and roundedSquare
+First two arguments are for the width and height of the rectangle,
+last is the radius of the corners.
+
+-}
+roundedRectangle : Float -> Float -> Float -> Shape
+roundedRectangle =
+    Core.Rectangle
+
+
+{-| A square with rounded corners.
+
+Of course this is equal to using `roundedRectangle` with the same width and height:
+
+    roundedSquare size  ==  roundedRectangle size size
+
+-}
+roundedSquare : Float -> Float -> Shape
+roundedSquare size =
+    Core.Rectangle size size
 
 
 {-| An ellipse with given horizontal and vertical radii.
@@ -533,8 +542,8 @@ As with a square, using `circle` is the same as using `ellipse` with the same x 
 
 -}
 circle : Float -> Shape
-circle r =
-    ellipse r r
+circle =
+    Core.Circle
 
 
 

@@ -287,8 +287,6 @@ Simply negates the coordinates:
     opposite ( x, y ) =
         ( -x, -y )
 
-**Will probably be DEPRICATED in the next version.**
-
 -}
 opposite : Point -> Point
 opposite ( x, y ) =

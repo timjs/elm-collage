@@ -67,11 +67,12 @@ collage basic =
 type Shape
     = Polygon (List Point)
       --TODO: Although Rectangles are a special case of Polygons, they can have rounded corners,
-      -- | Rectangle Float Float
       --NOTE: Squares are just Rectangles with the same width and height, therefore we don't need them here.
-      --NOTE: Circles are just Elipses with the same x- and y-radius, therefore we don't need them here.
-      --NOTE: Only reason to add them is to ease the calculation of envelopes...
+    | Rectangle Float Float Float
     | Ellipse Float Float
+      --NOTE: Circles are just Elipses with the same x- and y-radius, so we could just use Ellipse,
+      --NOTE: but it eases the calculation of envelopes...
+    | Circle Float
     | Loop Path
 
 

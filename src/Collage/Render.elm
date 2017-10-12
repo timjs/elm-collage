@@ -94,6 +94,18 @@ render collage id =
                            ]
                     )
 
+                Core.Circle r ->
+                    ( id + 1
+                    , evalFillStyle fill id
+                        ++ [ Svg.circle
+                                (attrs collage id
+                                    ++ events collage
+                                    ++ [ Svg.r <| toString r ]
+                                )
+                                []
+                           ]
+                    )
+
                 Core.Ellipse rx ry ->
                     ( id + 1
                     , evalFillStyle fill id
@@ -108,7 +120,26 @@ render collage id =
                            ]
                     )
 
+                Core.Rectangle w h r ->
+                    ( id + 1
+                    , evalFillStyle fill id
+                        ++ [ Svg.rect
+                                (attrs collage id
+                                    ++ events collage
+                                    ++ [ Svg.width <| toString w
+                                       , Svg.height <| toString h
+                                       , Svg.x <| toString (-w / 2)
+                                       , Svg.y <| toString (-h / 2)
+                                       , Svg.rx <| toString r
+                                       , Svg.ry <| toString r
+                                       ]
+                                )
+                                []
+                           ]
+                    )
+
                 Core.Loop path ->
+                    --NOTE: Use the same rendering as for a path
                     render { collage | basic = Core.Path line path } id
 
         Core.Text _ (Core.Chunk style str) ->

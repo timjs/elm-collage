@@ -286,8 +286,14 @@ handleBasic : Float -> BasicCollage msg -> Distances
 handleBasic theta basic =
     case basic of
         -- Shapes --
+        Core.Shape ( _, { thickness } ) (Core.Circle r) ->
+            handleCircle thickness r
+
         Core.Shape ( _, { thickness } ) (Core.Ellipse rx ry) ->
-            handleEllipse theta ( rx + thickness / 2, ry + thickness / 2 )
+            handleEllipse theta thickness ( rx, ry )
+
+        Core.Shape ( _, { thickness } ) (Core.Rectangle w h _) ->
+            handleRectangle theta thickness ( w, h )
 
         Core.Shape ( _, { thickness } ) (Core.Polygon ps) ->
             handlePoints theta thickness ps
@@ -393,9 +399,31 @@ handleRectangle theta thickness ( width, height ) =
         ]
 
 
-handleEllipse : Float -> ( Float, Float ) -> Distances
-handleEllipse theta ( rx, ry ) =
+handleCircle : Float -> Float -> Distances
+handleCircle thickness radius =
     let
+        r =
+            radius + thickness / 2
+    in
+    { up = r
+    , down = r
+    , right = r
+    , left = r
+    }
+
+
+handleEllipse : Float -> Float -> ( Float, Float ) -> Distances
+handleEllipse theta thickness ( major, minor ) =
+    let
+        t =
+            thickness / 2
+
+        rx =
+            major + t
+
+        ry =
+            minor + t
+
         x =
             sqrt (rx ^ 2 * cos theta ^ 2 + ry ^ 2 * sin theta ^ 2)
 

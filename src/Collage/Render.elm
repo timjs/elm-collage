@@ -94,9 +94,9 @@ render collage id =
                 Core.Circle r ->
                     ( id + 1
                     , Svg.circle
-                        (attrs collage id
+                        ((Svg.r <| toString r)
+                            :: attrs collage id
                             ++ events collage
-                            ++ [ Svg.r <| toString r ]
                         )
                         []
                     )
@@ -104,11 +104,11 @@ render collage id =
                 Core.Ellipse rx ry ->
                     ( id + 1
                     , Svg.ellipse
-                        (attrs collage id
+                        ([ Svg.rx <| toString rx
+                         , Svg.ry <| toString ry
+                         ]
+                            ++ attrs collage id
                             ++ events collage
-                            ++ [ Svg.rx <| toString rx
-                               , Svg.ry <| toString ry
-                               ]
                         )
                         []
                     )
@@ -116,15 +116,15 @@ render collage id =
                 Core.Rectangle w h r ->
                     ( id + 1
                     , Svg.rect
-                        (attrs collage id
+                        ([ Svg.width <| toString w
+                         , Svg.height <| toString h
+                         , Svg.x <| toString (-w / 2)
+                         , Svg.y <| toString (-h / 2)
+                         , Svg.rx <| toString r
+                         , Svg.ry <| toString r
+                         ]
+                            ++ attrs collage id
                             ++ events collage
-                            ++ [ Svg.width <| toString w
-                               , Svg.height <| toString h
-                               , Svg.x <| toString (-w / 2)
-                               , Svg.y <| toString (-h / 2)
-                               , Svg.rx <| toString r
-                               , Svg.ry <| toString r
-                               ]
                         )
                         []
                     )
@@ -142,12 +142,12 @@ render collage id =
         Core.Image ( width, height ) url ->
             ( id
             , Svg.image
-                (attrs collage id
+                ([ Svg.width <| toString width
+                 , Svg.height <| toString height
+                 , Svg.xlinkHref url
+                 ]
+                    ++ attrs collage id
                     ++ events collage
-                    ++ [ Svg.width <| toString width
-                       , Svg.height <| toString height
-                       , Svg.xlinkHref url
-                       ]
                 )
                 []
             )

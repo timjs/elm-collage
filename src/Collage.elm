@@ -359,11 +359,36 @@ Scaling by 2 doubles both dimensions and quadruples the area.
 -}
 scale : Float -> Collage msg -> Collage msg
 scale s collage =
+    scaleXY ( s, s ) collage
+
+
+{-| Scale a collage horizontally (in its local space) by a given factor.
+
+Scaling by 2 doubles the width.
+
+-}
+scaleX : Float -> Collage msg -> Collage msg
+scaleX s collage =
+    scaleXY ( s, 1 ) collage
+
+
+{-| Scale a collage vertically (in its local space) by a given factor.
+
+Scaling by 2 doubles the height.
+
+-}
+scaleY : Float -> Collage msg -> Collage msg
+scaleY s collage =
+    scaleXY ( 1, s ) collage
+
+
+scaleXY : ( Float, Float ) -> Collage msg -> Collage msg
+scaleXY ( sx, sy ) collage =
     let
-        ( sx, sy ) = 
+        ( sx0, sy0 ) =
             collage.scale
     in
-    { collage | scale = ( sx * s, sy * s ) }
+    { collage | scale = ( sx0 * sx, sy0 * sy ) }
 
 
 {-| Rotate a collage by a given angle.

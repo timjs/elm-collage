@@ -40,6 +40,8 @@ module Collage
         , roundedRectangle
         , roundedSquare
         , scale
+        , scaleX
+        , scaleY
         , segment
         , semithick
         , shift
@@ -162,7 +164,7 @@ Ok, you get the grip!
 
 ## Transforming collages
 
-@docs shift, scale, rotate, opacity
+@docs shift, scale, scaleX, scaleY, rotate, opacity
 
 
 ## Grouping collages

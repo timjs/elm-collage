@@ -331,11 +331,14 @@ evalTransform collage =
         theta =
             toString <| -collage.theta / 2 / pi * 360
 
-        scale =
-            toString <| collage.scale
+        sx =
+            toString <| Tuple.first collage.scale
+
+        sy =
+            toString <| Tuple.second collage.scale
     in
     String.concat
-        [ "translate(", x, ",", y, ") rotate(", theta, ") scale(", scale, ")" ]
+        [ "translate(", x, ",", y, ") rotate(", theta, ") scale(", sx, ",", sy, ")" ]
 
 
 decodeFill : Core.FillStyle -> String

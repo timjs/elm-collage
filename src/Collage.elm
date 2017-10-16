@@ -366,7 +366,7 @@ scale s collage =
 
 {-| Scale a collage horizontally (in its local space) by a given factor.
 
-Scaling by 2 doubles the width.
+Scaling by 2 doubles the width and doubles the area.
 
 -}
 scaleX : Float -> Collage msg -> Collage msg
@@ -376,7 +376,7 @@ scaleX s collage =
 
 {-| Scale a collage vertically (in its local space) by a given factor.
 
-Scaling by 2 doubles the height.
+Scaling by 2 doubles the height and doubles the area.
 
 -}
 scaleY : Float -> Collage msg -> Collage msg

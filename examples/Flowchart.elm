@@ -55,12 +55,18 @@ space =
 
 thinline : LineStyle
 thinline =
-    solid thin (uniform black)
+    { defaultLineStyle
+        | thickness = thin
+        , cap = Flat
+    }
 
 
 thickline : LineStyle
 thickline =
-    solid ultrathick (uniform black)
+    { defaultLineStyle
+        | thickness = ultrathick
+        , cap = Padded
+    }
 
 
 diamond : String -> Collage msg
@@ -167,24 +173,26 @@ render flow =
                     |> rotate (pi / 2)
                 ]
 
-        branches flows =
+        branches finishing flows =
             let
-                prerender =
+                prerendered =
                     flows
                         |> List.map render
 
-                l =
-                    prerender
+                h =
+                    prerendered
                         |> group
                         |> height
                         --NOTE: this is the length of a normal arrow
                         |> (+) unit
             in
-            prerender
-                |> List.map (addBottomArrow l)
+            ( prerendered
+            , prerendered
+                |> List.map (finishing h)
                 |> List.intersperse space
                 |> horizontal
                 |> center
+            )
     in
     case flow of
         Finish ->
@@ -207,30 +215,18 @@ render flow =
 
         Choice condition flows ->
             let
-                prerendered =
-                    flows
-                        |> List.map render
-
-                h =
-                    prerendered
-                        |> group
-                        |> height
-                        --NOTE: this is the length of a normal arrow
-                        |> (+) unit
-
-                inner =
-                    prerendered
-                        |> List.map (addBottomLine h)
-                        |> List.intersperse space
-                        |> horizontal
-                        |> center
-                        |> shift ( -rightMargin, 0 )
+                ( prerendered, rendered ) =
+                    branches addBottomLine flows
 
                 leftMargin =
                     (head prerendered ? empty |> width) / 2
 
                 rightMargin =
                     (last prerendered ? empty |> width) / 2
+
+                inner =
+                    rendered
+                        |> shift ( -rightMargin, 0 )
 
                 bar =
                     line (width inner - leftMargin - rightMargin)
@@ -249,8 +245,8 @@ render flow =
 
         Parallel flows ->
             let
-                inner =
-                    branches flows
+                ( _, inner ) =
+                    branches addBottomArrow flows
 
                 length =
                     width inner
@@ -284,6 +280,7 @@ last elems =
             last xs
 
 
+(?) : Maybe a -> a -> a
 (?) =
     flip Maybe.withDefault
 

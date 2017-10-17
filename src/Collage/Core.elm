@@ -6,6 +6,7 @@ module Collage.Core
         , Path(..)
         , Shape(..)
         , Text(..)
+        , apply
         , collage
         , find
         , foldl
@@ -64,6 +65,31 @@ collage basic =
     , handlers = []
     , basic = basic
     }
+
+
+apply : { r | origin : Point, theta : Float, scale : Float } -> Point -> Point
+apply { origin, theta, scale } pt =
+    let
+        ( tx, ty ) =
+            origin
+
+        scaled ( x, y ) =
+            ( x * scale, y * scale )
+
+        shifted ( x, y ) =
+            ( x + tx, y + ty )
+
+        rotated ( x, y ) =
+            let
+                c =
+                    cos theta
+
+                s =
+                    sin theta
+            in
+            ( c * x - s * y, s * x + c * y )
+    in
+    pt |> rotated |> shifted |> scaled
 
 
 foldr : (Collage fill line text msg -> a -> a) -> a -> Collage fill line text msg -> a

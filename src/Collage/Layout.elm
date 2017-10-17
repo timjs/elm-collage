@@ -692,19 +692,19 @@ Anchors are created by the functions from the section below.
 -}
 align : Anchor msg -> Collage msg -> Collage msg
 align anchor collage =
-    shift (anchor collage) collage
+    shift (Collage.opposite <| anchor collage) collage
 
 
 {-| Stack a collage on top of a specified anchor of a host.
 
 Makes placing objects on a collage a lot easier:
 
-    drawing
+    collage
         |> at bottom dot
         |> at upperRight dot
 
         +–––––––––0
-        | drawing |
+        | collage |
         +––––0––––+
 
 instead of:
@@ -713,7 +713,7 @@ instead of:
         [ dot
         , align upperRight <| stack
             [ dot
-            , align bottom drawing
+            , align bottom collage
             ]
         ]
 
@@ -721,8 +721,12 @@ This does not change the origin of `collage`.
 
 -}
 at : Anchor msg -> Collage msg -> Collage msg -> Collage msg
-at anchor collage host =
-    stack [ collage, align anchor host ]
+at anchor fore back =
+    stack
+        [ fore
+            |> shift (anchor back)
+        , back
+        ]
 
 
 {-| Shift a collage such that the envelope in all directions is equal.
@@ -741,8 +745,7 @@ center =
 -- Anchors -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
 
 
-{-| Anchors are technically just functions.
-You can use any function as an anchor as long as it takes a collage and returns a displacement relative to its internal origin.
+{-| Anchors are functions which calculate a point relative to the origin of a given collage.
 -}
 type alias Anchor msg =
     Collage msg -> Point
@@ -761,7 +764,7 @@ top collage =
         { up } =
             distances collage
     in
-    ( 0, -up )
+    ( 0, up )
 
 
 {-|
@@ -777,7 +780,7 @@ topRight collage =
         { right, up } =
             distances collage
     in
-    ( -right, -up )
+    ( right, up )
 
 
 {-|
@@ -793,7 +796,7 @@ right collage =
         { right } =
             distances collage
     in
-    ( -right, 0 )
+    ( right, 0 )
 
 
 {-|
@@ -809,7 +812,7 @@ bottomRight collage =
         { right, down } =
             distances collage
     in
-    ( -right, down )
+    ( right, -down )
 
 
 {-|
@@ -825,7 +828,7 @@ bottom collage =
         { down } =
             distances collage
     in
-    ( 0, down )
+    ( 0, -down )
 
 
 {-|
@@ -841,7 +844,7 @@ bottomLeft collage =
         { left, down } =
             distances collage
     in
-    ( left, down )
+    ( -left, -down )
 
 
 {-|
@@ -857,7 +860,7 @@ left collage =
         { left } =
             distances collage
     in
-    ( left, 0 )
+    ( -left, 0 )
 
 
 {-|
@@ -873,7 +876,7 @@ topLeft collage =
         { left, up } =
             distances collage
     in
-    ( left, -up )
+    ( -left, up )
 
 
 {-|
@@ -895,7 +898,7 @@ base collage =
         ty =
             (up - down) / 2
     in
-    ( -tx, -ty )
+    ( tx, ty )
 
 
 

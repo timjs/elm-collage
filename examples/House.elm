@@ -92,8 +92,8 @@ house model =
         [ stack
             [ roof
             , chimney
-                |> at (top >> (\( x, y ) -> ( x, y - 0.15 ))) smoke
-                |> shift ( 0.25, 0.4 )
+                |> at (top >> (\( x, y ) -> ( x, y + 0.15 ))) smoke
+                |> shift ( 0.25, 0 )
             ]
             |> center
         , stack

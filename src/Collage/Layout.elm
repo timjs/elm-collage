@@ -925,7 +925,7 @@ showEnvelope collage =
         outline =
             rectangle (width collage) (height collage)
                 |> outlined (dot 2 (uniform Color.red))
-                |> shift (Collage.opposite <| base collage)
+                |> shift (base collage)
     in
     impose outline collage
 

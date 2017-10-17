@@ -7,6 +7,10 @@ module Collage.Core
         , Shape(..)
         , Text(..)
         , collage
+        , find
+        , foldl
+        , foldr
+        , foldrLazy
         )
 
 {-| This module contains internal types used accross multiple modules in this packages.
@@ -14,8 +18,10 @@ Constructors are however not exposed to the user.
 -}
 
 import Color exposing (Color)
+import Helpers
 import Html exposing (Html)
 import Json.Decode as Json
+import Maybe.Extra as Maybe
 
 
 -- Point -----------------------------------------------------------------------
@@ -58,6 +64,79 @@ collage basic =
     , handlers = []
     , basic = basic
     }
+
+
+foldr : (Collage fill line text msg -> a -> a) -> a -> Collage fill line text msg -> a
+foldr f acc collage =
+    let
+        foldrOf =
+            List.foldr (\collage acc -> foldr f acc collage) acc
+
+        recurse =
+            case collage.basic of
+                Group collages ->
+                    foldrOf collages
+
+                Subcollage fore back ->
+                    foldrOf [ fore, back ]
+
+                _ ->
+                    acc
+    in
+    f collage recurse
+
+
+foldrLazy : (Collage fill line text msg -> (() -> a) -> a) -> a -> Collage fill line text msg -> a
+foldrLazy f acc collage =
+    let
+        foldrOf =
+            Helpers.foldrLazy (\collage acc -> foldrLazy f (acc ()) collage) acc
+
+        recurse () =
+            case collage.basic of
+                Group collages ->
+                    foldrOf collages
+
+                Subcollage fore back ->
+                    foldrOf [ fore, back ]
+
+                _ ->
+                    acc
+    in
+    f collage recurse
+
+
+foldl : (Collage fill line text msg -> a -> a) -> a -> Collage fill line text msg -> a
+foldl f acc collage =
+    let
+        foldlOf acc =
+            List.foldl (\collage acc -> foldl f acc collage) acc
+
+        recurse acc =
+            case collage.basic of
+                Group collages ->
+                    foldlOf acc collages
+
+                Subcollage fore back ->
+                    foldlOf acc [ fore, back ]
+
+                _ ->
+                    acc
+    in
+    recurse <| f collage acc
+
+
+find : (Collage fill line text msg -> Bool) -> Collage fill line text msg -> Maybe (Collage fill line text msg)
+find p =
+    --NOTE: Could be defined generically on types having `foldr`.
+    let
+        f x =
+            if p x then
+                Just x
+            else
+                Nothing
+    in
+    foldrLazy (Maybe.orLazy << f) Nothing
 
 
 

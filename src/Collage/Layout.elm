@@ -11,6 +11,7 @@ module Collage.Layout
         , bottomLeft
         , bottomRight
         , center
+        , connect
         , debug
         , distances
         , empty
@@ -20,6 +21,9 @@ module Collage.Layout
         , horizontal
         , impose
         , left
+        , locate
+        , name
+        , names
         , opposite
         , place
         , right
@@ -111,6 +115,11 @@ These two collages are invisible and only take up some space.
 @docs Anchor, top, topRight, right, bottomRight, bottom, bottomLeft, left, topLeft, base
 
 
+# Naming
+
+@docs name, locate, connect, names
+
+
 # Debugging
 
 These two functions can aid in discovering how collages are composed.
@@ -133,7 +142,9 @@ import Collage exposing (..)
 import Collage.Core as Core
 import Collage.Super exposing (..)
 import Color
-import Maybe.Extra exposing ((?))
+import Dict exposing (Dict)
+import Helpers
+import Maybe.Extra as Maybe exposing ((?))
 
 
 -- Directions ------------------------------------------------------------------
@@ -899,6 +910,115 @@ base collage =
             (up - down) / 2
     in
     ( tx, ty )
+
+
+
+-- Naming ----------------------------------------------------------------------
+
+
+{-| Give a name to (a part of) a collage in order to locate it later on.
+
+**Warning!**
+
+  - Giving multiple names to the _same_ collage will overwrite the old one.
+  - The library _will not_ prevent you from using the same name twice for _different_ collages.
+    You are yourself responsible for not using duplicate names!
+
+-}
+name : String -> Collage msg -> Collage msg
+name string collage =
+    { collage | name = Just string }
+
+
+{-| Locate a named part of a collage and calculate the coordinates using the given anchor.
+
+First be sure to give a name to a sub collage using `name`,
+next you can retrieve the collage using this function.
+Well, you cannot retrieve the whole collage,
+but a point calculated _relative to its internal origin_ using an anchor.
+This point is then subjected to the samen transformations as all the groups above it.
+
+Locating is done in breadth first order:
+i.e. left-to-right in horizontal compositions,
+top-to-bottom in vertical compositions,
+or front-to-back in stacked compositions
+and after that going deeper down, descending into subcollages.
+
+When a sub collage could not be found,
+we display a message on the console for convenience.
+
+-}
+locate : String -> Anchor msg -> Collage msg -> Maybe Point
+locate string anchor this =
+    let
+        recurse collage =
+            let
+                match =
+                    Maybe.map ((==) string) collage.name ? False
+
+                firstOf =
+                    --NOTE: This saves us recursing down when we found what we're looking for!
+                    --FIXME: This is depth first!!!
+                    Helpers.foldrLazy (Maybe.orLazy << recurse) Nothing
+            in
+            if match then
+                Just <| anchor collage
+            else
+                Maybe.map (Core.apply collage) <|
+                    case collage.basic of
+                        Core.Group collages ->
+                            firstOf collages
+
+                        Core.Subcollage fore back ->
+                            firstOf [ fore, back ]
+
+                        _ ->
+                            Nothing
+    in
+    case recurse this of
+        Nothing ->
+            Debug.log ("Elm Collage: could not find '" ++ string ++ "'") Nothing
+
+        answer ->
+            answer
+
+
+{-| Return a dictionary with all named parts of given collage.
+-}
+names : Collage msg -> Dict String (Collage msg)
+names =
+    let
+        recurse collage res =
+            case collage.name of
+                Just name ->
+                    Dict.insert name collage res
+
+                Nothing ->
+                    res
+    in
+    --NOTE: We use `foldr` here so named collages "higher up" will overwrite those down in the hierarchy.
+    Core.foldr recurse Dict.empty
+
+
+{-| Connect a list of points which are located inside a collage.
+
+For named parts that could not be found,
+the result will be _ignored_.
+
+**Warning!**
+This function is very experimental.
+Your mileage may vary.
+
+-}
+connect : List ( String, Anchor msg ) -> LineStyle -> Collage msg -> Collage msg
+connect locations line collage =
+    let
+        positions =
+            locations
+                |> List.map (\( name, anchor ) -> locate name anchor collage)
+                |> Maybe.values
+    in
+    impose (path positions |> traced line) collage
 
 
 

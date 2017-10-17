@@ -37,7 +37,8 @@ type alias Point =
 
 
 type alias Collage fill line text msg =
-    { origin : Point
+    { name : Maybe String
+    , origin : Point
     , theta : Float
     , scale : Float
     , alpha : Float
@@ -58,7 +59,8 @@ type BasicCollage fill line text msg
 
 collage : BasicCollage fill line text msg -> Collage fill line text msg
 collage basic =
-    { origin = ( 0, 0 )
+    { name = Nothing
+    , origin = ( 0, 0 )
     , theta = 0
     , scale = 1
     , alpha = 1

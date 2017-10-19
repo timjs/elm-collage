@@ -322,11 +322,11 @@ decodePoints ps =
 evalTransform : Collage msg -> String
 evalTransform collage =
     let
-        x =
-            toString <| Tuple.first collage.origin
+        dx =
+            toString <| Tuple.first collage.shift
 
-        y =
-            toString <| -(Tuple.second collage.origin)
+        dy =
+            toString <| -(Tuple.second collage.shift)
 
         theta =
             toString <| -collage.theta / 2 / pi * 360
@@ -335,7 +335,7 @@ evalTransform collage =
             toString <| collage.scale
     in
     String.concat
-        [ "translate(", x, ",", y, ") rotate(", theta, ") scale(", scale, ")" ]
+        [ "translate(", dx, ",", dy, ") rotate(", theta, ") scale(", scale, ")" ]
 
 
 decodeFill : Core.FillStyle -> String

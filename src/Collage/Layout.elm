@@ -276,20 +276,20 @@ distances collage =
         dist =
             handleBasic collage.theta collage.basic
 
-        ( tx, ty ) =
-            collage.origin
+        ( dx, dy ) =
+            collage.shift
 
         s =
             collage.scale
     in
     { up =
-        s * max 0 (dist.up + ty)
+        s * max 0 (dist.up + dy)
     , down =
-        s * max 0 (dist.down - ty)
+        s * max 0 (dist.down - dy)
     , right =
-        s * max 0 (dist.right + tx)
+        s * max 0 (dist.right + dx)
     , left =
-        s * max 0 (dist.left - tx)
+        s * max 0 (dist.left - dx)
     }
 
 

@@ -347,9 +347,9 @@ shift : ( Float, Float ) -> Collage msg -> Collage msg
 shift ( dx, dy ) collage =
     let
         ( x, y ) =
-            collage.origin
+            collage.shift
     in
-    { collage | origin = ( x + dx, y + dy ) }
+    { collage | shift = ( x + dx, y + dy ) }
 
 
 {-| Scale a collage by a given factor.

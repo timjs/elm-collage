@@ -8,10 +8,14 @@ module Collage.Core
         , Text(..)
         , apply
         , collage
+        , combine
         , find
         , foldl
         , foldr
         , foldrLazy
+        , invert
+        , levels
+        , search
         )
 
 {-| This module contains internal types used accross multiple modules in this packages.
@@ -36,15 +40,17 @@ type alias Point =
 -- Collage ---------------------------------------------------------------------
 
 
+type alias Transformation r =
+    { r | shift : Point, theta : Float, scale : Float }
+
+
 type alias Collage fill line text msg =
-    { name : Maybe String
-    , origin : Point
-    , theta : Float
-    , scale : Float
-    , alpha : Float
-    , handlers : List ( String, Json.Decoder msg )
-    , basic : BasicCollage fill line text msg
-    }
+    Transformation
+        { name : Maybe String
+        , alpha : Float
+        , handlers : List ( String, Json.Decoder msg )
+        , basic : BasicCollage fill line text msg
+        }
 
 
 type BasicCollage fill line text msg
@@ -60,7 +66,7 @@ type BasicCollage fill line text msg
 collage : BasicCollage fill line text msg -> Collage fill line text msg
 collage basic =
     { name = Nothing
-    , origin = ( 0, 0 )
+    , shift = ( 0, 0 )
     , theta = 0
     , scale = 1
     , alpha = 1
@@ -69,17 +75,46 @@ collage basic =
     }
 
 
-apply : { r | origin : Point, theta : Float, scale : Float } -> Point -> Point
-apply { origin, theta, scale } pt =
+invert : Transformation r -> Transformation r
+invert ({ shift, theta, scale } as r) =
     let
-        ( tx, ty ) =
-            origin
+        ( dx, dy ) =
+            shift
+    in
+    { r
+        | shift = ( -dx, -dy )
+        , theta = -theta
+        , scale = 1 / scale
+    }
+
+
+combine : Transformation r -> Transformation r -> Transformation r
+combine { shift, theta, scale } this =
+    let
+        ( dx, dy ) =
+            shift
+
+        ( x, y ) =
+            this.shift
+    in
+    { this
+        | shift = ( x + dx, y + dy )
+        , theta = this.theta + theta
+        , scale = this.scale * scale
+    }
+
+
+apply : Transformation r -> Point -> Point
+apply { shift, theta, scale } pt =
+    let
+        ( dx, dy ) =
+            shift
 
         scaled ( x, y ) =
             ( x * scale, y * scale )
 
         shifted ( x, y ) =
-            ( x + tx, y + ty )
+            ( x + dx, y + dy )
 
         rotated ( x, y ) =
             let
@@ -172,9 +207,9 @@ find p =
 levels : Collage fill line text msg -> List (Collage fill line text msg)
 levels collage =
     let
-        recurse result list =
+        recurse result queue =
             --NOTE: This function is tail recursive :-)
-            case list of
+            case queue of
                 [] ->
                     []
 
@@ -191,7 +226,7 @@ levels collage =
                             --NOTE: We only add non-groups to the result
                             recurse (collage :: result) rest
     in
-    --NOTE: Start with the empty list as the result and the current collage in the queue
+    --NOTE: Start with the empty queue as the result and the current collage in the queue
     recurse [] [ collage ]
 
 
@@ -200,8 +235,8 @@ levels collage =
 search : (Collage fill line text msg -> Bool) -> Collage fill line text msg -> Maybe (Collage fill line text msg)
 search pred collage =
     let
-        recurse list =
-            case list of
+        recurse queue =
+            case queue of
                 [] ->
                     Nothing
 

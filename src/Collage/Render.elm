@@ -188,6 +188,7 @@ attrs collage =
             , Svg.strokeWidth <| toString line.thickness
             , Svg.strokeLinecap <| decodeCap line.cap
             , Svg.strokeLinejoin <| decodeJoin line.join
+            , Svg.fill <| "none"
             , Svg.opacity <| toString collage.alpha
             , Svg.transform <| evalTransform collage
             , Svg.strokeDashoffset <| toString line.dashPhase

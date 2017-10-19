@@ -746,7 +746,7 @@ path =
 Here is a red zig-zag:
 
     path [( 0, 5 ), ( 5, 0 ), ( 5, 5 )]
-        |> traced (solid thin uniform red)
+        |> traced (solid thin (uniform red))
 
 Paths can only be traced.
 If you like to fill a path,

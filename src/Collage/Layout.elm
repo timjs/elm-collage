@@ -268,17 +268,17 @@ distances collage =
         ( tx, ty ) =
             collage.origin
 
-        s =
+        ( sx, sy ) =
             collage.scale
     in
     { up =
-        s * max 0 (dist.up + ty)
+        sy * max 0 (dist.up + ty)
     , down =
-        s * max 0 (dist.down - ty)
+        sy * max 0 (dist.down - ty)
     , right =
-        s * max 0 (dist.right + tx)
+        sx * max 0 (dist.right + tx)
     , left =
-        s * max 0 (dist.left - tx)
+        sx * max 0 (dist.left - tx)
     }
 
 

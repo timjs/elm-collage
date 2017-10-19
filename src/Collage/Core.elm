@@ -154,6 +154,8 @@ foldl f acc collage =
     recurse <| f collage acc
 
 
+{-| Lazy depth-first search using `foldr`
+-}
 find : (Collage fill line text msg -> Bool) -> Collage fill line text msg -> Maybe (Collage fill line text msg)
 find p =
     --NOTE: Could be defined generically on types having `foldr`.
@@ -165,6 +167,62 @@ find p =
                 Nothing
     in
     foldrLazy (Maybe.orLazy << f) Nothing
+
+
+levels : Collage fill line text msg -> List (Collage fill line text msg)
+levels collage =
+    let
+        recurse result list =
+            --NOTE: This function is tail recursive :-)
+            case list of
+                [] ->
+                    []
+
+                collage :: rest ->
+                    case collage.basic of
+                        Group collages ->
+                            --NOTE: First recurse on the rest of the queue, then go for the group contents
+                            recurse result (rest ++ collages)
+
+                        Subcollage fore back ->
+                            recurse result (rest ++ [ fore, back ])
+
+                        _ ->
+                            --NOTE: We only add non-groups to the result
+                            recurse (collage :: result) rest
+    in
+    --NOTE: Start with the empty list as the result and the current collage in the queue
+    recurse [] [ collage ]
+
+
+{-| Breadth-first search on collages
+-}
+search : (Collage fill line text msg -> Bool) -> Collage fill line text msg -> Maybe (Collage fill line text msg)
+search pred collage =
+    let
+        recurse list =
+            case list of
+                [] ->
+                    Nothing
+
+                collage :: rest ->
+                    if pred collage then
+                        --NOTE: We found it!
+                        Just collage
+                    else
+                        --NOTE: We go on with our search
+                        case collage.basic of
+                            Group collages ->
+                                --NOTE: First recurse on the rest of the queue, then go for the group contents
+                                recurse (rest ++ collages)
+
+                            Subcollage fore back ->
+                                recurse (rest ++ [ fore, back ])
+
+                            _ ->
+                                recurse rest
+    in
+    recurse [ collage ]
 
 
 

@@ -759,6 +759,14 @@ traced style path =
 
 
 {-| Close a path so that it also can be filled.
+
+**Note:**
+Does not draw a line from start to end point for you.
+If you really want this, you have two options:
+
+1.  Draw it yourself
+2.  Use a polygon
+
 -}
 close : Path -> Shape
 close =

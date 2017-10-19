@@ -7,6 +7,13 @@ import Collage.Text as Text exposing (Shape(..), fromString)
 import Color exposing (..)
 import Html exposing (Html)
 import List exposing (head)
+import Maybe.Extra exposing ((?))
+
+
+(=>) : a -> b -> ( a, b )
+(=>) =
+    (,)
+
 
 
 -- Data ------------------------------------------------------------------------
@@ -16,7 +23,7 @@ type Flow
     = Finish
     | Task String
     | Sequence Flow Flow
-    | Choice String (List Flow)
+    | Choice String Flow Flow
     | Parallel (List Flow)
 
 
@@ -25,15 +32,15 @@ example =
     Sequence
         (Sequence (Task "check diff")
             (Choice "diff is as whished"
-                [ Sequence
+                (Sequence
                     (Parallel
                         [ Task "prepare changelog"
                         , Task "bump version"
                         ]
                     )
                     (Task "publish")
-                , Task "work harder"
-                ]
+                )
+                (Task "work harder")
             )
         )
         Finish
@@ -57,7 +64,7 @@ thinline : LineStyle
 thinline =
     { defaultLineStyle
         | thickness = thin
-        , cap = Flat
+        , cap = Padded
     }
 
 
@@ -213,32 +220,24 @@ render flow =
                 , render flow2
                 ]
 
-        Choice condition flows ->
+        Choice condition left right ->
             let
-                ( prerendered, rendered ) =
-                    branches addBottomLine flows
+                leftBranch =
+                    render left
+                        |> name "leftBranch"
 
-                leftMargin =
-                    (head prerendered ? empty |> width) / 2
-
-                rightMargin =
-                    (last prerendered ? empty |> width) / 2
+                rightBranch =
+                    render right
+                        |> name "rightBranch"
 
                 inner =
-                    rendered
-                        |> shift ( -rightMargin, 0 )
-
-                bar =
-                    line (width inner - leftMargin - rightMargin)
-                        |> traced thinline
+                    horizontal [ leftBranch, space, rightBranch ]
             in
             vertical
                 [ arrow unit
-                , vertical
-                    [ bar
-                    , inner
-                    , bar
-                    ]
+                , inner
+                    |> connect [ "leftBranch" => top, "rightBranch" => top ] thinline
+                    |> connect [ "leftBranch" => bottom, "rightBranch" => bottom ] thinline
                     |> at top (diamond condition)
                     |> at bottom (diamond "")
                 ]
@@ -278,11 +277,6 @@ last elems =
 
         x :: xs ->
             last xs
-
-
-(?) : Maybe a -> a -> a
-(?) =
-    flip Maybe.withDefault
 
 
 

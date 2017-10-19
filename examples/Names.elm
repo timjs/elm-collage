@@ -1,6 +1,7 @@
 module Names exposing (main)
 
 import Collage exposing (..)
+import Collage.Core as Core
 import Collage.Layout exposing (..)
 import Collage.Render exposing (svg)
 import Color exposing (..)
@@ -24,7 +25,7 @@ rect2 =
     rectangle 5 7
         |> filled (uniform green)
         |> scale 10
-        --|> rotate (degrees 30)
+        |> rotate (degrees 30)
         |> name "rect"
         |> debug
 
@@ -81,6 +82,8 @@ main =
                     names collage
               , rectTopRight =
                     locate "rect" topRight collage
+              , rect =
+                    Core.search (.name >> Maybe.map ((==) "rect") >> Maybe.withDefault False) collage
               }
                 |> toString
                 |> text

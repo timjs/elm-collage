@@ -948,8 +948,8 @@ When a sub collage could not be found,
 we display a message on the console for convenience.
 
 -}
-locate : String -> Anchor msg -> Collage msg -> Maybe Point
-locate string anchor this =
+locate_ : String -> Anchor msg -> Collage msg -> Maybe Point
+locate_ string anchor this =
     let
         recurse collage =
             let
@@ -974,6 +974,9 @@ locate string anchor this =
 
                         _ ->
                             Nothing
+
+        visited =
+            Debug.log "Elm Collage: visited" string
     in
     case recurse this of
         Nothing ->
@@ -981,6 +984,46 @@ locate string anchor this =
 
         answer ->
             answer
+
+
+{-| Breadth-first search on collages
+-}
+locate : String -> Anchor msg -> Collage msg -> Maybe Point
+locate string anchor this =
+    let
+        recurse queue =
+            case queue of
+                [] ->
+                    Nothing
+
+                collage :: rest ->
+                    let
+                        match =
+                            Maybe.map ((==) string) collage.name ? False
+
+                        update =
+                            List.map (Core.combine collage)
+                    in
+                    if match then
+                        --NOTE: We found it!
+                        Just <| anchor collage
+                    else
+                        --NOTE: We go on with our search and keep track of the transformations
+                        case collage.basic of
+                            Core.Group collages ->
+                                --NOTE: First recurse on the rest of the queue, then go for the group contents
+                                recurse (rest ++ update collages)
+
+                            Core.Subcollage fore back ->
+                                recurse (rest ++ update [ fore, back ])
+
+                            _ ->
+                                recurse rest
+
+        visited =
+            Debug.log "Elm Collage: visited" string
+    in
+    recurse [ this ]
 
 
 {-| Return a dictionary with all named parts of given collage.

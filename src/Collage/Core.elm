@@ -207,7 +207,7 @@ levels collage =
             --NOTE: This function is tail recursive :-)
             case queue of
                 [] ->
-                    []
+                    List.reverse result
 
                 collage :: rest ->
                     case collage.basic of

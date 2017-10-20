@@ -1015,6 +1015,7 @@ showOrigin collage =
         origin =
             circle 3
                 |> filled (uniform Color.red)
+                |> name "_origin_"
     in
     impose origin collage
 
@@ -1028,6 +1029,7 @@ showEnvelope collage =
             rectangle (width collage) (height collage)
                 |> outlined (dot 2 (uniform Color.red))
                 |> shift (base collage)
+                |> name "_envelope_"
     in
     impose outline collage
 

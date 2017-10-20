@@ -14,6 +14,7 @@ import Collage.Text as Text exposing (Text)
 import Color exposing (Color)
 import Html exposing (Html)
 import List
+import Maybe.Extra exposing ((?))
 import String
 import Svg exposing (Attribute, Svg)
 import Svg.Attributes as Svg
@@ -169,9 +170,14 @@ events { handlers } =
 
 attrs : Collage msg -> List (Attribute msg)
 attrs collage =
+    let
+        name =
+            collage.name ? "_unnamed_"
+    in
     case collage.basic of
         Core.Path line _ ->
-            [ Svg.stroke <| decodeFill line.fill
+            [ Svg.id <| name
+            , Svg.stroke <| decodeFill line.fill
             , Svg.strokeOpacity <| decodeFillOpacity line.fill
             , Svg.strokeWidth <| toString line.thickness
             , Svg.strokeLinecap <| decodeCap line.cap
@@ -184,7 +190,8 @@ attrs collage =
             ]
 
         Core.Shape ( fill, line ) _ ->
-            [ Svg.fill <| decodeFill fill
+            [ Svg.id <| name
+            , Svg.fill <| decodeFill fill
             , Svg.fillOpacity <| decodeFillOpacity fill
             , Svg.stroke <| decodeFill line.fill
             , Svg.strokeOpacity <| decodeFillOpacity line.fill
@@ -198,7 +205,8 @@ attrs collage =
             ]
 
         Core.Text _ (Core.Chunk style str) ->
-            [ Svg.fill <| decodeFill (Core.Uniform style.color)
+            [ Svg.id <| name
+            , Svg.fill <| decodeFill (Core.Uniform style.color)
             , Svg.fontFamily <|
                 case style.typeface of
                     Text.Serif ->
@@ -274,7 +282,9 @@ attrs collage =
             ]
 
         _ ->
-            [ Svg.transform <| decodeTransform collage ]
+            [ Svg.id <| name
+            , Svg.transform <| decodeTransform collage
+            ]
 
 
 decodeCap : Collage.LineCap -> String

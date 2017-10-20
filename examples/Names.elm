@@ -26,15 +26,14 @@ rect2 =
         |> filled (uniform green)
         |> scale 10
         |> rotate (degrees 30)
-        |> name "rect"
-        |> debug
+        |> name "rect2"
 
 
 rect3 : Collage msg
 rect3 =
     rectangle 100 50
         |> filled (uniform purple)
-        |> name "rect"
+        |> name "rect3"
 
 
 circ : Collage msg
@@ -48,6 +47,7 @@ mark : Collage msg
 mark =
     circle 3
         |> filled (uniform yellow)
+        |> name "mark"
 
 
 collage : Collage msg
@@ -58,21 +58,10 @@ collage =
                 |> shift (locate "circ" topRight circ ? ( 0, 0 ))
 
         background =
-            vertical
-                [ circ
-                    |> debug
-                , inner
-
-                --NOTE: rect2 and rect3 have the same name, rect2 should be found first.
-                , horizontal [ rect1, rect2, rect3 ]
-                ]
+            --NOTE: rect2 and rect3 have the same name, rect2 should be found first.
+            horizontal [ rect1, rect2, rect3 ]
     in
-    stack
-        [ mark
-            |> shift (locate "rect" topRight background ? ( 0, 0 ))
-        , background
-        ]
-        |> debug
+    background
 
 
 
@@ -90,6 +79,8 @@ main =
                     locate "rect" topRight collage
               , rect =
                     Core.search (.name >> Maybe.map ((==) "rect") >> Maybe.withDefault False) collage
+              , levels =
+                    List.map .name <| Core.levels collage
               }
                 |> toString
                 |> text

@@ -177,7 +177,7 @@ attrs collage =
             , Svg.strokeLinejoin <| decodeJoin line.join
             , Svg.fill <| "none"
             , Svg.opacity <| toString collage.opacity
-            , Svg.transform <| evalTransform collage
+            , Svg.transform <| decodeTransform collage
             , Svg.strokeDashoffset <| toString line.dashPhase
             , Svg.strokeDasharray <| decodeDashing line.dashPattern
             ]
@@ -191,7 +191,7 @@ attrs collage =
             , Svg.strokeLinecap <| decodeCap line.cap
             , Svg.strokeLinejoin <| decodeJoin line.join
             , Svg.opacity <| toString collage.opacity
-            , Svg.transform <| evalTransform collage
+            , Svg.transform <| decodeTransform collage
             , Svg.strokeDashoffset <| toString line.dashPhase
             , Svg.strokeDasharray <| decodeDashing line.dashPattern
             ]
@@ -269,11 +269,11 @@ attrs collage =
                         "line-through"
             , Svg.textAnchor <| "middle"
             , Svg.dominantBaseline "middle"
-            , Svg.transform <| evalTransform collage
+            , Svg.transform <| decodeTransform collage
             ]
 
         _ ->
-            [ Svg.transform <| evalTransform collage ]
+            [ Svg.transform <| decodeTransform collage ]
 
 
 decodeCap : Collage.LineCap -> String
@@ -307,8 +307,8 @@ decodePoints ps =
     ps |> List.map (\( x, y ) -> String.join "," [ toString x, toString -y ]) |> String.join " "
 
 
-evalTransform : Collage msg -> String
-evalTransform collage =
+decodeTransform : Collage msg -> String
+decodeTransform collage =
     let
         dx =
             toString <| Tuple.first collage.shift
@@ -316,7 +316,7 @@ evalTransform collage =
         dy =
             toString <| -(Tuple.second collage.shift)
 
-        rotation =
+        r =
             toString <| -collage.rotation / 2 / pi * 360
 
         sx =
@@ -326,7 +326,7 @@ evalTransform collage =
             toString <| Tuple.second collage.scale
     in
     String.concat
-        [ "translate(", dx, ",", dy, ") rotate(", rotation, ") scale(", sx, ",", sy, ")" ]
+        [ "translate(", dx, ",", dy, ") rotate(", r, ") scale(", sx, ",", sy, ")" ]
 
 
 decodeFill : Core.FillStyle -> String

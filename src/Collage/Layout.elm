@@ -208,21 +208,21 @@ The same holds for the other three directions.
 envelope : Direction -> Collage msg -> Float
 envelope dir collage =
     let
-        dist =
+        { up, down, left, right } =
             distances collage
     in
     case dir of
         Up ->
-            dist.up
+            up
 
         Down ->
-            dist.down
+            down
 
         Right ->
-            dist.right
+            right
 
         Left ->
-            dist.left
+            left
 
 
 
@@ -262,49 +262,53 @@ Use this function if you need envelopes in multiple directions at the same time.
 distances : Collage msg -> Distances
 distances collage =
     let
-        dist =
-            handleBasic collage.rotation collage.basic
+        points =
+            handleBasic collage.basic
 
-        ( dx, dy ) =
-            collage.shift
-
-        ( sx, sy ) =
-            collage.scale
+        ( xs, ys ) =
+            points
+                |> List.map (Core.apply collage)
+                |> List.unzip
     in
+    --FIXME: maybe not very efficent to do this here?
     { up =
-        sy * max 0 (dist.up + dy)
+        List.maximum ys ? 0
     , down =
-        sy * max 0 (dist.down - dy)
+        -(List.minimum ys ? 0)
     , right =
-        sx * max 0 (dist.right + dx)
+        List.maximum xs ? 0
     , left =
-        sx * max 0 (dist.left - dx)
+        -(List.minimum xs ? 0)
     }
 
 
-handleBasic : Float -> BasicCollage msg -> Distances
-handleBasic rotation basic =
+handleBasic : BasicCollage msg -> List Point
+handleBasic basic =
     case basic of
         -- Shapes --
         Core.Shape ( _, { thickness } ) (Core.Circle r) ->
-            handleCircle thickness r
+            let
+                d =
+                    2 * r
+            in
+            handleBox thickness ( d, d )
 
         Core.Shape ( _, { thickness } ) (Core.Ellipse rx ry) ->
-            handleEllipse rotation thickness ( rx, ry )
+            handleBox thickness ( 2 * rx, 2 * ry )
 
         Core.Shape ( _, { thickness } ) (Core.Rectangle w h _) ->
-            handleRectangle rotation thickness ( w, h )
+            handleBox thickness ( w, h )
 
         Core.Shape ( _, { thickness } ) (Core.Polygon ps) ->
-            handlePoints rotation thickness ps
+            handlePoints thickness ps
 
         Core.Shape ( _, line ) (Core.Loop path) ->
             --NOTE: Use the same calculations as for paths
-            handleBasic rotation (Core.Path line path)
+            handleBasic (Core.Path line path)
 
         -- Paths --
         Core.Path { thickness, cap } (Core.Polyline ps) ->
-            handlePoints rotation
+            handlePoints
                 (if cap == Flat then
                     0
                  else
@@ -314,47 +318,32 @@ handleBasic rotation basic =
 
         -- Boxes --
         Core.Text dims _ ->
-            handleRectangle rotation 0 dims
+            handleBox 0 dims
 
         Core.Image dims _ ->
-            handleRectangle rotation 0 dims
+            handleBox 0 dims
 
         Core.Html dims _ ->
-            handleRectangle rotation 0 dims
+            handleBox 0 dims
 
         -- Groups --
         Core.Group collages ->
             collages
                 |> List.map (distances >> unpack)
                 |> List.concat
-                |> handlePoints rotation 0
+                |> handlePoints 0
 
         Core.Subcollage _ back ->
             --NOTE: We ignore the foreground and only calculate the distances of the background
-            --NOTE: We have to handle the rotation before returning!
+            --NOTE: We have to handle the rotation, this is done by `distances`
             distances back
                 |> unpack
-                |> handlePoints rotation 0
+                |> handlePoints 0
 
 
-handlePoints : Float -> Float -> List Point -> Distances
-handlePoints rotation thickness points =
+handlePoints : Float -> List Point -> List Point
+handlePoints thickness =
     let
-        ( xs, ys ) =
-            points
-                |> List.map (thicken >> rotate)
-                |> List.unzip
-
-        rotate ( x, y ) =
-            let
-                c =
-                    cos rotation
-
-                s =
-                    sin rotation
-            in
-            ( c * x - s * y, s * x + c * y )
-
         thicken ( x, y ) =
             let
                 t =
@@ -370,19 +359,11 @@ handlePoints rotation thickness points =
                 y + t
             )
     in
-    { up =
-        List.maximum ys ? 0
-    , down =
-        -(List.minimum ys ? 0)
-    , right =
-        List.maximum xs ? 0
-    , left =
-        -(List.minimum xs ? 0)
-    }
+    List.map thicken
 
 
-handleRectangle : Float -> Float -> ( Float, Float ) -> Distances
-handleRectangle rotation thickness ( width, height ) =
+handleBox : Float -> ( Float, Float ) -> List Point
+handleBox thickness ( width, height ) =
     let
         x =
             width / 2
@@ -390,51 +371,12 @@ handleRectangle rotation thickness ( width, height ) =
         y =
             height / 2
     in
-    handlePoints rotation
-        thickness
+    handlePoints thickness
         [ ( -x, -y )
         , ( x, -y )
         , ( x, y )
         , ( -x, y )
         ]
-
-
-handleCircle : Float -> Float -> Distances
-handleCircle thickness radius =
-    let
-        r =
-            radius + thickness / 2
-    in
-    { up = r
-    , down = r
-    , right = r
-    , left = r
-    }
-
-
-handleEllipse : Float -> Float -> ( Float, Float ) -> Distances
-handleEllipse rotation thickness ( major, minor ) =
-    let
-        t =
-            thickness / 2
-
-        rx =
-            major + t
-
-        ry =
-            minor + t
-
-        x =
-            sqrt (rx ^ 2 * cos rotation ^ 2 + ry ^ 2 * sin rotation ^ 2)
-
-        y =
-            sqrt (rx ^ 2 * sin rotation ^ 2 + ry ^ 2 * cos rotation ^ 2)
-    in
-    { up = y
-    , down = y
-    , right = x
-    , left = x
-    }
 
 
 

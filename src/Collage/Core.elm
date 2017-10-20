@@ -6,6 +6,7 @@ module Collage.Core
         , Path(..)
         , Shape(..)
         , Text(..)
+        , apply
         , collage
         )
 
@@ -29,12 +30,12 @@ type alias Point =
 -- Collage ---------------------------------------------------------------------
 
 
-type alias Transformation r =
-    { r | shift : Point, rotation : Float, scale : ( Float, Float ) }
+type alias Transform r =
+    { r | shift : ( Float, Float ), scale : ( Float, Float ), rotation : Float }
 
 
 type alias Collage fill line text msg =
-    Transformation
+    Transform
         { opacity : Float
         , handlers : List ( String, Json.Decoder msg )
         , basic : BasicCollage fill line text msg
@@ -54,12 +55,40 @@ type BasicCollage fill line text msg
 collage : BasicCollage fill line text msg -> Collage fill line text msg
 collage basic =
     { shift = ( 0, 0 )
-    , rotation = 0
     , scale = ( 1, 1 )
+    , rotation = 0
     , opacity = 1
     , handlers = []
     , basic = basic
     }
+
+
+apply : Transform r -> Point -> Point
+apply { shift, scale, rotation } =
+    let
+        ( dx, dy ) =
+            shift
+
+        ( sx, sy ) =
+            scale
+
+        shifted ( x, y ) =
+            ( x + dx, y + dy )
+
+        scaled ( x, y ) =
+            ( sx * x, sy * y )
+
+        rotated ( x, y ) =
+            let
+                c =
+                    cos rotation
+
+                s =
+                    sin rotation
+            in
+            ( c * x - s * y, s * x + c * y )
+    in
+    shifted << scaled << rotated
 
 
 

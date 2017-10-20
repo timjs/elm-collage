@@ -108,13 +108,10 @@ render collage =
 
                 Core.Rectangle w h r ->
                     Svg.rect
-                        ([ Svg.width <| toString w
-                         , Svg.height <| toString h
-                         , Svg.x <| toString (-w / 2)
-                         , Svg.y <| toString (-h / 2)
-                         , Svg.rx <| toString r
+                        ([ Svg.rx <| toString r
                          , Svg.ry <| toString r
                          ]
+                            ++ box w h
                             ++ attrs collage
                             ++ events collage
                         )
@@ -128,37 +125,18 @@ render collage =
             Svg.text_ (attrs collage ++ events collage)
                 [ Svg.text str ]
 
-        Core.Image ( width, height ) url ->
+        Core.Image ( w, h ) url ->
             Svg.image
-                ([ Svg.width <| toString width
-                 , Svg.height <| toString height
-                 , Svg.xlinkHref url
-                 ]
+                (Svg.xlinkHref url
+                    :: box w h
                     ++ attrs collage
                     ++ events collage
                 )
                 []
 
-        Core.Html ( width, height ) html ->
-            let
-                x =
-                    toString <| -(width / 2)
-
-                y =
-                    toString <| -(height / 2)
-
-                w =
-                    toString width
-
-                h =
-                    toString height
-            in
+        Core.Html ( w, h ) html ->
             Svg.foreignObject
-                ([ Svg.width w
-                 , Svg.height h
-                 , Svg.x x
-                 , Svg.y y
-                 ]
+                (box w h
                     ++ attrs collage
                     ++ events collage
                 )
@@ -172,6 +150,15 @@ render collage =
         Core.Subcollage fore back ->
             --NOTE: Rendering a subcollage is the same as rendering a group, only layout calculations in `Collage.Layout` differ.
             render { collage | basic = Core.Group [ fore, back ] }
+
+
+box : Float -> Float -> List (Attribute msg)
+box w h =
+    [ Svg.width <| toString w
+    , Svg.height <| toString h
+    , Svg.x <| toString (-w / 2)
+    , Svg.y <| toString (-h / 2)
+    ]
 
 
 events : Collage msg -> List (Attribute msg)

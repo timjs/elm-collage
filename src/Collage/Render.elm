@@ -171,12 +171,12 @@ attrs collage =
     case collage.basic of
         Core.Path line _ ->
             [ Svg.stroke <| decodeFill line.fill
-            , Svg.strokeOpacity <| decodeFillAlpha line.fill
+            , Svg.strokeOpacity <| decodeFillOpacity line.fill
             , Svg.strokeWidth <| toString line.thickness
             , Svg.strokeLinecap <| decodeCap line.cap
             , Svg.strokeLinejoin <| decodeJoin line.join
             , Svg.fill <| "none"
-            , Svg.opacity <| toString collage.alpha
+            , Svg.opacity <| toString collage.opacity
             , Svg.transform <| evalTransform collage
             , Svg.strokeDashoffset <| toString line.dashPhase
             , Svg.strokeDasharray <| decodeDashing line.dashPattern
@@ -184,13 +184,13 @@ attrs collage =
 
         Core.Shape ( fill, line ) _ ->
             [ Svg.fill <| decodeFill fill
-            , Svg.fillOpacity <| decodeFillAlpha fill
+            , Svg.fillOpacity <| decodeFillOpacity fill
             , Svg.stroke <| decodeFill line.fill
-            , Svg.strokeOpacity <| decodeFillAlpha line.fill
+            , Svg.strokeOpacity <| decodeFillOpacity line.fill
             , Svg.strokeWidth <| toString line.thickness
             , Svg.strokeLinecap <| decodeCap line.cap
             , Svg.strokeLinejoin <| decodeJoin line.join
-            , Svg.opacity <| toString collage.alpha
+            , Svg.opacity <| toString collage.opacity
             , Svg.transform <| evalTransform collage
             , Svg.strokeDashoffset <| toString line.dashPhase
             , Svg.strokeDasharray <| decodeDashing line.dashPattern
@@ -310,14 +310,14 @@ decodePoints ps =
 evalTransform : Collage msg -> String
 evalTransform collage =
     let
-        x =
-            toString <| Tuple.first collage.origin
+        dx =
+            toString <| Tuple.first collage.shift
 
-        y =
-            toString <| -(Tuple.second collage.origin)
+        dy =
+            toString <| -(Tuple.second collage.shift)
 
-        theta =
-            toString <| -collage.theta / 2 / pi * 360
+        rotation =
+            toString <| -collage.rotation / 2 / pi * 360
 
         sx =
             toString <| Tuple.first collage.scale
@@ -326,7 +326,7 @@ evalTransform collage =
             toString <| Tuple.second collage.scale
     in
     String.concat
-        [ "translate(", x, ",", y, ") rotate(", theta, ") scale(", sx, ",", sy, ")" ]
+        [ "translate(", dx, ",", dy, ") rotate(", rotation, ") scale(", sx, ",", sy, ")" ]
 
 
 decodeFill : Core.FillStyle -> String
@@ -339,11 +339,11 @@ decodeFill fs =
             "none"
 
 
-decodeFillAlpha : Core.FillStyle -> String
-decodeFillAlpha fs =
+decodeFillOpacity : Core.FillStyle -> String
+decodeFillOpacity fs =
     case fs of
         Core.Uniform c ->
-            decodeAlpha c
+            decodeOpacity c
 
         Core.Transparent ->
             "0"
@@ -367,8 +367,8 @@ decodeColor c =
     String.concat [ "rgb(", r, ",", g, ",", b, ")" ]
 
 
-decodeAlpha : Color -> String
-decodeAlpha c =
+decodeOpacity : Color -> String
+decodeOpacity c =
     let
         { alpha } =
             Color.toRgb c

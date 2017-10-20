@@ -263,48 +263,48 @@ distances : Collage msg -> Distances
 distances collage =
     let
         dist =
-            handleBasic collage.theta collage.basic
+            handleBasic collage.rotation collage.basic
 
-        ( tx, ty ) =
-            collage.origin
+        ( dx, dy ) =
+            collage.shift
 
         ( sx, sy ) =
             collage.scale
     in
     { up =
-        sy * max 0 (dist.up + ty)
+        sy * max 0 (dist.up + dy)
     , down =
-        sy * max 0 (dist.down - ty)
+        sy * max 0 (dist.down - dy)
     , right =
-        sx * max 0 (dist.right + tx)
+        sx * max 0 (dist.right + dx)
     , left =
-        sx * max 0 (dist.left - tx)
+        sx * max 0 (dist.left - dx)
     }
 
 
 handleBasic : Float -> BasicCollage msg -> Distances
-handleBasic theta basic =
+handleBasic rotation basic =
     case basic of
         -- Shapes --
         Core.Shape ( _, { thickness } ) (Core.Circle r) ->
             handleCircle thickness r
 
         Core.Shape ( _, { thickness } ) (Core.Ellipse rx ry) ->
-            handleEllipse theta thickness ( rx, ry )
+            handleEllipse rotation thickness ( rx, ry )
 
         Core.Shape ( _, { thickness } ) (Core.Rectangle w h _) ->
-            handleRectangle theta thickness ( w, h )
+            handleRectangle rotation thickness ( w, h )
 
         Core.Shape ( _, { thickness } ) (Core.Polygon ps) ->
-            handlePoints theta thickness ps
+            handlePoints rotation thickness ps
 
         Core.Shape ( _, line ) (Core.Loop path) ->
             --NOTE: Use the same calculations as for paths
-            handleBasic theta (Core.Path line path)
+            handleBasic rotation (Core.Path line path)
 
         -- Paths --
         Core.Path { thickness, cap } (Core.Polyline ps) ->
-            handlePoints theta
+            handlePoints rotation
                 (if cap == Flat then
                     0
                  else
@@ -314,31 +314,31 @@ handleBasic theta basic =
 
         -- Boxes --
         Core.Text dims _ ->
-            handleRectangle theta 0 dims
+            handleRectangle rotation 0 dims
 
         Core.Image dims _ ->
-            handleRectangle theta 0 dims
+            handleRectangle rotation 0 dims
 
         Core.Html dims _ ->
-            handleRectangle theta 0 dims
+            handleRectangle rotation 0 dims
 
         -- Groups --
         Core.Group collages ->
             collages
                 |> List.map (distances >> unpack)
                 |> List.concat
-                |> handlePoints theta 0
+                |> handlePoints rotation 0
 
         Core.Subcollage _ back ->
             --NOTE: We ignore the foreground and only calculate the distances of the background
             --NOTE: We have to handle the rotation before returning!
             distances back
                 |> unpack
-                |> handlePoints theta 0
+                |> handlePoints rotation 0
 
 
 handlePoints : Float -> Float -> List Point -> Distances
-handlePoints theta thickness points =
+handlePoints rotation thickness points =
     let
         ( xs, ys ) =
             points
@@ -348,10 +348,10 @@ handlePoints theta thickness points =
         rotate ( x, y ) =
             let
                 c =
-                    cos theta
+                    cos rotation
 
                 s =
-                    sin theta
+                    sin rotation
             in
             ( c * x - s * y, s * x + c * y )
 
@@ -382,7 +382,7 @@ handlePoints theta thickness points =
 
 
 handleRectangle : Float -> Float -> ( Float, Float ) -> Distances
-handleRectangle theta thickness ( width, height ) =
+handleRectangle rotation thickness ( width, height ) =
     let
         x =
             width / 2
@@ -390,7 +390,7 @@ handleRectangle theta thickness ( width, height ) =
         y =
             height / 2
     in
-    handlePoints theta
+    handlePoints rotation
         thickness
         [ ( -x, -y )
         , ( x, -y )
@@ -413,7 +413,7 @@ handleCircle thickness radius =
 
 
 handleEllipse : Float -> Float -> ( Float, Float ) -> Distances
-handleEllipse theta thickness ( major, minor ) =
+handleEllipse rotation thickness ( major, minor ) =
     let
         t =
             thickness / 2
@@ -425,10 +425,10 @@ handleEllipse theta thickness ( major, minor ) =
             minor + t
 
         x =
-            sqrt (rx ^ 2 * cos theta ^ 2 + ry ^ 2 * sin theta ^ 2)
+            sqrt (rx ^ 2 * cos rotation ^ 2 + ry ^ 2 * sin rotation ^ 2)
 
         y =
-            sqrt (rx ^ 2 * sin theta ^ 2 + ry ^ 2 * cos theta ^ 2)
+            sqrt (rx ^ 2 * sin rotation ^ 2 + ry ^ 2 * cos rotation ^ 2)
     in
     { up = y
     , down = y

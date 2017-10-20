@@ -29,14 +29,16 @@ type alias Point =
 -- Collage ---------------------------------------------------------------------
 
 
+type alias Transformation r =
+    { r | shift : Point, rotation : Float, scale : ( Float, Float ) }
+
+
 type alias Collage fill line text msg =
-    { origin : Point
-    , theta : Float
-    , scale : ( Float, Float )
-    , alpha : Float
-    , handlers : List ( String, Json.Decoder msg )
-    , basic : BasicCollage fill line text msg
-    }
+    Transformation
+        { opacity : Float
+        , handlers : List ( String, Json.Decoder msg )
+        , basic : BasicCollage fill line text msg
+        }
 
 
 type BasicCollage fill line text msg
@@ -51,10 +53,10 @@ type BasicCollage fill line text msg
 
 collage : BasicCollage fill line text msg -> Collage fill line text msg
 collage basic =
-    { origin = ( 0, 0 )
-    , theta = 0
+    { shift = ( 0, 0 )
+    , rotation = 0
     , scale = ( 1, 1 )
-    , alpha = 1
+    , opacity = 1
     , handlers = []
     , basic = basic
     }

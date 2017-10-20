@@ -349,9 +349,9 @@ shift : ( Float, Float ) -> Collage msg -> Collage msg
 shift ( dx, dy ) collage =
     let
         ( x, y ) =
-            collage.origin
+            collage.shift
     in
-    { collage | origin = ( x + dx, y + dy ) }
+    { collage | shift = ( x + dx, y + dy ) }
 
 
 {-| Scale a collage by a given factor.
@@ -406,7 +406,7 @@ So to turn `collage` 30&deg; to the left you would say:
 -}
 rotate : Float -> Collage msg -> Collage msg
 rotate t collage =
-    { collage | theta = collage.theta + t }
+    { collage | rotation = collage.rotation + t }
 
 
 {-| Set the opacity of a collage.
@@ -416,7 +416,7 @@ The default is 1, and 0 is totally transparent.
 -}
 opacity : Float -> Collage msg -> Collage msg
 opacity a collage =
-    { collage | alpha = a }
+    { collage | opacity = a }
 
 
 

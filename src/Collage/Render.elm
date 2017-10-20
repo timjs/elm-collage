@@ -122,7 +122,8 @@ render collage =
                     render { collage | basic = Core.Path line path }
 
         Core.Text _ (Core.Chunk style str) ->
-            Svg.text_ (attrs collage ++ events collage)
+            Svg.text_
+                (attrs collage ++ events collage)
                 [ Svg.text str ]
 
         Core.Image ( w, h ) url ->

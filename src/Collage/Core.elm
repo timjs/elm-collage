@@ -48,6 +48,7 @@ type BasicCollage fill line text msg
     | Text ( Float, Float ) (Text text)
     | Image ( Float, Float ) String
     | Html ( Float, Float ) (Html msg)
+      --FIXME: Implement grouping as fold over stacking?
     | Group (List (Collage fill line text msg))
     | Subcollage (Collage fill line text msg) (Collage fill line text msg)
 

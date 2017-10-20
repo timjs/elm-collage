@@ -326,7 +326,7 @@ decodeTransform collage =
             toString <| Tuple.second collage.scale
     in
     String.concat
-        [ "translate(", dx, ",", dy, ") rotate(", r, ") scale(", sx, ",", sy, ")" ]
+        [ "translate(", dx, ",", dy, ") scale(", sx, ",", sy, ") rotate(", r, ")" ]
 
 
 decodeFill : Core.FillStyle -> String

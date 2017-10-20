@@ -53,9 +53,15 @@ mark =
 collage : Collage msg
 collage =
     let
+        inner =
+            mark
+                |> shift (locate "circ" topRight circ ? ( 0, 0 ))
+
         background =
             vertical
                 [ circ
+                    |> debug
+                , inner
 
                 --NOTE: rect2 and rect3 have the same name, rect2 should be found first.
                 , horizontal [ rect1, rect2, rect3 ]

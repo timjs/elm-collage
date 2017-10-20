@@ -7,7 +7,7 @@ import Collage.Text as Text exposing (Shape(..), fromString)
 import Color exposing (..)
 import Html exposing (Html)
 import List exposing (head)
-import Maybe.Extra exposing ((?))
+import List.Extra as List
 
 
 (=>) : a -> b -> ( a, b )
@@ -193,13 +193,11 @@ render flow =
                         --NOTE: this is the length of a normal arrow
                         |> (+) unit
             in
-            ( prerendered
-            , prerendered
+            prerendered
                 |> List.map (finishing h)
                 |> List.intersperse space
                 |> horizontal
                 |> center
-            )
     in
     case flow of
         Finish ->
@@ -222,16 +220,25 @@ render flow =
 
         Choice condition left right ->
             let
-                leftBranch =
-                    render left
-                        |> name "leftBranch"
+                prerendered =
+                    [ left, right ]
+                        |> List.map render
 
-                rightBranch =
-                    render right
-                        |> name "rightBranch"
+                max =
+                    prerendered
+                        |> group
+                        |> height
+                        --NOTE: this is the length of a normal arrow
+                        |> (+) unit
 
                 inner =
-                    horizontal [ leftBranch, space, rightBranch ]
+                    prerendered
+                        |> List.map (addBottomLine max)
+                        |> List.zip [ "leftBranch", "rightBranch" ]
+                        |> List.map (\( n, b ) -> b |> name n)
+                        |> List.intersperse space
+                        |> horizontal
+                        |> center
             in
             vertical
                 [ arrow unit
@@ -244,7 +251,7 @@ render flow =
 
         Parallel flows ->
             let
-                ( _, inner ) =
+                inner =
                     branches addBottomArrow flows
 
                 length =

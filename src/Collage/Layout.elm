@@ -890,8 +890,8 @@ When a sub collage could not be found,
 we display a message on the console for convenience.
 
 -}
-locate_ : String -> Anchor msg -> Collage msg -> Maybe Point
-locate_ string anchor this =
+locate : String -> Anchor msg -> Collage msg -> Maybe Point
+locate string anchor this =
     let
         recurse collage =
             let
@@ -916,9 +916,6 @@ locate_ string anchor this =
 
                         _ ->
                             Nothing
-
-        visited =
-            Debug.log "Elm Collage: visited" string
     in
     case recurse this of
         Nothing ->
@@ -930,8 +927,8 @@ locate_ string anchor this =
 
 {-| Breadth-first search on collages
 -}
-locate : String -> Anchor msg -> Collage msg -> Maybe Point
-locate string anchor this =
+locate_ : String -> Anchor msg -> Collage msg -> Maybe Point
+locate_ string anchor this =
     let
         recurse queue =
             case queue of

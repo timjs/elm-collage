@@ -13,7 +13,6 @@ module Collage.Core
         , foldl
         , foldr
         , foldrLazy
-        , invert
         , levels
         , search
         )
@@ -40,14 +39,14 @@ type alias Point =
 -- Collage ---------------------------------------------------------------------
 
 
-type alias Transformation r =
-    { r | shift : Point, theta : Float, scale : Float }
+type alias Transform r =
+    { r | shift : ( Float, Float ), scale : ( Float, Float ), rotation : Float }
 
 
 type alias Collage fill line text msg =
-    Transformation
-        { name : Maybe String
-        , alpha : Float
+    Transform
+        { opacity : Float
+        , name : Maybe String
         , handlers : List ( String, Json.Decoder msg )
         , basic : BasicCollage fill line text msg
         }
@@ -59,74 +58,71 @@ type BasicCollage fill line text msg
     | Text ( Float, Float ) (Text text)
     | Image ( Float, Float ) String
     | Html ( Float, Float ) (Html msg)
+      --FIXME: Implement grouping as fold over stacking?
     | Group (List (Collage fill line text msg))
     | Subcollage (Collage fill line text msg) (Collage fill line text msg)
 
 
 collage : BasicCollage fill line text msg -> Collage fill line text msg
 collage basic =
-    { name = Nothing
-    , shift = ( 0, 0 )
-    , theta = 0
-    , scale = 1
-    , alpha = 1
+    { shift = ( 0, 0 )
+    , scale = ( 1, 1 )
+    , rotation = 0
+    , opacity = 1
+    , name = Nothing
     , handlers = []
     , basic = basic
     }
 
 
-invert : Transformation r -> Transformation r
-invert ({ shift, theta, scale } as r) =
-    let
-        ( dx, dy ) =
-            shift
-    in
-    { r
-        | shift = ( -dx, -dy )
-        , theta = -theta
-        , scale = 1 / scale
-    }
-
-
-combine : Transformation r -> Transformation r -> Transformation r
-combine { shift, theta, scale } this =
+apply : Transform r -> Point -> Point
+apply { shift, scale, rotation } =
     let
         ( dx, dy ) =
             shift
 
-        ( x, y ) =
-            this.shift
-    in
-    { this
-        | shift = ( x + dx, y + dy )
-        , theta = this.theta + theta
-        , scale = this.scale * scale
-    }
-
-
-apply : Transformation r -> Point -> Point
-apply { shift, theta, scale } pt =
-    let
-        ( dx, dy ) =
-            shift
-
-        scaled ( x, y ) =
-            ( x * scale, y * scale )
+        ( sx, sy ) =
+            scale
 
         shifted ( x, y ) =
             ( x + dx, y + dy )
 
+        scaled ( x, y ) =
+            ( sx * x, sy * y )
+
         rotated ( x, y ) =
             let
                 c =
-                    cos theta
+                    cos rotation
 
                 s =
-                    sin theta
+                    sin rotation
             in
             ( c * x - s * y, s * x + c * y )
     in
-    pt |> rotated |> shifted |> scaled
+    shifted << scaled << rotated
+
+
+combine : Transform r -> Transform r -> Transform r
+combine { shift, scale, rotation } this =
+    let
+        ( dx, dy ) =
+            shift
+
+        ( fx, fy ) =
+            scale
+
+        ( x, y ) =
+            this.shift
+
+        ( sx, sy ) =
+            this.shift
+    in
+    { this
+        | shift = ( x + dx, y + dy )
+        , scale = ( sx * fx, sy * fy )
+        , rotation = this.rotation + rotation
+    }
 
 
 foldr : (Collage fill line text msg -> a -> a) -> a -> Collage fill line text msg -> a

@@ -40,6 +40,8 @@ module Collage
         , roundedRectangle
         , roundedSquare
         , scale
+        , scaleX
+        , scaleY
         , segment
         , semithick
         , shift
@@ -162,7 +164,7 @@ Ok, you get the grip!
 
 ## Transforming collages
 
-@docs shift, scale, rotate, opacity
+@docs shift, scale, scaleX, scaleY, rotate, opacity
 
 
 ## Grouping collages
@@ -359,7 +361,36 @@ Scaling by 2 doubles both dimensions and quadruples the area.
 -}
 scale : Float -> Collage msg -> Collage msg
 scale s collage =
-    { collage | scale = collage.scale * s }
+    scaleXY ( s, s ) collage
+
+
+{-| Scale a collage horizontally (in its local space) by a given factor.
+
+Scaling by 2 doubles the width and doubles the area.
+
+-}
+scaleX : Float -> Collage msg -> Collage msg
+scaleX s collage =
+    scaleXY ( s, 1 ) collage
+
+
+{-| Scale a collage vertically (in its local space) by a given factor.
+
+Scaling by 2 doubles the height and doubles the area.
+
+-}
+scaleY : Float -> Collage msg -> Collage msg
+scaleY s collage =
+    scaleXY ( 1, s ) collage
+
+
+scaleXY : ( Float, Float ) -> Collage msg -> Collage msg
+scaleXY ( sx, sy ) collage =
+    let
+        ( sx0, sy0 ) =
+            collage.scale
+    in
+    { collage | scale = ( sx0 * sx, sy0 * sy ) }
 
 
 {-| Rotate a collage by a given angle.
@@ -375,7 +406,7 @@ So to turn `collage` 30&deg; to the left you would say:
 -}
 rotate : Float -> Collage msg -> Collage msg
 rotate t collage =
-    { collage | theta = collage.theta + t }
+    { collage | rotation = collage.rotation + t }
 
 
 {-| Set the opacity of a collage.
@@ -385,7 +416,7 @@ The default is 1, and 0 is totally transparent.
 -}
 opacity : Float -> Collage msg -> Collage msg
 opacity a collage =
-    { collage | alpha = a }
+    { collage | opacity = a }
 
 
 
@@ -715,7 +746,7 @@ path =
 Here is a red zig-zag:
 
     path [( 0, 5 ), ( 5, 0 ), ( 5, 5 )]
-        |> traced (solid thin uniform red)
+        |> traced (solid thin (uniform red))
 
 Paths can only be traced.
 If you like to fill a path,
@@ -728,6 +759,14 @@ traced style path =
 
 
 {-| Close a path so that it also can be filled.
+
+**Note:**
+Does not draw a line from start to end point for you.
+If you really want this, you have two options:
+
+1.  Draw it yourself
+2.  Use a polygon
+
 -}
 close : Path -> Shape
 close =

@@ -1,6 +1,23 @@
 # Changelog
 
 
+## [1.4.0](https://github.com/timjs/elm-collage/compare/1.3.1...1.4.0) (2017-10-12)
+
+## Added
+
+  - Separate scaling in X and Y directions with `scaleX` and `scaleY` thanks to @danfishgold!
+
+## Changed
+
+  - Refactored workflow example to reuse more code
+
+## Fixed
+
+  - Fixed a bug with Svg rendering where paths automatically get filled with a uniform black color.
+    Paths default to have a transparent fill agian!
+  - Fixed some documentation and extra notes
+
+
 ## [1.3.1](https://github.com/timjs/elm-collage/compare/1.3.0...1.3.1) (2017-10-12)
 
 ### Fixed
@@ -83,6 +100,7 @@
 ## [1.0.2](https://github.com/timjs/elm-collage/compare/1.0.1...1.0.2) (2017-10-10)
 
 ### Added
+
   - More documentation
 
 

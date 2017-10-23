@@ -9,6 +9,12 @@ import Html exposing (Html)
 import List exposing (head)
 
 
+(=>) : a -> b -> ( a, b )
+(=>) =
+    (,)
+
+
+
 -- Data ------------------------------------------------------------------------
 
 
@@ -16,7 +22,7 @@ type Flow
     = Finish
     | Task String
     | Sequence Flow Flow
-    | Choice String (List Flow)
+    | Choice String Flow Flow
     | Parallel (List Flow)
 
 
@@ -25,15 +31,15 @@ example =
     Sequence
         (Sequence (Task "check diff")
             (Choice "diff is as whished"
-                [ Sequence
+                (Sequence
                     (Parallel
                         [ Task "prepare changelog"
                         , Task "bump version"
                         ]
                     )
                     (Task "publish")
-                , Task "work harder"
-                ]
+                )
+                (Task "work harder")
             )
         )
         Finish
@@ -57,7 +63,7 @@ thinline : LineStyle
 thinline =
     { defaultLineStyle
         | thickness = thin
-        , cap = Flat
+        , cap = Padded
     }
 
 
@@ -186,13 +192,11 @@ render flow =
                         --NOTE: this is the length of a normal arrow
                         |> (+) unit
             in
-            ( prerendered
-            , prerendered
+            prerendered
                 |> List.map (finishing h)
                 |> List.intersperse space
                 |> horizontal
                 |> center
-            )
     in
     case flow of
         Finish ->
@@ -213,39 +217,38 @@ render flow =
                 , render flow2
                 ]
 
-        Choice condition flows ->
+        Choice condition left right ->
             let
-                ( prerendered, rendered ) =
-                    branches addBottomLine flows
+                ( leftBranch, rightBranch ) =
+                    ( render left, render right )
 
-                leftMargin =
-                    (head prerendered ? empty |> width) / 2
-
-                rightMargin =
-                    (last prerendered ? empty |> width) / 2
+                maxHeight =
+                    max (height leftBranch) (height rightBranch) + unit
 
                 inner =
-                    rendered
-                        |> shift ( -rightMargin, 0 )
-
-                bar =
-                    line (width inner - leftMargin - rightMargin)
-                        |> traced thinline
+                    horizontal
+                        [ leftBranch
+                            |> addBottomLine maxHeight
+                            |> name "leftBranch"
+                        , space
+                        , rightBranch
+                            |> addBottomLine maxHeight
+                            |> name "rightBranch"
+                        ]
+                        |> shift ( -(width leftBranch / 2 + unit + width rightBranch / 2) / 2, 0 )
             in
             vertical
                 [ arrow unit
-                , vertical
-                    [ bar
-                    , inner
-                    , bar
-                    ]
+                , inner
+                    |> connect [ "leftBranch" => top, "rightBranch" => top ] thinline
+                    |> connect [ "leftBranch" => bottom, "rightBranch" => bottom ] thinline
                     |> at top (diamond condition)
                     |> at bottom (diamond "")
                 ]
 
         Parallel flows ->
             let
-                ( _, inner ) =
+                inner =
                     branches addBottomArrow flows
 
                 length =
@@ -278,11 +281,6 @@ last elems =
 
         x :: xs ->
             last xs
-
-
-(?) : Maybe a -> a -> a
-(?) =
-    flip Maybe.withDefault
 
 
 

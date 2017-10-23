@@ -13,7 +13,9 @@ import Collage.Layout as Layout
 import Collage.Text as Text exposing (Text)
 import Color exposing (Color)
 import Html exposing (Html)
+import Json.Decode as Json
 import List
+import Maybe.Extra exposing ((?))
 import String
 import Svg exposing (Attribute, Svg)
 import Svg.Attributes as Svg
@@ -67,14 +69,20 @@ svgAbsolute ( width, height ) collage =
 
 render : Collage msg -> Svg msg
 render collage =
+    let
+        name =
+            collage.name ? "_unnamed_"
+    in
     case collage.basic of
         Core.Path style path ->
             case path of
                 Core.Polyline ps ->
                     Svg.polyline
-                        ((Svg.points <| decodePoints ps)
-                            :: attrs collage
-                            ++ events collage
+                        ([ Svg.id name
+                         , Svg.points <| decodePoints ps
+                         ]
+                            ++ attrs collage
+                            ++ events collage.handlers
                         )
                         []
 
@@ -82,38 +90,44 @@ render collage =
             case shape of
                 Core.Polygon ps ->
                     Svg.polygon
-                        ((Svg.points <| decodePoints ps)
-                            :: attrs collage
-                            ++ events collage
+                        ([ Svg.id name
+                         , Svg.points <| decodePoints ps
+                         ]
+                            ++ attrs collage
+                            ++ events collage.handlers
                         )
                         []
 
                 Core.Circle r ->
                     Svg.circle
-                        ((Svg.r <| toString r)
-                            :: attrs collage
-                            ++ events collage
+                        ([ Svg.id name
+                         , Svg.r <| toString r
+                         ]
+                            ++ attrs collage
+                            ++ events collage.handlers
                         )
                         []
 
                 Core.Ellipse rx ry ->
                     Svg.ellipse
-                        ([ Svg.rx <| toString rx
+                        ([ Svg.id name
+                         , Svg.rx <| toString rx
                          , Svg.ry <| toString ry
                          ]
                             ++ attrs collage
-                            ++ events collage
+                            ++ events collage.handlers
                         )
                         []
 
                 Core.Rectangle w h r ->
                     Svg.rect
-                        ([ Svg.rx <| toString r
+                        ([ Svg.id name
+                         , Svg.rx <| toString r
                          , Svg.ry <| toString r
                          ]
                             ++ box w h
                             ++ attrs collage
-                            ++ events collage
+                            ++ events collage.handlers
                         )
                         []
 
@@ -123,29 +137,35 @@ render collage =
 
         Core.Text _ (Core.Chunk style str) ->
             Svg.text_
-                (attrs collage ++ events collage)
+                ([ Svg.id name ]
+                    ++ attrs collage
+                    ++ events collage.handlers
+                )
                 [ Svg.text str ]
 
         Core.Image ( w, h ) url ->
             Svg.image
-                (Svg.xlinkHref url
-                    :: box w h
+                ([ Svg.id name
+                 , Svg.xlinkHref url
+                 ]
+                    ++ box w h
                     ++ attrs collage
-                    ++ events collage
+                    ++ events collage.handlers
                 )
                 []
 
         Core.Html ( w, h ) html ->
             Svg.foreignObject
-                (box w h
+                ([ Svg.id name ]
+                    ++ box w h
                     ++ attrs collage
-                    ++ events collage
+                    ++ events collage.handlers
                 )
                 [ html ]
 
         Core.Group collages ->
-            --NOTE: Order of collages is reversed here!
-            Svg.g (attrs collage ++ events collage) <|
+            --NOTE: Order of collages is reversed here! Svg renders group elements from back to front.
+            Svg.g (Svg.id name :: attrs collage ++ events collage.handlers) <|
                 List.foldl (\col res -> render col :: res) [] collages
 
         Core.Subcollage fore back ->
@@ -162,8 +182,8 @@ box w h =
     ]
 
 
-events : Collage msg -> List (Attribute msg)
-events { handlers } =
+events : List ( String, Json.Decoder msg ) -> List (Attribute msg)
+events handlers =
     List.map (uncurry Svg.on) handlers
 
 
@@ -274,7 +294,8 @@ attrs collage =
             ]
 
         _ ->
-            [ Svg.transform <| decodeTransform collage ]
+            [ Svg.transform <| decodeTransform collage
+            ]
 
 
 decodeCap : Collage.LineCap -> String

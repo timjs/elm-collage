@@ -8,6 +8,13 @@ module Collage.Core
         , Text(..)
         , apply
         , collage
+        , combine
+        , find
+        , foldl
+        , foldr
+        , foldrLazy
+        , levels
+        , search
         )
 
 {-| This module contains internal types used accross multiple modules in this packages.
@@ -15,8 +22,10 @@ Constructors are however not exposed to the user.
 -}
 
 import Color exposing (Color)
+import Helpers
 import Html exposing (Html)
 import Json.Decode as Json
+import Maybe.Extra as Maybe
 
 
 -- Point -----------------------------------------------------------------------
@@ -37,6 +46,7 @@ type alias Transform r =
 type alias Collage fill line text msg =
     Transform
         { opacity : Float
+        , name : Maybe String
         , handlers : List ( String, Json.Decoder msg )
         , basic : BasicCollage fill line text msg
         }
@@ -59,6 +69,7 @@ collage basic =
     , scale = ( 1, 1 )
     , rotation = 0
     , opacity = 1
+    , name = Nothing
     , handlers = []
     , basic = basic
     }
@@ -90,6 +101,159 @@ apply { shift, scale, rotation } =
             ( c * x - s * y, s * x + c * y )
     in
     shifted << scaled << rotated
+
+
+combine : Transform r -> Transform r -> Transform r
+combine { shift, scale, rotation } this =
+    let
+        ( dx, dy ) =
+            shift
+
+        ( fx, fy ) =
+            scale
+
+        ( x, y ) =
+            this.shift
+
+        ( sx, sy ) =
+            this.shift
+    in
+    { this
+        | shift = ( x + dx, y + dy )
+        , scale = ( sx * fx, sy * fy )
+        , rotation = this.rotation + rotation
+    }
+
+
+foldr : (Collage fill line text msg -> a -> a) -> a -> Collage fill line text msg -> a
+foldr f acc collage =
+    let
+        foldrOf =
+            List.foldr (\collage acc -> foldr f acc collage) acc
+
+        recurse =
+            case collage.basic of
+                Group collages ->
+                    foldrOf collages
+
+                Subcollage fore back ->
+                    foldrOf [ fore, back ]
+
+                _ ->
+                    acc
+    in
+    f collage recurse
+
+
+foldrLazy : (Collage fill line text msg -> (() -> a) -> a) -> a -> Collage fill line text msg -> a
+foldrLazy f acc collage =
+    let
+        foldrOf =
+            Helpers.foldrLazy (\collage acc -> foldrLazy f (acc ()) collage) acc
+
+        recurse () =
+            case collage.basic of
+                Group collages ->
+                    foldrOf collages
+
+                Subcollage fore back ->
+                    foldrOf [ fore, back ]
+
+                _ ->
+                    acc
+    in
+    f collage recurse
+
+
+foldl : (Collage fill line text msg -> a -> a) -> a -> Collage fill line text msg -> a
+foldl f acc collage =
+    let
+        foldlOf acc =
+            List.foldl (\collage acc -> foldl f acc collage) acc
+
+        recurse acc =
+            case collage.basic of
+                Group collages ->
+                    foldlOf acc collages
+
+                Subcollage fore back ->
+                    foldlOf acc [ fore, back ]
+
+                _ ->
+                    acc
+    in
+    recurse <| f collage acc
+
+
+{-| Lazy depth-first search using `foldr`
+-}
+find : (Collage fill line text msg -> Bool) -> Collage fill line text msg -> Maybe (Collage fill line text msg)
+find p =
+    --NOTE: Could be defined generically on types having `foldr`.
+    let
+        f x =
+            if p x then
+                Just x
+            else
+                Nothing
+    in
+    foldrLazy (Maybe.orLazy << f) Nothing
+
+
+levels : Collage fill line text msg -> List (Collage fill line text msg)
+levels collage =
+    let
+        recurse result queue =
+            --NOTE: This function is tail recursive :-)
+            case queue of
+                [] ->
+                    List.reverse result
+
+                collage :: rest ->
+                    case collage.basic of
+                        Group collages ->
+                            --NOTE: First recurse on the rest of the queue, then go for the group contents
+                            recurse result (rest ++ collages)
+
+                        Subcollage fore back ->
+                            recurse result (rest ++ [ fore, back ])
+
+                        _ ->
+                            --NOTE: We only add non-groups to the result
+                            recurse (collage :: result) rest
+    in
+    --NOTE: Start with the empty queue as the result and the current collage in the queue
+    recurse [] [ collage ]
+
+
+{-| Breadth-first search on collages
+-}
+search : (Collage fill line text msg -> Bool) -> Collage fill line text msg -> Maybe (Collage fill line text msg)
+search pred collage =
+    let
+        recurse queue =
+            case queue of
+                [] ->
+                    Nothing
+
+                collage :: rest ->
+                    if pred collage then
+                        --NOTE: We found it!
+                        Just collage
+                    else
+                        --NOTE: We go on with our search
+                        case collage.basic of
+                            Group collages ->
+                                --NOTE: First recurse on the rest of the queue, then go for the group contents
+                                recurse (rest ++ collages)
+
+                            Subcollage fore back ->
+                                recurse (rest ++ [ fore, back ])
+
+                            _ ->
+                                recurse rest
+    in
+    recurse [ collage ]
 
 
 

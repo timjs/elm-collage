@@ -220,25 +220,23 @@ render flow =
 
         Choice condition left right ->
             let
-                prerendered =
-                    [ left, right ]
-                        |> List.map render
+                ( leftBranch, rightBranch ) =
+                    ( render left, render right )
 
-                max =
-                    prerendered
-                        |> group
-                        |> height
-                        --NOTE: this is the length of a normal arrow
-                        |> (+) unit
+                maxHeight =
+                    max (height leftBranch) (height rightBranch) + unit
 
                 inner =
-                    prerendered
-                        |> List.map (addBottomLine max)
-                        |> List.zip [ "leftBranch", "rightBranch" ]
-                        |> List.map (\( n, b ) -> b |> name n)
-                        |> List.intersperse space
-                        |> horizontal
-                        |> center
+                    horizontal
+                        [ leftBranch
+                            |> addBottomLine maxHeight
+                            |> name "leftBranch"
+                        , space
+                        , rightBranch
+                            |> addBottomLine maxHeight
+                            |> name "rightBranch"
+                        ]
+                        |> shift ( -(width leftBranch / 2 + unit + width rightBranch / 2) / 2, 0 )
             in
             vertical
                 [ arrow unit

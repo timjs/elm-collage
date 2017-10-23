@@ -1,7 +1,25 @@
 # Changelog
 
 
-## [1.4.0](https://github.com/timjs/elm-collage/compare/1.3.1...1.4.0) (2017-10-12)
+## [1.5.0](https://github.com/timjs/elm-collage/compare/1.4.0...1.5.0) (2017-10-23)
+
+### Added
+
+  - Now you can name parts of your collage and refere to them later!
+    - **This is very experimental!**
+    - Use `name` to name a collage
+    - Use `locate` to locate a point in a named part of a collage
+    - Use `connect` to connect points in named parts of a collage
+    - Use `names` to querry all used names in a collage
+
+## Changed
+
+  - Anchors now calculate a point relative to the internal origin of a given collage (this used to be the negated point)
+  - Some internal renames and algorithms to fold collage trees
+  - Simplify the Svg renderer
+  
+
+## [1.4.0](https://github.com/timjs/elm-collage/compare/1.3.1...1.4.0) (2017-10-19)
 
 ## Added
 

@@ -117,6 +117,14 @@ These two collages are invisible and only take up some space.
 
 # Naming
 
+**Warning!**
+
+  - This part of the library is **highly experimental**.
+    Your mileage may vary.
+  - Giving multiple names to the _same_ collage will overwrite the old one.
+  - The library _will not_ prevent you from using the same name twice for _different_ collages.
+    You are yourself responsible for not using duplicate names!
+
 @docs name, locate, connect, names
 
 
@@ -858,36 +866,23 @@ base collage =
 -- Naming ----------------------------------------------------------------------
 
 
-{-| Give a name to (a part of) a collage in order to locate it later on.
-
-**Warning!**
-
-  - Giving multiple names to the _same_ collage will overwrite the old one.
-  - The library _will not_ prevent you from using the same name twice for _different_ collages.
-    You are yourself responsible for not using duplicate names!
-
+{-| Give a name to (a part of) a collage in order to locate it after composition.
 -}
 name : String -> Collage msg -> Collage msg
 name string collage =
     { collage | name = Just string }
 
 
-{-| Locate a named part of a collage and calculate the coordinates using the given anchor.
+{-| Locate a named part of a collage and calculate the coordinates using the given anchor in the new coordinate system.
 
 First be sure to give a name to a sub collage using `name`,
-next you can retrieve the collage using this function.
+only after that you can retrieve the collage using this function.
 Well, you cannot retrieve the whole collage,
 but a point calculated _relative to its internal origin_ using an anchor.
 This point is then subjected to the samen transformations as all the groups above it.
 
-Locating is done in breadth first order:
-i.e. left-to-right in horizontal compositions,
-top-to-bottom in vertical compositions,
-or front-to-back in stacked compositions
-and after that going deeper down, descending into subcollages.
-
-When a sub collage could not be found,
-we display a message on the console for convenience.
+When a collage part could not be found,
+we display a message on the console for your convenience.
 
 -}
 locate : String -> Anchor msg -> Collage msg -> Maybe Point
@@ -926,6 +921,13 @@ locate string anchor this =
 
 
 {-| Breadth-first search on collages
+
+Locating is done in breadth first order:
+i.e. left-to-right in horizontal compositions,
+top-to-bottom in vertical compositions,
+or front-to-back in stacked compositions
+and after that going deeper down, descending into subcollages.
+
 -}
 locate_ : String -> Anchor msg -> Collage msg -> Maybe Point
 locate_ string anchor this =
@@ -986,10 +988,6 @@ names =
 
 For named parts that could not be found,
 the result will be _ignored_.
-
-**Warning!**
-This function is very experimental.
-Your mileage may vary.
 
 -}
 connect : List ( String, Anchor msg ) -> LineStyle -> Collage msg -> Collage msg

@@ -7,7 +7,6 @@ import Collage.Text as Text exposing (Shape(..), fromString)
 import Color exposing (..)
 import Html exposing (Html)
 import List exposing (head)
-import List.Extra as List
 
 
 (=>) : a -> b -> ( a, b )

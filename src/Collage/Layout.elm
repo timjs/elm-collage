@@ -62,6 +62,7 @@ You can regard this module as a simplified version of above libraries.
   - [Spacers](#spacers)
   - [Aligning](#aligning)
       - [Anchors](#anchors)
+  - [Naming](#naming)
   - [Debugging](#debugging)
 
 

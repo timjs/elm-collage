@@ -235,7 +235,7 @@ render flow =
                             |> addBottomLine maxHeight
                             |> name "rightBranch"
                         ]
-                        |> shift ( -(width leftBranch / 2 + unit + width rightBranch / 2) / 2, 0 )
+                        |> shift ( -(envelope Right leftBranch + unit + envelope Left rightBranch) / 2, 0 )
             in
             vertical
                 [ arrow unit
@@ -251,11 +251,8 @@ render flow =
                 inner =
                     branches addBottomArrow flows
 
-                length =
-                    width inner
-
                 bar =
-                    line (length + unit)
+                    line (width inner + unit)
                         |> traced thickline
             in
             vertical

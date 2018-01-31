@@ -45,6 +45,8 @@ module Collage
         , segment
         , semithick
         , shift
+        , shiftX
+        , shiftY
         , solid
         , square
         , styled
@@ -164,7 +166,7 @@ Ok, you get the grip!
 
 ## Transforming collages
 
-@docs shift, scale, scaleX, scaleY, rotate, opacity
+@docs shift, shiftX, shiftY, scale, scaleX, scaleY, rotate, opacity
 
 
 ## Grouping collages
@@ -352,6 +354,28 @@ shift ( dx, dy ) collage =
             collage.shift
     in
     { collage | shift = ( x + dx, y + dy ) }
+
+{-| Shift a collage by the given amount on the X axis within its local space.
+
+-}
+shiftX : Float -> Collage msg -> Collage msg
+shiftX dx collage =
+    let
+        ( x, y ) =
+            collage.shift
+    in
+    { collage | shift = ( x + dx, y ) }
+
+{-| Shift a collage by the given amount on the Y axis within its local space.
+
+-}
+shiftY : Float -> Collage msg -> Collage msg
+shiftY dy collage =
+    let
+        ( x, y ) =
+            collage.shift
+    in
+    { collage | shift = ( x, y + dy ) }
 
 
 {-| Scale a collage by a given factor.

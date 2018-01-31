@@ -1,9 +1,9 @@
-module Collage.Render exposing (svg, svgBox)
+module Collage.Render exposing (svg, svgBox, svgExplicit)
 
 {-| Technically, it should be possible to use different backends to render a collage,
 but we only provide a Svg backend here.
 
-@docs svg, svgBox
+@docs svg, svgBox, svgExplicit
 
 -}
 
@@ -46,6 +46,12 @@ svg collage =
     svgAbsolute ( Layout.width collage, Layout.height collage ) <|
         Layout.align Layout.topLeft collage
 
+{-| Take a collage and render it to Html using Svg
+explicitly specifying the HTML attributes of the element.
+-}
+svgExplicit : List (Attribute msg) -> Collage msg -> Html msg
+svgExplicit attributes collage =
+    Svg.svg attributes [ render collage ]
 
 svgAbsolute : ( Float, Float ) -> Collage msg -> Html msg
 svgAbsolute ( width, height ) collage =

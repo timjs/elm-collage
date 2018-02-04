@@ -1,6 +1,16 @@
 # Changelog
 
 
+## [1.6.0](https://github.com/timjs/elm-collage/compare/1.5.0...1.6.0) (2018-02-04)
+
+### Added
+
+  - You can now shift a collage in the x- or y- direction only by using `shiftX` or `shiftY`
+    (thanks to @nikita-volkov)
+  - You can pass explicit SVG attributes when rendering a collage by using `Collage.Render.svgExplicit`
+    (thanks to @nikita-volkov)
+
+
 ## [1.5.0](https://github.com/timjs/elm-collage/compare/1.4.0...1.5.0) (2017-10-23)
 
 ### Added
@@ -17,7 +27,7 @@
   - Anchors now calculate a point relative to the internal origin of a given collage (this used to be the negated point)
   - Some internal renames and algorithms to fold collage trees
   - Simplify the Svg renderer
-  
+
 
 ## [1.4.0](https://github.com/timjs/elm-collage/compare/1.3.1...1.4.0) (2017-10-19)
 

@@ -12,6 +12,13 @@ module Collage.Events
         , onMouseOver
         , onMouseUp
         , onMouseMove
+        , onPointerDown
+        , onPointerEnter
+        , onPointerLeave
+        , onPointerOut
+        , onPointerOver
+        , onPointerUp
+        , onPointerMove
         )
 
 {-| Use this module to make your graphics interactive.
@@ -38,8 +45,12 @@ where `drawing : { r | collage : Collage, id : Id }`
 
 # Mouse events
 
-@docs onClick, onDoubleClick, onMouseDown, onMouseUp, onMouseEnter, onMouseLeave, onMouseOver, onMouseOut
+@docs onClick, onDoubleClick, onMouseDown, onMouseUp, onMouseEnter, onMouseLeave, onMouseOver, onMouseOut, onMouseMove
 
+
+# Pointer events
+
+@docs onPointerDown, onPointerEnter, onPointerLeave, onPointerMove, onPointerOut, onPointerOver, onPointerUp
 
 # Focus events
 
@@ -156,3 +167,38 @@ onFocusIn =
 onFocusOut : msg -> Collage msg -> Collage msg
 onFocusOut =
     simpleOn "focusout"
+
+{-| -}
+onPointerMove : (Point -> msg) -> Collage msg -> Collage msg
+onPointerMove =
+    mouseOn "pointermove"
+
+{-| -}
+onPointerDown : (Point -> msg) -> Collage msg -> Collage msg
+onPointerDown =
+    mouseOn "pointerdown"
+
+{-| -}
+onPointerUp : (Point -> msg) -> Collage msg -> Collage msg
+onPointerUp =
+    mouseOn "pointerup"
+
+{-| -}
+onPointerEnter : (Point -> msg) -> Collage msg -> Collage msg
+onPointerEnter =
+    mouseOn "pointerenter"
+
+{-| -}
+onPointerLeave : (Point -> msg) -> Collage msg -> Collage msg
+onPointerLeave =
+    mouseOn "pointerleave"
+
+{-| -}
+onPointerOut : (Point -> msg) -> Collage msg -> Collage msg
+onPointerOut =
+    mouseOn "pointerout"
+
+{-| -}
+onPointerOver : (Point -> msg) -> Collage msg -> Collage msg
+onPointerOver =
+    mouseOn "pointerover"

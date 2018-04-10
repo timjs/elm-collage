@@ -11,6 +11,7 @@ module Collage.Events
         , onMouseOut
         , onMouseOver
         , onMouseUp
+        , onMouseMove
         )
 
 {-| Use this module to make your graphics interactive.

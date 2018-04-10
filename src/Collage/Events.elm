@@ -45,8 +45,12 @@ where `drawing : { r | collage : Collage, id : Id }`
 
 # Mouse events
 
-@docs onClick, onDoubleClick, onMouseDown, onMouseUp, onMouseEnter, onMouseLeave, onMouseOver, onMouseOut
+@docs onClick, onDoubleClick, onMouseDown, onMouseUp, onMouseEnter, onMouseLeave, onMouseOver, onMouseOut, onMouseMove
 
+
+# Pointer events
+
+@docs onPointerDown, onPointerEnter, onPointerLeave, onPointerMove, onPointerOut, onPointerOver, onPointerUp
 
 # Focus events
 

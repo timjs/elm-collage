@@ -1,11 +1,9 @@
 {
-    "version": "1.6.0",
+    "type": "package",
+    "name": "timjs/elm-collage",
     "summary": "Create interactive vector graphics and position them relative to each other",
-    "repository": "https://github.com/timjs/elm-collage.git",
     "license": "BSD-3-Clause",
-    "source-directories": [
-        "src"
-    ],
+    "version": "1.6.0",
     "exposed-modules": [
         "Collage",
         "Collage.Render",
@@ -13,13 +11,12 @@
         "Collage.Layout",
         "Collage.Text"
     ],
-    "native-modules": true,
+    "elm-version": "0.19.0 <= v < 0.20.0",
     "dependencies": {
-        "elm-community/list-extra": "6.1.0 <= v < 7.0.0",
-        "elm-community/maybe-extra": "4.0.0 <= v < 5.0.0",
         "elm-lang/core": "5.1.1 <= v < 6.0.0",
+        "elm-community/maybe-extra": "4.0.0 <= v < 5.0.0",
         "elm-lang/html": "2.0.0 <= v < 3.0.0",
         "elm-lang/svg": "2.0.0 <= v < 3.0.0"
     },
-    "elm-version": "0.18.0 <= v < 0.19.0"
+    "test-dependencies": {}
 }

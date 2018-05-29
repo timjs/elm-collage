@@ -274,6 +274,7 @@ import Color exposing (Color)
 import Html exposing (Html)
 
 
+
 -- Basics ----------------------------------------------------------------------
 
 
@@ -355,8 +356,8 @@ shift ( dx, dy ) collage =
     in
     { collage | shift = ( x + dx, y + dy ) }
 
-{-| Shift a collage by the given amount on the X axis within its local space.
 
+{-| Shift a collage by the given amount on the X axis within its local space.
 -}
 shiftX : Float -> Collage msg -> Collage msg
 shiftX dx collage =
@@ -366,8 +367,8 @@ shiftX dx collage =
     in
     { collage | shift = ( x + dx, y ) }
 
-{-| Shift a collage by the given amount on the Y axis within its local space.
 
+{-| Shift a collage by the given amount on the Y axis within its local space.
 -}
 shiftY : Float -> Collage msg -> Collage msg
 shiftY dy collage =

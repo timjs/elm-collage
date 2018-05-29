@@ -8,10 +8,10 @@ module Collage.Events
         , onMouseDown
         , onMouseEnter
         , onMouseLeave
+        , onMouseMove
         , onMouseOut
         , onMouseOver
         , onMouseUp
-        , onMouseMove
         )
 
 {-| Use this module to make your graphics interactive.
@@ -54,6 +54,7 @@ where `drawing : { r | collage : Collage, id : Id }`
 
 import Collage exposing (Collage, Point)
 import Json.Decode as Json exposing (field)
+
 
 
 -- Events ----------------------------------------------------------------------

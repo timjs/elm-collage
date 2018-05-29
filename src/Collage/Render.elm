@@ -46,12 +46,14 @@ svg collage =
     svgAbsolute ( Layout.width collage, Layout.height collage ) <|
         Layout.align Layout.topLeft collage
 
+
 {-| Take a collage and render it to Html using Svg
 explicitly specifying the HTML attributes of the element.
 -}
 svgExplicit : List (Attribute msg) -> Collage msg -> Html msg
 svgExplicit attributes collage =
     Svg.svg attributes [ render collage ]
+
 
 svgAbsolute : ( Float, Float ) -> Collage msg -> Html msg
 svgAbsolute ( width, height ) collage =
@@ -190,7 +192,7 @@ box w h =
 
 events : List ( String, Json.Decoder msg ) -> List (Attribute msg)
 events handlers =
-    List.map (uncurry Svg.on) handlers
+    List.map (\( a, b ) -> Svg.on a b) handlers
 
 
 attrs : Collage msg -> List (Attribute msg)

@@ -156,6 +156,7 @@ import Helpers
 import Maybe.Extra as Maybe exposing ((?))
 
 
+
 -- Directions ------------------------------------------------------------------
 
 
@@ -331,6 +332,7 @@ handleBasic basic =
             handlePoints
                 (if cap == Flat then
                     0
+
                  else
                     thickness
                 )
@@ -371,10 +373,12 @@ handlePoints thickness =
             in
             ( if x < 0 then
                 x - t
+
               else
                 x + t
             , if y < 0 then
                 y - t
+
               else
                 y + t
             )
@@ -901,6 +905,7 @@ locate string anchor this =
             in
             if match then
                 Just <| anchor collage
+
             else
                 Maybe.map (Core.apply collage) <|
                     case collage.basic of
@@ -949,6 +954,7 @@ locate_ string anchor this =
                     if match then
                         --NOTE: We found it!
                         Just <| anchor collage
+
                     else
                         --NOTE: We go on with our search and keep track of the transformations
                         case collage.basic of

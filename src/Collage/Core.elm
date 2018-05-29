@@ -28,6 +28,7 @@ import Json.Decode as Json
 import Maybe.Extra as Maybe
 
 
+
 -- Point -----------------------------------------------------------------------
 
 
@@ -194,6 +195,7 @@ find p =
         f x =
             if p x then
                 Just x
+
             else
                 Nothing
     in
@@ -240,6 +242,7 @@ search pred collage =
                     if pred collage then
                         --NOTE: We found it!
                         Just collage
+
                     else
                         --NOTE: We go on with our search
                         case collage.basic of

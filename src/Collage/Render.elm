@@ -15,7 +15,6 @@ import Color exposing (Color)
 import Html exposing (Html)
 import Json.Decode as Json
 import List
-import Maybe.Extra exposing ((?))
 import String
 import Svg exposing (Attribute, Svg)
 import Svg.Attributes as Svg
@@ -79,7 +78,7 @@ render : Collage msg -> Svg msg
 render collage =
     let
         name =
-            collage.name ? "_unnamed_"
+            collage.name |> withDefault "_unnamed_"
     in
     case collage.basic of
         Core.Path style path ->
@@ -192,7 +191,7 @@ box w h =
 
 events : List ( String, Json.Decoder msg ) -> List (Attribute msg)
 events handlers =
-    List.map (\( a, b ) -> Svg.on a b) handlers
+    List.map (uncurry Svg.on) handlers
 
 
 attrs : Collage msg -> List (Attribute msg)

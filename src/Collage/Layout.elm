@@ -153,7 +153,6 @@ import Collage.Super exposing (..)
 import Color
 import Dict exposing (Dict)
 import Helpers
-import Maybe.Extra as Maybe exposing ((?))
 
 
 
@@ -293,13 +292,13 @@ distances collage =
     in
     --FIXME: maybe not very efficent to do this here?
     { up =
-        List.maximum ys ? 0
+        List.maximum ys |> withDefault 0
     , down =
-        -(List.minimum ys ? 0)
+        -(List.minimum ys |> withDefault 0)
     , right =
-        List.maximum xs ? 0
+        List.maximum xs |> withDefault 0
     , left =
-        -(List.minimum xs ? 0)
+        -(List.minimum xs |> withDefault 0)
     }
 
 
@@ -896,7 +895,7 @@ locate string anchor this =
         recurse collage =
             let
                 match =
-                    Maybe.map ((==) string) collage.name ? False
+                    Maybe.map ((==) string) collage.name |> withDefault False
 
                 firstOf =
                     --NOTE: This saves us recursing down when we found what we're looking for!
@@ -946,7 +945,7 @@ locate_ string anchor this =
                 collage :: rest ->
                     let
                         match =
-                            Maybe.map ((==) string) collage.name ? False
+                            Maybe.map ((==) string) collage.name |> withDefault False
 
                         update =
                             List.map (Core.combine collage)

@@ -6,7 +6,7 @@ import Collage.Layout exposing (..)
 import Collage.Render exposing (svg)
 import Color exposing (..)
 import Html exposing (Html, text)
-import Maybe.Extra exposing ((?))
+
 
 
 -- Elements --------------------------------------------------------------------
@@ -53,9 +53,13 @@ mark =
 collage : Collage msg
 collage =
     let
+        pos =
+            locate "circ" topRight circ
+                |> withDefault ( 0, 0 )
+
         inner =
             mark
-                |> shift (locate "circ" topRight circ ? ( 0, 0 ))
+                |> shift pos
 
         background =
             --NOTE: rect2 and rect3 have the same name, rect2 should be found first.

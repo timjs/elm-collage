@@ -25,7 +25,6 @@ import Color exposing (Color)
 import Helpers
 import Html exposing (Html)
 import Json.Decode as Json
-import Maybe.Extra as Maybe
 
 
 
@@ -199,7 +198,7 @@ find p =
             else
                 Nothing
     in
-    foldrLazy (Maybe.orLazy << f) Nothing
+    foldrLazy (Helpers.orLazy << f) Nothing
 
 
 levels : Collage fill line text msg -> List (Collage fill line text msg)

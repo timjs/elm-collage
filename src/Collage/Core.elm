@@ -100,41 +100,40 @@ combine { shift, scale, rotation } this =
   }
 
 foldr : (Collage fill line text msg -> a -> a) -> a -> Collage fill line text msg -> a
-foldr f acc collage =
+foldr f acc col =
   let
-    foldrOf = List.foldr (\collage acc -> foldr f acc collage) acc
+    foldrOf = List.foldr (\c a -> foldr f a c) acc
     recurse =
-      case collage.basic of
-        Group collages -> foldrOf collages
+      case col.basic of
+        Group cols -> foldrOf cols
         Subcollage fore back -> foldrOf [ fore, back ]
         _ -> acc
   in
-  f collage recurse
+  f col recurse
 
 foldrLazy : (Collage fill line text msg -> (() -> a) -> a) -> a -> Collage fill line text msg -> a
-foldrLazy f acc collage =
+foldrLazy f acc col =
   let
-    foldrOf = Helpers.foldrLazy (\collage acc -> foldrLazy f (acc ()) collage) acc
+    foldrOf = Helpers.foldrLazy (\c a -> foldrLazy f (a ()) c) acc
     recurse () =
-      case collage.basic of
-        Group collages -> foldrOf collages
+      case col.basic of
+        Group cols -> foldrOf cols
         Subcollage fore back -> foldrOf [ fore, back ]
         _ -> acc
   in
-  f collage recurse
+  f col recurse
 
 foldl : (Collage fill line text msg -> a -> a) -> a -> Collage fill line text msg -> a
-foldl f acc collage =
+foldl f acc col =
   let
-    foldlOf acc =
-      List.foldl (\collage acc -> foldl f acc collage) acc
-    recurse acc =
-      case collage.basic of
-        Group collages -> foldlOf acc collages
-        Subcollage fore back -> foldlOf acc [ fore, back ]
-        _ -> acc
+    foldlOf = List.foldl (\c a -> foldl f a c)
+    recurse res =
+      case col.basic of
+        Group cols -> foldlOf res cols
+        Subcollage fore back -> foldlOf res [ fore, back ]
+        _ -> res
   in
-  recurse <| f collage acc
+  recurse <| f col acc
 
 {-| Lazy depth-first search using `foldr`
 -}
@@ -151,47 +150,47 @@ find p =
   foldrLazy (Helpers.orLazy << f) Nothing
 
 levels : Collage fill line text msg -> List (Collage fill line text msg)
-levels collage =
+levels col =
   let
     recurse result queue =
       --NOTE: This function is tail recursive :-)
       case queue of
         [] -> List.reverse result
-        collage :: rest ->
-          case collage.basic of
-            Group collages ->
+        this :: rest ->
+          case this.basic of
+            Group cols ->
               --NOTE: First recurse on the rest of the queue, then go for the group contents
-              recurse result (rest ++ collages)
+              recurse result (rest ++ cols)
             Subcollage fore back -> recurse result (rest ++ [ fore, back ])
             _ ->
               --NOTE: We only add non-groups to the result
-              recurse (collage :: result) rest
+              recurse (this :: result) rest
   in
   --NOTE: Start with the empty queue as the result and the current collage in the queue
-  recurse [] [ collage ]
+  recurse [] [ col ]
 
 {-| Breadth-first search on collages
 -}
 search : (Collage fill line text msg -> Bool) -> Collage fill line text msg -> Maybe (Collage fill line text msg)
-search pred collage =
+search pred col =
   let
     recurse queue =
       case queue of
         [] -> Nothing
-        collage :: rest ->
-          if pred collage then
+        this :: rest ->
+          if pred this then
             --NOTE: We found it!
-            Just collage
+            Just this
           else
             --NOTE: We go on with our search
-            case collage.basic of
-              Group collages ->
+            case this.basic of
+              Group cols ->
                 --NOTE: First recurse on the rest of the queue, then go for the group contents
-                recurse (rest ++ collages)
+                recurse (rest ++ cols)
               Subcollage fore back -> recurse (rest ++ [ fore, back ])
               _ -> recurse rest
   in
-  recurse [ collage ]
+  recurse [ col ]
 
 
 -- Shapes, Paths and Text ------------------------------------------------------

@@ -123,32 +123,33 @@ And of course they can be shifted, rotated, scaled, ...
 Ok, you get the grip!
 
 ### Summary
-  Shape      Path     Text      Image     Html
-  - polygon    - line     - fromString
-  - ngon     - segment            |       |
-  - triangle   - path     |         |       |
-  - rectangle           |         |       |
-  - square     |      |         |       |
-  - oval       |      |         |       |
-  - circle     |      |         |       |
-    |        |      |         |       |
-  filled     traced     rendered    image     html
-  outlined     |      |         |       |
-  styled       |      |         |       |
-    |        |      |         |       |
-    +––––––––––––––+––––––––––––+–––––––––––––––+–––––––––––+
-                  |
-                  |
-                  ˅
-                 Collage  ˂––+
-                       |
-                 - shift   |
-                 - scale   |
-                 - rotate  |
-                 - opacity   |
-                 - group   |
-                 |     |
-                 +–––––––––+
+
+Shape Path Text Image Html
+  - polygon - line - fromString
+  - ngon - segment | |
+  - triangle - path | | |
+  - rectangle | | |
+  - square | | | |
+  - oval | | | |
+  - circle | | | |
+  | | | | |
+  filled traced rendered image html
+  outlined | | | |
+  styled | | | |
+  | | | | |
+  +––––––––––––––+––––––––––––+–––––––––––––––+–––––––––––+
+  |
+  |
+  ˅
+  Collage ˂––+
+  |
+  - shift |
+  - scale |
+  - rotate |
+  - opacity |
+  - group |
+  | |
+  +–––––––––+
 
 # Basics
 
@@ -258,8 +259,8 @@ type alias Point =
 {-| Calculate the point at the opposite side of the origin.
 
 Simply negates the coordinates:
-  opposite ( x, y ) =
-    ( -x, -y )
+opposite ( x, y ) =
+( -x, -y )
 -}
 opposite : Point -> Point
 opposite ( x, y ) =
@@ -279,9 +280,9 @@ type alias Collage msg =
 
 {-| Take a list of collages and combine them into a single collage,
 which again can be shifted, rotated, scaled, etc.
-  group [drawing1, drawing2, drawing3]
-    |> scale 3
-    |> rotate (degrees 90)
+group [drawing1, drawing2, drawing3]
+|> scale 3
+|> rotate (degrees 90)
 -}
 group : List (Collage msg) -> Collage msg
 group =
@@ -297,8 +298,8 @@ group =
 
 This is a relative translation,
 so
-  collage
-    |> shift (5,10)
+collage
+|> shift (5,10)
 
 would shift `collage` five pixels to the right and ten pixels up.
 
@@ -368,8 +369,8 @@ Rotate takes standard Elm angles,
 which are **radians**,
 and turns things **counterclockwise**.
 So to turn `collage` 30&deg; to the left you would say:
-  collage
-    |> rotate (degrees 30)
+collage
+|> rotate (degrees 30)
 -}
 rotate : Float -> Collage msg -> Collage msg
 rotate t collage =
@@ -413,9 +414,9 @@ polygon =
 The first argument specifies the number of sides and the second is the radius.
 
 Some ngon's with radius 50:
-  ngon 3 50  -- triangle
-  ngon 5 50  -- pentagon
-  ngon 8 50  -- octogon
+ngon 3 50 -- triangle
+ngon 5 50 -- pentagon
+ngon 8 50 -- octogon
 -}
 ngon : Int -> Float -> Shape
 ngon n r =
@@ -456,7 +457,7 @@ rectangle w h =
 {-| A square of given size.
 
 Of course this is equal to using `rectangle` with the same width and height:
-  square size  ==  rectangle size size
+square size == rectangle size size
 -}
 square : Float -> Shape
 square size =
@@ -474,7 +475,7 @@ roundedRectangle =
 {-| A square with rounded corners.
 
 Of course this is equal to using `roundedRectangle` with the same width and height:
-  roundedSquare size  ==  roundedRectangle size size
+roundedSquare size == roundedRectangle size size
 -}
 roundedSquare : Float -> Float -> Shape
 roundedSquare size =
@@ -485,7 +486,7 @@ roundedSquare size =
   the function `oval` in the original library acts a little bit different.
   It draws an oval of given width and height,
   so
-    oval w h  ==  ellipse (w/2) (h/2)
+  oval w h == ellipse (w/2) (h/2)
 -}
 ellipse : Float -> Float -> Shape
 ellipse =
@@ -494,7 +495,7 @@ ellipse =
 {-| A circle of given radius.
 
 As with a square, using `circle` is the same as using `ellipse` with the same x and y radii:
-  circle radius  ==  ellipse radius radius
+circle radius == ellipse radius radius
 -}
 circle : Float -> Shape
 circle =
@@ -508,8 +509,8 @@ circle =
 The argument specifies the style of the fill.
 The **outline is left invisible**.
 To draw a red circle of radius 50 you say:
-  circle 50
-    |> filled (uniform red)
+circle 50
+|> filled (uniform red)
 
 See below for possible fill styles.
 -}
@@ -522,32 +523,32 @@ filled fill =
 The arguments specify the style of the outline.
 The **fill is left transparent**.
 To draw a square with edge length 30 with a thin black dashed outline you say:
-  square 30
-    |> outlined (dot thin (uniform black))
+square 30
+|> outlined (dot thin (uniform black))
 
 See below for the possible line styles.
 -}
 outlined : LineStyle -> Shape -> Collage msg
-outlined line =
-  styled ( transparent, line )
+outlined linestyle =
+  styled ( transparent, linestyle )
 
 {-| Adds a fill and an outline to a shape, turning it into a collage.
 
 The tuple argument contains a fill style and a line style.
 To draw a thick black outlined green triangle with base 30 you say:
-  triangle 30
-    |> styled
-      ( uniform green
-      , solid thick (uniform black)
-      )
+triangle 30
+|> styled
+( uniform green
+, solid thick (uniform black)
+)
 
 The tuple form helps in defining your own reusable styles.
 For example, if you want more of you shapes to have a thick black outline,
 you could rewrite above example to:
-  thickOutlinedAndFilled fillColor =
-    ( uniform fillColor, solid thick (uniform black) )
-  triangle 30
-    |> styled (thickOutlinedAndFilled green)
+thickOutlinedAndFilled fillColor =
+( uniform fillColor, solid thick (uniform black) )
+triangle 30
+|> styled (thickOutlinedAndFilled green)
 
 See below for all possible fill and line styles.
 -}
@@ -582,8 +583,8 @@ type alias Path =
 
 The origin of the line will be `(0,0)`.
 Here is a thick dotted yellow horizontal line of length 20:
-  line 20
-    |> traced (dot thick (uniform yellow))
+line 20
+|> traced (dot thick (uniform yellow))
 -}
 line : Float -> Path
 line l =
@@ -593,8 +594,8 @@ line l =
 Takes the start and end points of the segment as arguments.
 
 To draw a sloped blue line from (0,5) to (5,0) you say:
-  segment ( 0, 5 ) ( 5, 0 )
-    |> traced (uniform blue)
+segment ( 0, 5 ) ( 5, 0 )
+|> traced (uniform blue)
   - Note:
   If you like to automatically position lines,
   be sure the origin is at the right position.
@@ -616,42 +617,42 @@ path =
 
 -- Turning paths into collages -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -
 {-
-   Some possibilities for an API:
-    segment (0,0) (1,1)
-      -- let traced take a dash patter + thickness and a fill color:
-      |> traced (dash 2) (uniform red)
-      -- let traced take a style:
-      |> traced (dash 2 (uniform red))
-      -- use solid, dashed, dotted etc to turn something into a collage (Elm Render):
-      |> dashed 2 (uniform red)
-      -- ommit the thickness (Elm Graphics):
-      |> traced (dashed red)
-    rectangle 4 5
-      |> filled (uniform red)
-      OR
-      |> filled red
-    rectangle 4 5
-      -- when using a style, we can reuse the functions of tracing:
-      |> outlined (solid 1 (uniform red))
-      -- otherwise we need to create a type for dash patterns (solid 1):
-      |> outlined (solid 1) (uniform red)
-      -- just the dash pattern and a color (Elm Graphics):
-      |> outlined (solid red)
+  Some possibilities for an API:
+   segment (0,0) (1,1)
+   -- let traced take a dash patter + thickness and a fill color:
+   |> traced (dash 2) (uniform red)
+   -- let traced take a style:
+   |> traced (dash 2 (uniform red))
+   -- use solid, dashed, dotted etc to turn something into a collage (Elm Render):
+   |> dashed 2 (uniform red)
+   -- ommit the thickness (Elm Graphics):
+   |> traced (dashed red)
+   rectangle 4 5
+   |> filled (uniform red)
+   OR
+   |> filled red
+   rectangle 4 5
+   -- when using a style, we can reuse the functions of tracing:
+   |> outlined (solid 1 (uniform red))
+   -- otherwise we need to create a type for dash patterns (solid 1):
+   |> outlined (solid 1) (uniform red)
+   -- just the dash pattern and a color (Elm Graphics):
+   |> outlined (solid red)
 -}
 
 {-| Trace a path with a given line style.
 
 Here is a red zig-zag:
-  path [( 0, 5 ), ( 5, 0 ), ( 5, 5 )]
-    |> traced (solid thin (uniform red))
+path [( 0, 5 ), ( 5, 0 ), ( 5, 5 )]
+|> traced (solid thin (uniform red))
 
 Paths can only be traced.
 If you like to fill a path,
 you have to turn it into a shape by _closing_ it first.
 -}
 traced : LineStyle -> Path -> Collage msg
-traced style path =
-  Core.collage <| Core.Path style path
+traced linestyle p =
+  Core.collage <| Core.Path linestyle p
 
 {-| Close a path so that it also can be filled.
 
@@ -670,10 +671,10 @@ close =
 -- Text ------------------------------------------------------------------------
 
 {-| Render a chunk of styled text and turn it into a collage.
-  Text.fromString "Hello Collage!"
-    |> Text.shape Text.Italic
-    |> Text.size huge
-    |> rendered
+Text.fromString "Hello Collage!"
+|> Text.shape Text.Italic
+|> Text.size huge
+|> rendered
 
 See the Collage.Text module for all the possibilities to create and style text.
 -}
@@ -685,7 +686,7 @@ rendered text =
 -- Raw Content -----------------------------------------------------------------
 
 {-| Create an image given a width, height, and image source.
-  image 100 100 "elm-logo.jpg"
+image 100 100 "elm-logo.jpg"
 -}
 image : ( Float, Float ) -> String -> Collage msg
 image dims =
@@ -738,13 +739,13 @@ This lets you build up a line style however you want.
 You can also update existing line styles with record updates.
 
 To define a red, dashed line style with a thickness of 5px:
-  { color = rgb 255 20 20
-  , thickness = 5
-  , cap = Flat
-  , join = Sharp
-  , dashing = [8,4]
-  , dashOffset = 0
-  }
+{ color = rgb 255 20 20
+, thickness = 5
+, cap = Flat
+, join = Sharp
+, dashing = [8,4]
+, dashOffset = 0
+}
 -}
 type alias LineStyle =
   { fill : FillStyle
@@ -759,7 +760,7 @@ type alias LineStyle =
 
 You can use record updates to build the line style you want.
 For example, to make a thicker line, you could say:
-  { defaultLineStyle | width = verythick }
+{ defaultLineStyle | width = verythick }
 -}
 defaultLineStyle : LineStyle
 defaultLineStyle =
@@ -784,15 +785,15 @@ solid =
   broken []
 
 {-| A custom line defined by a list of `(on, off)` dash length:
-  broken [(10,5)]     -- a line that with dashes 10 long and spaces 5 long
-  broken [(10,5),(20,5)]  -- on for 10, off 5, on 20, off 5
+broken [(10,5)] -- a line that with dashes 10 long and spaces 5 long
+broken [(10,5),(20,5)] -- on for 10, off 5, on 20, off 5
 -}
 broken : List ( Int, Int ) -> Float -> FillStyle -> LineStyle
-broken dash thickness fill =
+broken dashes thickness fill =
   { defaultLineStyle
     | fill = fill
     , thickness = thickness
-    , dashPattern = dash
+    , dashPattern = dashes
   }
 
 {-| A dotted line type with the given thickness.

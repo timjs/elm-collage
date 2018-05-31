@@ -11,10 +11,12 @@ import Collage.Core as Core
 import Collage.Layout as Layout
 import Collage.Text as Text exposing (Text)
 import Color exposing (Color)
+import Helpers exposing (uncurry)
 import Html exposing (Html)
 import Json.Decode as Json
 import List
-import String
+import Maybe exposing (withDefault)
+import String exposing (fromFloat, fromInt)
 import Svg exposing (Attribute, Svg)
 import Svg.Attributes as Svg
 import Svg.Events as Svg
@@ -50,8 +52,8 @@ svgExplicit attributes collage =
 svgAbsolute : ( Float, Float ) -> Collage msg -> Html msg
 svgAbsolute ( width, height ) collage =
   let
-    w = toString width
-    h = toString height
+    w = fromFloat width
+    h = fromFloat height
   in
   Html.div
     []
@@ -94,7 +96,7 @@ render collage =
         Core.Circle r ->
           Svg.circle
             ([ Svg.id name
-             , Svg.r <| toString r
+             , Svg.r <| fromFloat r
              ]
               ++ attrs collage
               ++ events collage.handlers
@@ -103,8 +105,8 @@ render collage =
         Core.Ellipse rx ry ->
           Svg.ellipse
             ([ Svg.id name
-             , Svg.rx <| toString rx
-             , Svg.ry <| toString ry
+             , Svg.rx <| fromFloat rx
+             , Svg.ry <| fromFloat ry
              ]
               ++ attrs collage
               ++ events collage.handlers
@@ -113,8 +115,8 @@ render collage =
         Core.Rectangle w h r ->
           Svg.rect
             ([ Svg.id name
-             , Svg.rx <| toString r
-             , Svg.ry <| toString r
+             , Svg.rx <| fromFloat r
+             , Svg.ry <| fromFloat r
              ]
               ++ box w h
               ++ attrs collage
@@ -159,10 +161,10 @@ render collage =
 
 box : Float -> Float -> List (Attribute msg)
 box w h =
-  [ Svg.width <| toString w
-  , Svg.height <| toString h
-  , Svg.x <| toString (-w / 2)
-  , Svg.y <| toString (-h / 2)
+  [ Svg.width <| fromFloat w
+  , Svg.height <| fromFloat h
+  , Svg.x <| fromFloat (-w / 2)
+  , Svg.y <| fromFloat (-h / 2)
   ]
 
 events : List ( String, Json.Decoder msg ) -> List (Attribute msg)
@@ -174,25 +176,25 @@ attrs collage =
   case collage.basic of
     Core.Path line _ -> [ Svg.stroke <| decodeFill line.fill
       , Svg.strokeOpacity <| decodeFillOpacity line.fill
-      , Svg.strokeWidth <| toString line.thickness
+      , Svg.strokeWidth <| fromFloat line.thickness
       , Svg.strokeLinecap <| decodeCap line.cap
       , Svg.strokeLinejoin <| decodeJoin line.join
       , Svg.fill <| "none"
-      , Svg.opacity <| toString collage.opacity
+      , Svg.opacity <| fromFloat collage.opacity
       , Svg.transform <| decodeTransform collage
-      , Svg.strokeDashoffset <| toString line.dashPhase
+      , Svg.strokeDashoffset <| fromInt line.dashPhase
       , Svg.strokeDasharray <| decodeDashing line.dashPattern
       ]
     Core.Shape ( fill, line ) _ -> [ Svg.fill <| decodeFill fill
       , Svg.fillOpacity <| decodeFillOpacity fill
       , Svg.stroke <| decodeFill line.fill
       , Svg.strokeOpacity <| decodeFillOpacity line.fill
-      , Svg.strokeWidth <| toString line.thickness
+      , Svg.strokeWidth <| fromFloat line.thickness
       , Svg.strokeLinecap <| decodeCap line.cap
       , Svg.strokeLinejoin <| decodeJoin line.join
-      , Svg.opacity <| toString collage.opacity
+      , Svg.opacity <| fromFloat collage.opacity
       , Svg.transform <| decodeTransform collage
-      , Svg.strokeDashoffset <| toString line.dashPhase
+      , Svg.strokeDashoffset <| fromInt line.dashPhase
       , Svg.strokeDasharray <| decodeDashing line.dashPattern
       ]
     Core.Text _ (Core.Chunk style str) -> [ Svg.fill <| decodeFill (Core.Uniform style.color)
@@ -202,7 +204,7 @@ attrs collage =
           Text.Sansserif -> "sans-serif"
           Text.Monospace -> "monospace"
           Text.Font name -> name
-      , Svg.fontSize <| toString style.size
+      , Svg.fontSize <| fromInt style.size
       , Svg.fontWeight <|
         case style.weight of
           Text.Thin -> "200"
@@ -252,16 +254,16 @@ decodeJoin join =
 
 decodePoints : List Point -> String
 decodePoints ps =
-  ps |> List.map (\( x, y ) -> String.join "," [ toString x, toString -y ]) |> String.join " "
+  ps |> List.map (\( x, y ) -> String.join "," [ fromFloat x, fromFloat -y ]) |> String.join " "
 
 decodeTransform : Collage msg -> String
 decodeTransform collage =
   let
-    dx = toString <| Tuple.first collage.shift
-    dy = toString <| -(Tuple.second collage.shift)
-    r = toString <| -collage.rotation / 2 / pi * 360
-    sx = toString <| Tuple.first collage.scale
-    sy = toString <| Tuple.second collage.scale
+    dx = fromFloat <| Tuple.first collage.shift
+    dy = fromFloat <| -(Tuple.second collage.shift)
+    r = fromFloat <| -collage.rotation / 2 / pi * 360
+    sx = fromFloat <| Tuple.first collage.scale
+    sy = fromFloat <| Tuple.second collage.scale
   in
   String.concat
     [ "translate(", dx, ",", dy, ") scale(", sx, ",", sy, ") rotate(", r, ")" ]
@@ -282,9 +284,9 @@ decodeColor : Color -> String
 decodeColor c =
   let
     { red, green, blue } = Color.toRgb c
-    r = toString red
-    g = toString green
-    b = toString blue
+    r = fromInt red
+    g = fromInt green
+    b = fromInt blue
   in
   String.concat [ "rgb(", r, ",", g, ",", b, ")" ]
 
@@ -293,13 +295,13 @@ decodeOpacity c =
   let
     { alpha } = Color.toRgb c
   in
-  toString alpha
+  fromFloat alpha
 
 decodeDashing : List ( Int, Int ) -> String
 decodeDashing ds =
   let
     decodeOnOff ( x, y ) =
-      String.join "," [ toString x, toString y ]
+      String.join "," [ fromInt x, fromInt y ]
   in
   ds
     |> List.map decodeOnOff

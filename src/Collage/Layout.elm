@@ -139,6 +139,7 @@ import Collage.Super exposing (..)
 import Color
 import Dict exposing (Dict)
 import Helpers
+import Maybe exposing (withDefault)
 
 
 -- Directions ------------------------------------------------------------------
@@ -152,8 +153,8 @@ type Direction
   | Left
 
 {-| Calculate the facing direction.
-  Up   <-> Down
-  Left <-> Right
+Up <-> Down
+Left <-> Right
 -}
 facing : Direction -> Direction
 facing dir =
@@ -181,28 +182,28 @@ The figure below illustrates the four distances that can be calculated.
 We represent the origin with `(X)`.
 When calling, for example, `envelope Up`,
 we calculate the distance from `(X)` to the upper edge of the rectangle.
-    +–––––––––––––––+
-    |     ˄     |
-    |  Up |     |
-    |     | Right |
-    | ˂––––(X)––––˃ |
-    |  Left |     |
-    |     | Down  |
-    |     ˅     |
-    +–––––––––––––––+
++–––––––––––––––+
+| ˄ |
+| Up | |
+| | Right |
+| ˂––––(X)––––˃ |
+| Left | |
+| | Down |
+| ˅ |
++–––––––––––––––+
 
 The same holds for the other three directions.
 -}
 envelope : Direction -> Collage msg -> Float
-envelope dir collage =
+envelope dir col =
   let
-    { up, down, left, right } = distances collage
+    { toTop, toBottom, toLeft, toRight } = distances col
   in
   case dir of
-    Up -> up
-    Down -> down
-    Right -> right
-    Left -> left
+    Up -> toTop
+    Down -> toBottom
+    Right -> toRight
+    Left -> toLeft
 
 
 -- Distances -------------------------------------------------------------------
@@ -210,46 +211,46 @@ envelope dir collage =
 {-| Type alias collecting envelope distances in all four directions.
 -}
 type alias Distances =
-  { up : Float
-  , down : Float
-  , right : Float
-  , left : Float
+  { toTop : Float
+  , toBottom : Float
+  , toRight : Float
+  , toLeft : Float
   }
 
 {-| Unpack a distances record in a list of points representing the corners of the envelope.
 -}
 unpack : Distances -> List Point
-unpack { up, down, right, left } =
-  [ ( -left, -down )
-  , ( right, -down )
-  , ( right, up )
-  , ( -left, up )
+unpack { toTop, toBottom, toRight, toLeft } =
+  [ ( -toLeft, -toBottom )
+  , ( toRight, -toBottom )
+  , ( toRight, toTop )
+  , ( -toLeft, toTop )
   ]
 
 {-| Calculate the envelope in all four directions at once.
 
 The result is a `Distances` record with up, down, right, and left fields.
 Use this function if you need envelopes in multiple directions at the same time.
-  {up, down} = distances collage
-  ...use up and down...
+{up, down} = distances collage
+...use up and down...
 -}
 distances : Collage msg -> Distances
-distances collage =
+distances col =
   let
-    points = handleBasic collage.basic
+    points = handleBasic col.basic
     ( xs, ys ) =
       points
-        |> List.map (Core.apply collage)
+        |> List.map (Core.apply col)
         |> List.unzip
   in
   --FIXME: maybe not very efficent to do this here?
-  { up =
+  { toTop =
     List.maximum ys |> withDefault 0
-  , down =
+  , toBottom =
     -(List.minimum ys |> withDefault 0)
-  , right =
+  , toRight =
     List.maximum xs |> withDefault 0
-  , left =
+  , toLeft =
     -(List.minimum xs |> withDefault 0)
   }
 
@@ -282,8 +283,8 @@ handleBasic basic =
     Core.Image dims _ -> handleBox 0 dims
     Core.Html dims _ -> handleBox 0 dims
     -- Groups --
-    Core.Group collages ->
-      collages
+    Core.Group cols ->
+      cols
         |> List.map (distances >> unpack)
         |> List.concat
         |> handlePoints 0
@@ -314,10 +315,10 @@ handlePoints thickness =
   List.map thicken
 
 handleBox : Float -> ( Float, Float ) -> List Point
-handleBox thickness ( width, height ) =
+handleBox thickness ( w, h ) =
   let
-    x = width / 2
-    y = height / 2
+    x = w / 2
+    y = h / 2
   in
   handlePoints thickness
     [ ( -x, -y )
@@ -332,26 +333,26 @@ handleBox thickness ( width, height ) =
 {-| Calculates the width of a collage.
 
 The width is equivalent to the envelopes in the left and right directions:
-  width collage  ==  envelope Left collage + envelope Right collage
+width collage == envelope Left collage + envelope Right collage
 -}
 width : Collage msg -> Float
-width collage =
+width col =
   let
-    { left, right } = distances collage
+    { toLeft, toRight } = distances col
   in
-  left + right
+  toLeft + toRight
 
 {-| Calculates the height of a collage.
 
 The height is equivalent to the envelopes in the up and down directions:
-  height collage  ==  envelope Up collage + envelope Down collage
+height collage == envelope Up collage + envelope Down collage
 -}
 height : Collage msg -> Float
-height collage =
+height col =
   let
-    { up, down } = distances collage
+    { toTop, toBottom } = distances col
   in
-  up + down
+  toTop + toBottom
 
 
 -- Layouts ---------------------------------------------------------------------
@@ -360,21 +361,21 @@ height collage =
 {-| Create an empty collage of given width and height.
 
 This is useful for getting your spacing right and for making borders.
-  hspace = spacer 10 0
-  horizontal <| List.intersperse hspace [a, b, c]
-    +–––+  +–––+  +–––+
-    | a |  | b |  | c |
-    +–––+  +–––+  +–––+
+hspace = spacer 10 0
+horizontal <| List.intersperse hspace [a, b, c]
++–––+ +–––+ +–––+
+| a | | b | | c |
++–––+ +–––+ +–––+
 -}
 spacer : Float -> Float -> Collage msg
 spacer w h =
   rectangle w h |> styled ( transparent, invisible )
 
 {-| A collage that takes up no space. Good for things that appear conditionally:
-  horizontal [ a, if showMore then b else empty ]
-    +–––+– – – – – –+
-    |(a)|  maybe b? |
-    +–––+– – – – – –+
+horizontal [ a, if showMore then b else empty ]
++–––+– – – – – –+
+|(a)| maybe b? |
++–––+– – – – – –+
   - Note: this is the identity element of the monoid on collages.
 -}
 empty : Collage msg
@@ -422,10 +423,10 @@ beside dir a b =
 {-| Place a list of collages next to each other,
 such that their origins are along a horizontal line.
 The first element in the list will be on the left, the last on the right.
-  horizontal [a, b, c]
-    +–––+–––+–––+
-    |(a)| b | c |
-    +–––+–––+–––+
+horizontal [a, b, c]
++–––+–––+–––+
+|(a)| b | c |
++–––+–––+–––+
 
 The new origin will be the origin of the first element in the list.
   - Note: this is called `hcat` in Diagrams.
@@ -437,14 +438,14 @@ horizontal =
 {-| Place a list of collages next to each other,
 such that their origins are along a vertical line.
 The first element in the list will be on the top, the last on the bottom.
-  vertical [a, b, c]
-    +–––+
-    |(a)|
-    +–––+
-    | b |
-    +–––+
-    | c |
-    +–––+
+vertical [a, b, c]
++–––+
+|(a)|
++–––+
+| b |
++–––+
+| c |
++–––+
 
 The new origin will be the origin of the first element in the list.
   - Note: this is called `vcat` in Diagrams.
@@ -457,18 +458,18 @@ vertical =
 
 The first collage in the list is on top.
 This actually is the same as the `group` operation in the Collage module.
-  stack [a, b, c]
-    +–––+
-    |(a)|
-    +–––+
+stack [a, b, c]
++–––+
+|(a)|
++–––+
 
 (Yes, `b` and `c` are somewhere below `a`...)
 
 The new origin will be the origin of the first element in the list.
   - Note: this is called `concat` in Diagrams.
   - Note: when we create an operator `(<>)` like
-    (<>) a b =
-      stack [ a, b ]
+  (<>) a b =
+  stack [ a, b ]
   then `(<>)` forms a monoid together with `empty`.
   `(<>)` is called `atop` in Diagrams.
 -}
@@ -479,16 +480,16 @@ stack =
 {-| Impose a collage on a background.
 
 The call
-  impose fore back
+impose fore back
 
 stacks `fore` on `back`.
 The envelope of `fore` will be "forgotten"
 and `back` will be used to calculate the envelope of the resulting collage.
-    +–––––––––––+
-    |(b)+–––+   |
-    |   | a |   | <-- new envelope
-    |   +–––+   |
-    +–––––––––––+
++–––––––––––+
+|(b)+–––+ |
+| | a | | <-- new envelope
+| +–––+ |
++–––––––––––+
 
 Obviously, this also works with the background having a smaller envelope than the foreground.
 
@@ -504,39 +505,39 @@ impose front back =
 {-| Shift a collage such that the origin is on the given anchor.
 
 Use this, for example, when you like to align some collages to the top:
-  [a, b, c]
-    |> List.map (align top)
-    |> horizontal
-    +–(X)–+––––X––––+–X–+
-    |  a  |  b  | c |
-    |   +–––––––––+   |
-    +–––––+     |   |
-            +–––+
+[a, b, c]
+|> List.map (align top)
+|> horizontal
++–(X)–+––––X––––+–X–+
+| a | b | c |
+| +–––––––––+ |
++–––––+ | |
++–––+
 
 Anchors are created by the functions from the section below.
 -}
 align : Anchor msg -> Collage msg -> Collage msg
-align anchor collage =
-  shift (Collage.opposite <| anchor collage) collage
+align anchor col =
+  shift (Collage.opposite <| anchor col) col
 
 {-| Stack a collage on top of a specified anchor of a host.
 
 Makes placing objects on a collage a lot easier:
-  collage
-    |> at bottom dot
-    |> at upperRight dot
-    +–––––––––0
-    | collage |
-    +––––0––––+
+collage
+|> at bottom dot
+|> at upperRight dot
++–––––––––0
+| collage |
++––––0––––+
 
 instead of:
-  stack
-    [ dot
-    , align upperRight <| stack
-      [ dot
-      , align bottom collage
-      ]
-    ]
+stack
+[ dot
+, align upperRight <| stack
+[ dot
+, align bottom collage
+]
+]
 
 This does not change the origin of `collage`.
 -}
@@ -551,7 +552,7 @@ at anchor fore back =
 {-| Shift a collage such that the envelope in all directions is equal.
 
 This is the same as aligning on the base anchor:
-  center collage  ==  align base collage
+center collage == align base collage
 -}
 center : Collage msg -> Collage msg
 center =
@@ -565,113 +566,104 @@ center =
 type alias Anchor msg =
   Collage msg -> Point
 
-{-|
-    +(X)+
-    |   |
-    +–––+
+{-| +(X)+
+| |
++–––+
 -}
 top : Anchor msg
-top collage =
+top col =
   let
-    { up } = distances collage
+    { toTop } = distances col
   in
-  ( 0, up )
+  ( 0, toTop )
 
-{-|
-    +––(X)
-    |   |
-    +–––+
+{-| +––(X)
+| |
++–––+
 -}
 topRight : Anchor msg
-topRight collage =
+topRight col =
   let
-    { right, up } = distances collage
+    { toRight, toTop } = distances col
   in
-  ( right, up )
+  ( toRight, toTop )
 
-{-|
-    +–––+
-    |  (X)
-    +–––+
+{-| +–––+
+| (X)
++–––+
 -}
 right : Anchor msg
-right collage =
+right col =
   let
-    { right } = distances collage
+    { toRight } = distances col
   in
-  ( right, 0 )
+  ( toRight, 0 )
 
-{-|
-    +–––+
-    |   |
-    +––(X)
+{-| +–––+
+| |
++––(X)
 -}
 bottomRight : Anchor msg
-bottomRight collage =
+bottomRight col =
   let
-    { right, down } = distances collage
+    { toRight, toBottom } = distances col
   in
-  ( right, -down )
+  ( toRight, -toBottom )
 
-{-|
-    +–––+
-    |   |
-    +(X)+
+{-| +–––+
+| |
++(X)+
 -}
 bottom : Anchor msg
-bottom collage =
+bottom col =
   let
-    { down } = distances collage
+    { toBottom } = distances col
   in
-  ( 0, -down )
+  ( 0, -toBottom )
 
-{-|
-    +–––+
-    |   |
-     (X)––+
+{-| +–––+
+| |
+(X)––+
 -}
 bottomLeft : Anchor msg
-bottomLeft collage =
+bottomLeft col =
   let
-    { left, down } = distances collage
+    { toLeft, toBottom } = distances col
   in
-  ( -left, -down )
+  ( -toLeft, -toBottom )
 
-{-|
-    +–––+
-     (X)  |
-    +–––+
+{-| +–––+
+(X) |
++–––+
 -}
 left : Anchor msg
-left collage =
+left col =
   let
-    { left } = distances collage
+    { toLeft } = distances col
   in
-  ( -left, 0 )
+  ( -toLeft, 0 )
 
-{-|
-     (X)––+
-    |   |
-    +–––+
+{-| (X)––+
+| |
++–––+
 -}
 topLeft : Anchor msg
-topLeft collage =
+topLeft col =
   let
-    { left, up } = distances collage
+    { toLeft, toTop } = distances col
   in
-  ( -left, up )
+  ( -toLeft, toTop )
 
-{-|
-    +–––+
-    |(X)|
-    +–––+
+{-| +–––+
+|(X)|
++–––+
 -}
 base : Anchor msg
-base collage =
+base col =
   let
-    { up, down, left, right } = distances collage
-    tx = (right - left) / 2
-    ty = (up - down) / 2
+    { toTop, toBottom, toLeft, toRight } = distances col
+    tx = (toRight - toLeft) / 2
+    ty = (toTop - toBottom) / 2
   in
   ( tx, ty )
 
@@ -681,8 +673,8 @@ base collage =
 {-| Give a name to (a part of) a collage in order to locate it after composition.
 -}
 name : String -> Collage msg -> Collage msg
-name string collage =
-  { collage | name = Just string }
+name string col =
+  { col | name = Just string }
 
 {-| Locate a named part of a collage and calculate the coordinates using the given anchor in the new coordinate system.
 
@@ -698,20 +690,20 @@ we display a message on the console for your convenience.
 locate : String -> Anchor msg -> Collage msg -> Maybe Point
 locate string anchor this =
   let
-    recurse collage =
+    recurse col =
       let
-        match = Maybe.map ((==) string) collage.name |> withDefault False
+        match = Maybe.map ((==) string) col.name |> withDefault False
         firstOf =
           --NOTE: This saves us recursing down when we found what we're looking for!
           --FIXME: This is depth first!!!
-          Helpers.foldrLazy (Maybe.orLazy << recurse) Nothing
+          Helpers.foldrLazy (Helpers.orLazy << recurse) Nothing
       in
       if match then
-        Just <| anchor collage
+        Just <| anchor col
       else
-        Maybe.map (Core.apply collage) <|
-          case collage.basic of
-            Core.Group collages -> firstOf collages
+        Maybe.map (Core.apply col) <|
+          case col.basic of
+            Core.Group cols -> firstOf cols
             Core.Subcollage fore back -> firstOf [ fore, back ]
             _ -> Nothing
   in
@@ -733,20 +725,20 @@ locate_ string anchor this =
     recurse queue =
       case queue of
         [] -> Nothing
-        collage :: rest ->
+        col :: rest ->
           let
-            match = Maybe.map ((==) string) collage.name |> withDefault False
-            update = List.map (Core.combine collage)
+            match = Maybe.map ((==) string) col.name |> withDefault False
+            update = List.map (Core.combine col)
           in
           if match then
             --NOTE: We found it!
-            Just <| anchor collage
+            Just <| anchor col
           else
             --NOTE: We go on with our search and keep track of the transformations
-            case collage.basic of
-              Core.Group collages ->
+            case col.basic of
+              Core.Group cols ->
                 --NOTE: First recurse on the rest of the queue, then go for the group contents
-                recurse (rest ++ update collages)
+                recurse (rest ++ update cols)
               Core.Subcollage fore back -> recurse (rest ++ update [ fore, back ])
               _ -> recurse rest
     visited = Debug.log "Elm Collage: visited" string
@@ -758,9 +750,9 @@ locate_ string anchor this =
 names : Collage msg -> Dict String (Collage msg)
 names =
   let
-    recurse collage res =
-      case collage.name of
-        Just name -> Dict.insert name collage res
+    recurse col res =
+      case col.name of
+        Just n -> Dict.insert n col res
         Nothing -> res
   in
   --NOTE: We use `foldr` here so named collages "higher up" will overwrite those down in the hierarchy.
@@ -772,14 +764,14 @@ For named parts that could not be found,
 the result will be _ignored_.
 -}
 connect : List ( String, Anchor msg ) -> LineStyle -> Collage msg -> Collage msg
-connect locations line collage =
+connect locations line col =
   let
     positions =
       locations
-        |> List.map (\( name, anchor ) -> locate name anchor collage)
-        |> Maybe.values
+        |> List.map (\( n, a ) -> locate n a col)
+        |> Helpers.values
   in
-  impose (path positions |> traced line) collage
+  impose (path positions |> traced line) col
 
 
 -- Debuging --------------------------------------------------------------------
@@ -787,27 +779,27 @@ connect locations line collage =
 {-| Draw a red dot at the local origin of the collage.
 -}
 showOrigin : Collage msg -> Collage msg
-showOrigin collage =
+showOrigin col =
   let
     origin =
       circle 3
         |> filled (uniform Color.red)
         |> name "_origin_"
   in
-  impose origin collage
+  impose origin col
 
 {-| Draw a red dotted box around the collage representing the envelope.
 -}
 showEnvelope : Collage msg -> Collage msg
-showEnvelope collage =
+showEnvelope col =
   let
     outline =
-      rectangle (width collage) (height collage)
+      rectangle (width col) (height col)
         |> outlined (dot 2 (uniform Color.red))
-        |> shift (base collage)
+        |> shift (base col)
         |> name "_envelope_"
   in
-  impose outline collage
+  impose outline col
 
 {-| Show both the envelope and the origin of a collage.
 -}

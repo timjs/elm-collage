@@ -1,4 +1,4 @@
-module Helpers exposing (foldrLazy, orLazy, uncurry)
+module Helpers exposing (foldrLazy, orLazy, uncurry, values)
 
 -- General ---------------------------------------------------------------------
 
@@ -17,6 +17,19 @@ orLazy ma fmb =
   case ma of
     Nothing -> fmb ()
     Just _ -> ma
+
+{-| Convert a list of `Maybe a` to a list of `a` only for the values different from `Nothing`.
+values [ Just 1, Nothing, Just 2 ] == [1, 2]
+-}
+values : List (Maybe a) -> List a
+values =
+  List.foldr foldrValues []
+
+foldrValues : Maybe a -> List a -> List a
+foldrValues item list =
+  case item of
+    Nothing -> list
+    Just v -> v :: list
 
 
 -- List ------------------------------------------------------------------------

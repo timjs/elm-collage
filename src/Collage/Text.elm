@@ -3,8 +3,7 @@ module Collage.Text
     ( Line(..)
     , Shape(..)
     , Style
-    , Text
-      --(.)
+    , Text {- (.) -}
     , Typeface(..)
     , Weight(..)
     , color
@@ -55,7 +54,7 @@ you cannot style it anymore!
 **Note:**
 Function and type names in this module clash with those from Collage and Collage.Layout.
 Best way to use is a qualified import like:
-  import Collage.Text as Text exposing (Text, fromString)
+import Collage.Text as Text exposing (Text, fromString)
 
 ### Contents
   - [Basics](#basics)
@@ -128,18 +127,18 @@ type alias Text =
 {-| Convert a string into text which can be styled and displayed.
 
 To show the string "Hello World!" on screen in large, dark red, italics, you could say:
-  fromString "Hello World!"
-    |> size large
-    |> color Color.darkRed
-    |> shape Italic
-    |> Collage.rendered
+fromString "Hello World!"
+|> size large
+|> color Color.darkRed
+|> shape Italic
+|> Collage.rendered
 -}
 fromString : String -> Text
 fromString =
   Core.Chunk defaultStyle
 
 {-| Text with nothing in it.
-  empty = fromString ""
+empty = fromString ""
 -}
 empty : Text
 empty =
@@ -163,31 +162,31 @@ type alias Style =
 
 For example, if you design a style called `heading` that is specifically for heading text,
 you could apply it to text like this:
-  heading = { typeface = Sansserif
-    , size = huge
-    , color = Color.darkBlue
-    , shape = Upright
-    , weight = Bold
-    , line = Nothing
-    }
-  fromString "Welcome to Elm Collage!"
-    |> style heading
+heading = { typeface = Sansserif
+, size = huge
+, color = Color.darkBlue
+, shape = Upright
+, weight = Bold
+, line = Nothing
+}
+fromString "Welcome to Elm Collage!"
+|> style heading
 -}
 style : Style -> Text -> Text
-style style (Core.Chunk _ string) =
-  Core.Chunk style string
+style newstyle (Core.Chunk _ str) =
+  Core.Chunk newstyle str
 
 {-| Plain black text.
 
 It uses the browsers default typeface and text height.
 No decorations are used.
-  defaultStyle = { typeface = Sansserif
-    , size = normal
-    , color = Color.black
-    , shape = Upright
-    , weight = Regular
-    , line = None
-    }
+defaultStyle = { typeface = Sansserif
+, size = normal
+, color = Color.black
+, shape = Upright
+, weight = Regular
+, line = None
+}
 -}
 defaultStyle : Style
 defaultStyle =
@@ -214,33 +213,33 @@ type Typeface
   | Font String
 
 {-| Set the typeface of some text.
-  fromString "Text in my favorite font"
-    |> typeface (Font "Lato")
+fromString "Text in my favorite font"
+|> typeface (Font "Lato")
 -}
 typeface : Typeface -> Text -> Text
-typeface typeface (Core.Chunk style str) =
-  Core.Chunk { style | typeface = typeface } str
+typeface newface (Core.Chunk sty str) =
+  Core.Chunk { sty | typeface = newface } str
 
 {-| Set the color of some text.
 
 Use the Color module to specify colors.
-  fromString "Nice blue text"
-    |> color Color.blue
+fromString "Nice blue text"
+|> color Color.blue
 -}
 color : Color -> Text -> Text
-color color (Core.Chunk style str) =
-  Core.Chunk { style | color = color } str
+color newcolor (Core.Chunk sty str) =
+  Core.Chunk { sty | color = newcolor } str
 
 
 -- Size -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
 
 {-| Set the size of some text.
-  fromString "Big text"
-    |> size huge
+fromString "Big text"
+|> size huge
 -}
 size : Int -> Text -> Text
-size size (Core.Chunk style str) =
-  Core.Chunk { style | size = size } str
+size newsize (Core.Chunk sty str) =
+  Core.Chunk { sty | size = newsize } str
 
 {-| 11 px
 -}
@@ -290,12 +289,12 @@ type Shape
   | Italic
 
 {-| Set the shape of some text.
-  fromString "Italic text"
-    |> shape Italic
+fromString "Italic text"
+|> shape Italic
 -}
 shape : Shape -> Text -> Text
-shape shape (Core.Chunk style str) =
-  Core.Chunk { style | shape = shape } str
+shape newshape (Core.Chunk sty str) =
+  Core.Chunk { sty | shape = newshape } str
 
 {-| Possible weights for a piece of text.
 -}
@@ -309,12 +308,12 @@ type Weight
   | Black
 
 {-| Set the weight of some text.
-  fromString "Bold text"
-    |> weight Bold
+fromString "Bold text"
+|> weight Bold
 -}
 weight : Weight -> Text -> Text
-weight weight (Core.Chunk style str) =
-  Core.Chunk { style | weight = weight } str
+weight newweight (Core.Chunk sty str) =
+  Core.Chunk { sty | weight = newweight } str
 
 type Stretch
   = Condensed
@@ -324,8 +323,8 @@ type Stretch
 
 {-
    stretch : Stretch -> Text -> Text
-   stretch stretch (Core.Chunk style str) =
-     Core.Chunk { style | stretch = stretch } str
+   stretch stretch (Core.Chunk sty str) =
+   Core.Chunk { sty | stretch = stretch } str
 -}
 -- Decoration -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
 
@@ -340,14 +339,14 @@ type Line
 {-| Put lines on text.
 
 This allows you to add an underline, an overline, or strike out text:
-  line None  (fromString "normal text")
-  line Under   (fromString "underline")
-  line Over  (fromString "overline")
-  line Through (fromString "strike out")
+line None (fromString "normal text")
+line Under (fromString "underline")
+line Over (fromString "overline")
+line Through (fromString "strike out")
 -}
 line : Line -> Text -> Text
-line line (Core.Chunk style str) =
-  Core.Chunk { style | line = line } str
+line newline (Core.Chunk sty str) =
+  Core.Chunk { sty | line = newline } str
 
 
 {-
@@ -355,15 +354,15 @@ line line (Core.Chunk style str) =
    {-| Describes the alignment (justification) of a piece of text.
    -}
    type Alignment
-     = Left
-     | Right
-     -- | Justify
-     | Center
+   = Left
+   | Right
+   -- | Justify
+   | Center
    {-| Set the alignment of some text.
    -}
    alignment : Alignment -> Text -> Text
-   alignment alignment (Core.Chunk style str) =
-     Core.Chunk { style | alignment = alignment } str
+   alignment alignment (Core.Chunk sty str) =
+   Core.Chunk { sty | alignment = alignment } str
 -}
 -- Calculations ----------------------------------------------------------------
 
@@ -374,23 +373,23 @@ line line (Core.Chunk style str) =
   it calls methods of the canvas object (yes really) on the client which can take some time...
 -}
 width : Text -> Float
-width ((Core.Chunk style string) as text) =
-  --FIXME: Native.Text.width (toCssFontSpec style) string
-  -- height text / 2 * toFloat (String.length string)
+width ((Core.Chunk sty str) as text) =
+  --FIXME: Native.Text.width (toCssFontSpec sty) str
+  -- height text / 2 * toFloat (String.length str)
   Debug.todo "undefined kernel function in 0.19"
 
 {-| The height of the text when displayed on the user screen.
 
 This is equal to the text size:
-  fromString "Hello World!"
-    |> size 16
-    |> height  ==  16
+fromString "Hello World!"
+|> size 16
+|> height == 16
 
 (Now you know why newlines are a bad idea...)
 -}
 height : Text -> Float
-height (Core.Chunk style _) =
-  toFloat style.size
+height (Core.Chunk sty _) =
+  toFloat sty.size
 
 {-| Example:
 
@@ -400,22 +399,22 @@ font: italic small-caps bolder condensed 16px/3 cursive;
 ```
 -}
 toCssFontSpec : Style -> String
-toCssFontSpec style =
+toCssFontSpec sty =
   let
     --NOTE: adding font-stretch makes spec not parse...
     spec =
       [ -- font-style
-        case style.shape of
+        case sty.shape of
         Upright -> "normal"
         SmallCaps -> "normal"
         Slanted -> "oblique"
         Italic -> "italic"
       , -- font-variant
-        case style.shape of
+        case sty.shape of
         SmallCaps -> "small-caps"
         _ -> "normal"
       , -- font-weight
-        case style.weight of
+        case sty.weight of
         Thin -> "200"
         Light -> "300"
         Regular -> "normal"
@@ -424,9 +423,9 @@ toCssFontSpec style =
         Bold -> "bold"
         Black -> "800"
       , -- font-size
-        toString style.size ++ "px"
+        String.fromInt sty.size ++ "px"
       , -- font-family
-        case style.typeface of
+        case sty.typeface of
         Serif -> "serif"
         Sansserif -> "sans-serif"
         Monospace -> "monospace"

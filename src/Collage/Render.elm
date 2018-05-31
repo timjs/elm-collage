@@ -4,6 +4,7 @@ module Collage.Render exposing (svg, svgBox, svgExplicit)
 but we only provide a Svg backend here.
 
 @docs svg, svgBox, svgExplicit
+
 -}
 
 import Collage exposing (Collage, Point)
@@ -22,25 +23,30 @@ import Svg.Attributes as Svg
 import Svg.Events as Svg
 import Tuple
 
+
 {-| Render a collage as Svg in a view box of given width and height,
 and the origin in the center.
 
 _Maybe this will be removed from the next major version.
 Please open an issue if you want to keep this._
+
 -}
 svgBox : ( Float, Float ) -> Collage msg -> Html msg
 svgBox ( width, height ) collage =
   svgAbsolute ( width, height ) <|
     Collage.shift ( width / 2, -height / 2 ) collage
 
+
 {-| Take a collage and render it to Html using Svg.
 
 It uses the automatically calculated envelope from the Collage.Layout module as the view box.
+
 -}
 svg : Collage msg -> Html msg
 svg collage =
   svgAbsolute ( Layout.width collage, Layout.height collage ) <|
     Layout.align Layout.topLeft collage
+
 
 {-| Take a collage and render it to Html using Svg
 explicitly specifying the HTML attributes of the element.
@@ -48,6 +54,7 @@ explicitly specifying the HTML attributes of the element.
 svgExplicit : List (Attribute msg) -> Collage msg -> Html msg
 svgExplicit attributes collage =
   Svg.svg attributes [ render collage ]
+
 
 svgAbsolute : ( Float, Float ) -> Collage msg -> Html msg
 svgAbsolute ( width, height ) collage =
@@ -58,12 +65,13 @@ svgAbsolute ( width, height ) collage =
   Html.div
     []
     [ Svg.svg
-      [ Svg.width w
-      , Svg.height h
-      , Svg.version "1.1"
-      ]
-      [ render collage ]
+        [ Svg.width w
+        , Svg.height h
+        , Svg.version "1.1"
+        ]
+        [ render collage ]
     ]
+
 
 render : Collage msg -> Svg msg
 render collage =
@@ -159,6 +167,7 @@ render collage =
       --NOTE: Rendering a subcollage is the same as rendering a group, only layout calculations in `Collage.Layout` differ.
       render { collage | basic = Core.Group [ fore, back ] }
 
+
 box : Float -> Float -> List (Attribute msg)
 box w h =
   [ Svg.width <| fromFloat w
@@ -167,14 +176,17 @@ box w h =
   , Svg.y <| fromFloat (-h / 2)
   ]
 
+
 events : List ( String, Json.Decoder msg ) -> List (Attribute msg)
 events handlers =
   List.map (uncurry Svg.on) handlers
 
+
 attrs : Collage msg -> List (Attribute msg)
 attrs collage =
   case collage.basic of
-    Core.Path line _ -> [ Svg.stroke <| decodeFill line.fill
+    Core.Path line _ ->
+      [ Svg.stroke <| decodeFill line.fill
       , Svg.strokeOpacity <| decodeFillOpacity line.fill
       , Svg.strokeWidth <| fromFloat line.thickness
       , Svg.strokeLinecap <| decodeCap line.cap
@@ -185,7 +197,8 @@ attrs collage =
       , Svg.strokeDashoffset <| fromInt line.dashPhase
       , Svg.strokeDasharray <| decodeDashing line.dashPattern
       ]
-    Core.Shape ( fill, line ) _ -> [ Svg.fill <| decodeFill fill
+    Core.Shape ( fill, line ) _ ->
+      [ Svg.fill <| decodeFill fill
       , Svg.fillOpacity <| decodeFillOpacity fill
       , Svg.stroke <| decodeFill line.fill
       , Svg.strokeOpacity <| decodeFillOpacity line.fill
@@ -197,39 +210,40 @@ attrs collage =
       , Svg.strokeDashoffset <| fromInt line.dashPhase
       , Svg.strokeDasharray <| decodeDashing line.dashPattern
       ]
-    Core.Text _ (Core.Chunk style str) -> [ Svg.fill <| decodeFill (Core.Uniform style.color)
+    Core.Text _ (Core.Chunk style str) ->
+      [ Svg.fill <| decodeFill (Core.Uniform style.color)
       , Svg.fontFamily <|
-        case style.typeface of
-          Text.Serif -> "serif"
-          Text.Sansserif -> "sans-serif"
-          Text.Monospace -> "monospace"
-          Text.Font name -> name
+          case style.typeface of
+            Text.Serif -> "serif"
+            Text.Sansserif -> "sans-serif"
+            Text.Monospace -> "monospace"
+            Text.Font name -> name
       , Svg.fontSize <| fromInt style.size
       , Svg.fontWeight <|
-        case style.weight of
-          Text.Thin -> "200"
-          Text.Light -> "300"
-          Text.Regular -> "normal"
-          Text.Medium -> "500"
-          Text.SemiBold -> "600"
-          Text.Bold -> "bold"
-          Text.Black -> "800"
+          case style.weight of
+            Text.Thin -> "200"
+            Text.Light -> "300"
+            Text.Regular -> "normal"
+            Text.Medium -> "500"
+            Text.SemiBold -> "600"
+            Text.Bold -> "bold"
+            Text.Black -> "800"
       , Svg.fontStyle <|
-        case style.shape of
-          Text.Upright -> "normal"
-          Text.SmallCaps -> "normal"
-          Text.Slanted -> "oblique"
-          Text.Italic -> "italic"
+          case style.shape of
+            Text.Upright -> "normal"
+            Text.SmallCaps -> "normal"
+            Text.Slanted -> "oblique"
+            Text.Italic -> "italic"
       , Svg.fontVariant <|
-        case style.shape of
-          Text.SmallCaps -> "small-caps"
-          _ -> "normal"
+          case style.shape of
+            Text.SmallCaps -> "small-caps"
+            _ -> "normal"
       , Svg.textDecoration <|
-        case style.line of
-          Text.None -> "none"
-          Text.Under -> "underline"
-          Text.Over -> "overline"
-          Text.Through -> "line-through"
+          case style.line of
+            Text.None -> "none"
+            Text.Under -> "underline"
+            Text.Over -> "overline"
+            Text.Through -> "line-through"
       , Svg.textAnchor <| "middle"
       , Svg.dominantBaseline "middle"
       , Svg.transform <| decodeTransform collage
@@ -238,12 +252,14 @@ attrs collage =
       [ Svg.transform <| decodeTransform collage
       ]
 
+
 decodeCap : Collage.LineCap -> String
 decodeCap cap =
   case cap of
     Collage.Round -> "round"
     Collage.Padded -> "square"
     Collage.Flat -> "butt"
+
 
 decodeJoin : Collage.LineJoin -> String
 decodeJoin join =
@@ -252,9 +268,11 @@ decodeJoin join =
     Collage.Sharp -> "miter"
     Collage.Clipped -> "bevel"
 
+
 decodePoints : List Point -> String
 decodePoints ps =
   ps |> List.map (\( x, y ) -> String.join "," [ fromFloat x, fromFloat -y ]) |> String.join " "
+
 
 decodeTransform : Collage msg -> String
 decodeTransform collage =
@@ -268,17 +286,20 @@ decodeTransform collage =
   String.concat
     [ "translate(", dx, ",", dy, ") scale(", sx, ",", sy, ") rotate(", r, ")" ]
 
+
 decodeFill : Core.FillStyle -> String
 decodeFill fs =
   case fs of
     Core.Uniform c -> decodeColor c
     Core.Transparent -> "none"
 
+
 decodeFillOpacity : Core.FillStyle -> String
 decodeFillOpacity fs =
   case fs of
     Core.Uniform c -> decodeOpacity c
     Core.Transparent -> "0"
+
 
 decodeColor : Color -> String
 decodeColor c =
@@ -290,12 +311,14 @@ decodeColor c =
   in
   String.concat [ "rgb(", r, ",", g, ",", b, ")" ]
 
+
 decodeOpacity : Color -> String
 decodeOpacity c =
   let
     { alpha } = Color.toRgb c
   in
   fromFloat alpha
+
 
 decodeDashing : List ( Int, Int ) -> String
 decodeDashing ds =

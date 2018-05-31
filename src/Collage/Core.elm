@@ -1,21 +1,4 @@
-module Collage.Core
-  exposing
-    ( BasicCollage(..)
-    , Collage
-    , FillStyle(..)
-    , Path(..)
-    , Shape(..)
-    , Text(..)
-    , apply
-    , collage
-    , combine
-    , find
-    , foldl
-    , foldr
-    , foldrLazy
-    , levels
-    , search
-    )
+module Collage.Core exposing (BasicCollage(..), Collage, FillStyle(..), Path(..), Shape(..), Text(..), apply, collage, combine, find, foldl, foldr, foldrLazy, levels, search)
 
 {-| This module contains internal types used accross multiple modules in this packages.
 Constructors are however not exposed to the user.
@@ -27,16 +10,21 @@ import Html exposing (Html)
 import Json.Decode as Json
 
 
+
 -- Point -----------------------------------------------------------------------
+
 
 type alias Point =
   ( Float, Float )
 
 
+
 -- Collage ---------------------------------------------------------------------
+
 
 type alias Transform r =
   { r | shift : ( Float, Float ), scale : ( Float, Float ), rotation : Float }
+
 
 type alias Collage fill line text msg =
   Transform
@@ -45,6 +33,7 @@ type alias Collage fill line text msg =
     , handlers : List ( String, Json.Decoder msg )
     , basic : BasicCollage fill line text msg
     }
+
 
 type BasicCollage fill line text msg
   = Shape ( fill, line ) Shape
@@ -56,6 +45,7 @@ type BasicCollage fill line text msg
   | Group (List (Collage fill line text msg))
   | Subcollage (Collage fill line text msg) (Collage fill line text msg)
 
+
 collage : BasicCollage fill line text msg -> Collage fill line text msg
 collage basic =
   { shift = ( 0, 0 )
@@ -66,6 +56,7 @@ collage basic =
   , handlers = []
   , basic = basic
   }
+
 
 apply : Transform r -> Point -> Point
 apply { shift, scale, rotation } =
@@ -85,6 +76,7 @@ apply { shift, scale, rotation } =
   in
   shifted << scaled << rotated
 
+
 combine : Transform r -> Transform r -> Transform r
 combine { shift, scale, rotation } this =
   let
@@ -99,6 +91,7 @@ combine { shift, scale, rotation } this =
     , rotation = this.rotation + rotation
   }
 
+
 foldr : (Collage fill line text msg -> a -> a) -> a -> Collage fill line text msg -> a
 foldr f acc col =
   let
@@ -110,6 +103,7 @@ foldr f acc col =
         _ -> acc
   in
   f col recurse
+
 
 foldrLazy : (Collage fill line text msg -> (() -> a) -> a) -> a -> Collage fill line text msg -> a
 foldrLazy f acc col =
@@ -123,6 +117,7 @@ foldrLazy f acc col =
   in
   f col recurse
 
+
 foldl : (Collage fill line text msg -> a -> a) -> a -> Collage fill line text msg -> a
 foldl f acc col =
   let
@@ -134,6 +129,7 @@ foldl f acc col =
         _ -> res
   in
   recurse <| f col acc
+
 
 {-| Lazy depth-first search using `foldr`
 -}
@@ -148,6 +144,7 @@ find p =
         Nothing
   in
   foldrLazy (Helpers.orLazy << f) Nothing
+
 
 levels : Collage fill line text msg -> List (Collage fill line text msg)
 levels col =
@@ -168,6 +165,7 @@ levels col =
   in
   --NOTE: Start with the empty queue as the result and the current collage in the queue
   recurse [] [ col ]
+
 
 {-| Breadth-first search on collages
 -}
@@ -193,7 +191,9 @@ search pred col =
   recurse [ col ]
 
 
+
 -- Shapes, Paths and Text ------------------------------------------------------
+
 
 type Shape
   = Polygon (List Point)
@@ -205,14 +205,18 @@ type Shape
   | Circle Float
   | Loop Path
 
+
 type Path
   = Polyline (List Point)
+
 
 type Text style
   = Chunk style String
 
 
+
 -- Styles ----------------------------------------------------------------------
+
 
 type FillStyle
   = Transparent

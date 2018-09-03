@@ -105,8 +105,6 @@ Off course, you can always specify your own font size explicitly.
 
 -}
 
--- import Native.Text
-
 import Collage.Core as Core
 import Color exposing (Color)
 
@@ -429,8 +427,7 @@ line newline (Core.Chunk sty str) =
 width : Text -> Float
 width ((Core.Chunk sty str) as text) =
   --FIXME: Native.Text.width (toCssFontSpec sty) str
-  -- height text / 2 * toFloat (String.length str)
-  Debug.todo "undefined kernel function in 0.19"
+  height text / 2 * toFloat (String.length str)
 
 
 {-| The height of the text when displayed on the user screen.

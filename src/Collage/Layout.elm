@@ -1,5 +1,5 @@
 module Collage.Layout exposing
-  ( envelope, Direction(..), facing, opposite, distances, Distances, width, height
+  ( envelope, Direction(..), facing, distances, Distances, width, height
   , horizontal, vertical, stack, impose, beside, place
   , spacer, empty
   , align, at, center
@@ -48,7 +48,7 @@ Envelopes answer the question:
 “If I want to put my collage in a rectangular envelope,
 what are the distances from its local origin to the envelope edges?”
 
-@docs envelope, Direction, facing, opposite, distances, Distances, width, height
+@docs envelope, Direction, facing, distances, Distances, width, height
 
 
 # Layouting
@@ -153,16 +153,6 @@ facing dir =
     Down -> Up
     Right -> Left
     Left -> Right
-
-
-{-| Same as `facing`.
-
-**Will be REMOVED in the next major version in favor of `facing`.**
-This change will avoid name clashes with `Collage.opposite`.
-
--}
-opposite : Direction -> Direction
-opposite = facing
 
 
 
@@ -814,9 +804,7 @@ locate string anchor this =
               firstOf [ fore, back ]
             _ -> Nothing
   in
-  case recurse this of
-    Nothing -> Debug.log ("Elm Collage: could not find '" ++ string ++ "'") Nothing
-    answer -> answer
+  recurse this
 
 
 {-| Breadth-first search on collages
@@ -851,7 +839,6 @@ locate_ string anchor this =
               Core.Subcollage fore back ->
                 recurse (rest ++ update [ fore, back ])
               _ -> recurse rest
-    visited = Debug.log "Elm Collage: visited" string
   in
   recurse [ this ]
 

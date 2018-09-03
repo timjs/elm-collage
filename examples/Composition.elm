@@ -1,5 +1,6 @@
 module Composition exposing (main)
 
+import Browser
 import Collage exposing (..)
 import Collage.Events exposing (onClick)
 import Collage.Layout exposing (..)
@@ -123,5 +124,5 @@ view model =
     |> svg
 
 
-main : Program Never Model Msg
-main = Html.beginnerProgram { model = init, view = view, update = update }
+main : Program () Model Msg
+main = Browser.sandbox { init = init, view = view, update = update }

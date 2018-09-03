@@ -9,10 +9,6 @@ import Html exposing (Html)
 import List exposing (head)
 
 
-(=>) : a -> b -> ( a, b )
-(=>) = (,)
-
-
 
 -- Data ------------------------------------------------------------------------
 
@@ -150,15 +146,15 @@ arrow length =
 render : Flow -> Collage msg
 render flow =
   let
-    addBottomArrow max flow =
+    addBottomArrow max flow_ =
       vertical
-        [ flow
-        , arrow (max - height flow)
+        [ flow_
+        , arrow (max - height flow_)
         ]
-    addBottomLine max flow =
+    addBottomLine max flow_ =
       vertical
-        [ flow
-        , line (max - height flow)
+        [ flow_
+        , line (max - height flow_)
             |> traced thinline
             |> rotate (pi / 2)
         ]
@@ -215,8 +211,8 @@ render flow =
       vertical
         [ arrow unit
         , inner
-            |> connect [ "leftBranch" => top, "rightBranch" => top ] thinline
-            |> connect [ "leftBranch" => bottom, "rightBranch" => bottom ] thinline
+            |> connect [ ( "leftBranch", top ), ( "rightBranch", top ) ] thinline
+            |> connect [ ( "leftBranch", bottom ), ( "rightBranch", bottom ) ] thinline
             |> at top (diamond condition)
             |> at bottom (diamond "")
         ]

@@ -1,5 +1,6 @@
 module House exposing (house, main)
 
+import Browser
 import Collage exposing (..)
 import Collage.Events exposing (..)
 import Collage.Layout exposing (..)
@@ -102,10 +103,10 @@ view model =
 -- Main ------------------------------------------------------------------------
 
 
-main : Program Never Model Msg
+main : Program () Model Msg
 main =
-  Html.beginnerProgram
-    { model = init
+  Browser.sandbox
+    { init = init
     , view = view
     , update = update
     }

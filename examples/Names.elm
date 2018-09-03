@@ -55,7 +55,7 @@ collage =
   let
     pos =
       locate "circ" topRight circ
-        |> withDefault ( 0, 0 )
+        |> Maybe.withDefault ( 0, 0 )
     inner =
       mark
         |> shift pos
@@ -84,7 +84,7 @@ main =
           , levels =
               List.map .name <| Core.levels collage
           }
-            |> toString
+            |> Debug.toString
             |> text
         ]
     ]

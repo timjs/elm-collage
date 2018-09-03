@@ -1,6 +1,23 @@
 # Changelog
 
 
+## [2.0.0](https://github.com/timjs/elm-collage/compare/1.6.0...2.0.0) (2018-09-03)
+
+  **Updated for Elm 0.19!**
+
+### Removed
+
+  - `Collage.Layout.opposite` in favour of `Collage.Layout.facing`
+
+### Changed
+
+  - The fields of `Collage.Layout.Distances` are renamed to avoid name clashes with anchors defined in the same module:
+    - `up` => `toTop`
+    - `down` => `toBottom`
+    - `left` => `toLeft`
+    - `right` => `toRight`
+
+
 ## [1.6.0](https://github.com/timjs/elm-collage/compare/1.5.0...1.6.0) (2018-02-04)
 
 ### Added
@@ -15,12 +32,12 @@
 
 ### Added
 
-  - Now you can name parts of your collage and refere to them later!
+  - Now you can name parts of your collage and refer to them later!
     - **This is very experimental!**
     - Use `name` to name a collage
     - Use `locate` to locate a point in a named part of a collage
     - Use `connect` to connect points in named parts of a collage
-    - Use `names` to querry all used names in a collage
+    - Use `names` to query all used names in a collage
 
 ## Changed
 
@@ -42,7 +59,7 @@
 ## Fixed
 
   - Fixed a bug with Svg rendering where paths automatically get filled with a uniform black color.
-    Paths default to have a transparent fill agian!
+    Paths default to have a transparent fill again!
   - Fixed some documentation and extra notes
 
 
@@ -50,7 +67,7 @@
 
 ### Fixed
 
-  - `Collage.opposite` is no subject for deprication, athough the documentation said so
+  - `Collage.opposite` is no subject for depreciation, although the documentation said so
 
 
 ## [1.3.0](https://github.com/timjs/elm-collage/compare/1.2.0...1.3.0) (2017-10-12)
@@ -71,7 +88,7 @@
 
 ### Fixed
 
-  - Bug that coused miter line caps to render wrong
+  - Bug that caused miter line caps to render wrong
   - Bug that forgot to take collage attributes into account for impositions
 
 
@@ -87,10 +104,10 @@
     - Uses width and height calculations of subelements
   - Table of contents to each exported module
 
-### Depricated
+### Deprecated
 
   - Collage.Layout
-    - `opposite` (in favor of `facing`)
+    - `opposite` (in favour of `facing`)
 
 ### Changed
 

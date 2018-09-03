@@ -3,7 +3,7 @@
     "name": "timjs/elm-collage",
     "summary": "Create interactive vector graphics and position them relative to each other",
     "license": "BSD-3-Clause",
-    "version": "1.6.0",
+    "version": "2.0.0",
     "exposed-modules": [
         "Collage",
         "Collage.Render",

@@ -1,8 +1,7 @@
 module Collage.Events exposing
-  ( onClick, onDoubleClick, onMouseDown, onMouseUp, onMouseEnter, onMouseLeave, onMouseOver, onMouseOut
+  ( onClick, onDoubleClick, onMouseDown, onMouseUp, onMouseMove, onMouseEnter, onMouseLeave, onMouseOver, onMouseOut
   , onFocusIn, onFocusOut
   , on
-  , onMouseMove
   )
 
 {-| Use this module to make your graphics interactive.
@@ -29,7 +28,7 @@ where `drawing : { r | collage : Collage, id : Id }`
 
 # Mouse events
 
-@docs onClick, onDoubleClick, onMouseDown, onMouseUp, onMouseEnter, onMouseLeave, onMouseOver, onMouseOut
+@docs onClick, onDoubleClick, onMouseDown, onMouseUp, onMouseMove, onMouseEnter, onMouseLeave, onMouseOver, onMouseOut
 
 
 # Focus events

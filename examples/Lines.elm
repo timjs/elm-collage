@@ -9,30 +9,29 @@ import Html exposing (Html)
 
 hline : Float -> Collage msg
 hline t =
-    line 100
-        |> traced (solid t (uniform black))
+  line 100
+    |> traced (solid t (uniform black))
 
 
 gap : Collage msg
-gap =
-    spacer 50 50
+gap = spacer 50 50
 
 
 lines : Collage msg
 lines =
-    vertical <|
-        List.intersperse gap <|
-            List.map hline [ ultrathin, verythin, thin, semithick, thick, verythick, ultrathick ]
+  vertical <|
+    List.intersperse gap <|
+      List.map hline [ ultrathin, verythin, thin, semithick, thick, verythick, ultrathick ]
 
 
 main : Html msg
 main =
-    horizontal
+  horizontal
+    [ gap
+    , vertical
         [ gap
-        , vertical
-            [ gap
-            , lines
-            , gap
-            ]
+        , lines
+        , gap
         ]
-        |> svg
+    ]
+    |> svg

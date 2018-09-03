@@ -1,4 +1,14 @@
-module Collage.Text exposing (Line(..), Shape(..), Style, Text {- (.) -}, Typeface(..), Weight(..), color, defaultStyle, empty, enormous, fromString, height, huge, large, line, normal, shape, size, small, style, tiny, typeface, weight, width)
+module Collage.Text exposing
+  ( Text
+  , fromString, empty
+  , Typeface(..), typeface, color
+  , size, tiny, small, normal, large, huge, enormous
+  , Shape(..), shape, Weight(..), weight
+  , Line(..), line
+  , Style, style, defaultStyle
+  , width, height
+  {- (.) -}
+  )
 
 {-| A library for styling and displaying text.
 
@@ -120,10 +130,10 @@ type alias Text =
 To show the string "Hello World!" on screen in large, dark red, italics, you could say:
 
     fromString "Hello World!"
-        |> size large
-        |> color Color.darkRed
-        |> shape Italic
-        |> Collage.rendered
+      |> size large
+      |> color Color.darkRed
+      |> shape Italic
+      |> Collage.rendered
 
 -}
 fromString : String -> Text
@@ -371,9 +381,12 @@ type Line
 
 This allows you to add an underline, an overline, or strike out text:
 
-    line None    (fromString "normal text")
-    line Under   (fromString "underline")
-    line Over    (fromString "overline")
+    line None (fromString "normal text")
+
+    line Under (fromString "underline")
+
+    line Over (fromString "overline")
+
     line Through (fromString "strike out")
 
 -}
@@ -425,8 +438,9 @@ width ((Core.Chunk sty str) as text) =
 This is equal to the text size:
 
     fromString "Hello World!"
-        |> size 16
-        |> height    ==    16
+      |> size 16
+      |> height
+      == 16
 
 (Now you know why newlines are a bad idea...)
 
@@ -475,7 +489,8 @@ toCssFontSpec sty =
           Serif -> "serif"
           Sansserif -> "sans-serif"
           Monospace -> "monospace"
-          Font name -> name
+          Font name ->
+            name
       ]
   in
   String.concat <| List.intersperse " " <| spec

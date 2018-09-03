@@ -1,4 +1,12 @@
-module Collage.Layout exposing (Anchor, Direction(..), Distances, align, at, base, beside, bottom, bottomLeft, bottomRight, center, connect, debug, distances, empty, envelope, facing, height, horizontal, impose, left, locate, name, names, opposite, place, right, showEnvelope, showOrigin, spacer, stack, top, topLeft, topRight, vertical, width)
+module Collage.Layout exposing
+  ( envelope, Direction(..), facing, opposite, distances, Distances, width, height
+  , horizontal, vertical, stack, impose, beside, place
+  , spacer, empty
+  , align, at, center
+  , Anchor, top, topRight, right, bottomRight, bottom, bottomLeft, left, topLeft, base
+  , name, locate, connect, names
+  , showOrigin, showEnvelope, debug
+  )
 
 {-| With this module, you can compose collages in a more automatic way.
 Instead of shifting collages manually,
@@ -134,6 +142,7 @@ type Direction
 {-| Calculate the facing direction.
 
     Up <-> Down
+
     Left <-> Right
 
 -}
@@ -252,9 +261,12 @@ handleBasic basic =
         d = 2 * r
       in
       handleBox thickness ( d, d )
-    Core.Shape ( _, { thickness } ) (Core.Ellipse rx ry) -> handleBox thickness ( 2 * rx, 2 * ry )
-    Core.Shape ( _, { thickness } ) (Core.Rectangle w h _) -> handleBox thickness ( w, h )
-    Core.Shape ( _, { thickness } ) (Core.Polygon ps) -> handlePoints thickness ps
+    Core.Shape ( _, { thickness } ) (Core.Ellipse rx ry) ->
+      handleBox thickness ( 2 * rx, 2 * ry )
+    Core.Shape ( _, { thickness } ) (Core.Rectangle w h _) ->
+      handleBox thickness ( w, h )
+    Core.Shape ( _, { thickness } ) (Core.Polygon ps) ->
+      handlePoints thickness ps
     Core.Shape ( _, line ) (Core.Loop path) ->
       --NOTE: Use the same calculations as for paths
       handleBasic (Core.Path line path)
@@ -270,8 +282,10 @@ handleBasic basic =
     -- Boxes --
     Core.Text dims _ ->
       handleBox 0 dims
-    Core.Image dims _ -> handleBox 0 dims
-    Core.Html dims _ -> handleBox 0 dims
+    Core.Image dims _ ->
+      handleBox 0 dims
+    Core.Html dims _ ->
+      handleBox 0 dims
     -- Groups --
     Core.Group cols ->
       cols
@@ -577,12 +591,13 @@ Makes placing objects on a collage a lot easier:
 instead of:
 
     stack
-        [ dot
-        , align upperRight <| stack
+      [ dot
+      , align upperRight <|
+          stack
             [ dot
             , align bottom collage
             ]
-        ]
+      ]
 
 This does not change the origin of `collage`.
 
@@ -793,8 +808,10 @@ locate string anchor this =
       else
         Maybe.map (Core.apply col) <|
           case col.basic of
-            Core.Group cols -> firstOf cols
-            Core.Subcollage fore back -> firstOf [ fore, back ]
+            Core.Group cols ->
+              firstOf cols
+            Core.Subcollage fore back ->
+              firstOf [ fore, back ]
             _ -> Nothing
   in
   case recurse this of
@@ -831,7 +848,8 @@ locate_ string anchor this =
               Core.Group cols ->
                 --NOTE: First recurse on the rest of the queue, then go for the group contents
                 recurse (rest ++ update cols)
-              Core.Subcollage fore back -> recurse (rest ++ update [ fore, back ])
+              Core.Subcollage fore back ->
+                recurse (rest ++ update [ fore, back ])
               _ -> recurse rest
     visited = Debug.log "Elm Collage: visited" string
   in
@@ -845,7 +863,8 @@ names =
   let
     recurse col res =
       case col.name of
-        Just n -> Dict.insert n col res
+        Just n ->
+          Dict.insert n col res
         Nothing -> res
   in
   --NOTE: We use `foldr` here so named collages "higher up" will overwrite those down in the hierarchy.

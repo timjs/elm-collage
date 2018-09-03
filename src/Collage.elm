@@ -1,4 +1,21 @@
-module Collage exposing (Collage {- (.) -}, FillStyle {- (.) -}, LineCap(..), LineJoin(..), LineStyle, Path {- (.) -}, Point, Shape {- (.) -}, Style, broken, circle, close, dash, dashdot, defaultLineStyle, dot, ellipse, filled, group, html, image, invisible, line, longdash, ngon, opacity, opposite, outlined, path, polygon, rectangle, rendered, rotate, roundedRectangle, roundedSquare, scale, scaleX, scaleY, segment, semithick, shift, shiftX, shiftY, solid, square, styled, thick, thin, traced, transparent, triangle, ultrathick, ultrathin, uniform, verythick, verythin)
+module Collage exposing
+  ( Point, opposite, Collage
+  , shift, shiftX, shiftY, scale, scaleX, scaleY, rotate, opacity
+  , group
+  , Shape, rectangle, square, roundedRectangle, roundedSquare, ellipse, circle, polygon, ngon, triangle
+  , filled, outlined, styled
+  , Path, line, segment, path
+  , traced, close
+  , rendered
+  , image, html
+  , Style
+  , FillStyle, transparent, uniform
+  , LineStyle, invisible, defaultLineStyle
+  , solid, broken, dot, dash, longdash, dashdot
+  , ultrathin, verythin, thin, semithick, thick, verythick, ultrathick
+  , LineCap(..), LineJoin(..)
+  {- (.) -} {- (.) -} {- (.) -} {- (.) -}
+  )
 
 {-| The collage module is here to help you create freeform graphics.
 You can style all sorts of forms including shapes, paths, text, and images,
@@ -254,7 +271,7 @@ type alias Collage msg =
 {-| Take a list of collages and combine them into a single collage,
 which again can be shifted, rotated, scaled, etc.
 
-    group [drawing1, drawing2, drawing3]
+    group [ drawing1, drawing2, drawing3 ]
       |> scale 3
       |> rotate (degrees 90)
 
@@ -276,7 +293,7 @@ This is a relative translation,
 so
 
     collage
-      |> shift (5,10)
+      |> shift ( 5, 10 )
 
 would shift `collage` five pixels to the right and ten pixels up.
 
@@ -415,7 +432,9 @@ The first argument specifies the number of sides and the second is the radius.
 Some ngon's with radius 50:
 
     ngon 3 50 -- triangle
+
     ngon 5 50 -- pentagon
+
     ngon 8 50 -- octogon
 
 -}
@@ -501,7 +520,7 @@ roundedSquare size =
     It draws an oval of given width and height,
     so
 
-        oval w h == ellipse (w/2) (h/2)
+        oval w h == ellipse (w / 2) (h / 2)
 
 -}
 ellipse : Float -> Float -> Shape
@@ -564,9 +583,9 @@ To draw a thick black outlined green triangle with base 30 you say:
 
     triangle 30
       |> styled
-        ( uniform green
-        , solid thick (uniform black)
-        )
+          ( uniform green
+          , solid thick (uniform black)
+          )
 
 The tuple form helps in defining your own reusable styles.
 For example, if you want more of you shapes to have a thick black outline,
@@ -691,7 +710,7 @@ path = Core.Polyline
 
 Here is a red zig-zag:
 
-    path [( 0, 5 ), ( 5, 0 ), ( 5, 5 )]
+    path [ ( 0, 5 ), ( 5, 0 ), ( 5, 5 ) ]
       |> traced (solid thin (uniform red))
 
 Paths can only be traced.
@@ -811,7 +830,7 @@ To define a red, dashed line style with a thickness of 5px:
     , thickness = 5
     , cap = Flat
     , join = Sharp
-    , dashing = [8,4]
+    , dashing = [ 8, 4 ]
     , dashOffset = 0
     }
 
@@ -859,8 +878,9 @@ solid = broken []
 
 {-| A custom line defined by a list of `(on, off)` dash length:
 
-    broken [ ( 10,5 ) ]          -- a line that with dashes 10 long and spaces 5 long
-    broken [ ( 10,5 ),( 20,5 ) ] -- on for 10, off 5, on 20, off 5
+    broken [ ( 10, 5 ) ] -- a line that with dashes 10 long and spaces 5 long
+
+    broken [ ( 10, 5 ), ( 20, 5 ) ] -- on for 10, off 5, on 20, off 5
 
 -}
 broken : List ( Int, Int ) -> Float -> FillStyle -> LineStyle

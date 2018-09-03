@@ -98,8 +98,10 @@ foldr f acc col =
     foldrOf = List.foldr (\c a -> foldr f a c) acc
     recurse =
       case col.basic of
-        Group cols -> foldrOf cols
-        Subcollage fore back -> foldrOf [ fore, back ]
+        Group cols ->
+          foldrOf cols
+        Subcollage fore back ->
+          foldrOf [ fore, back ]
         _ -> acc
   in
   f col recurse
@@ -111,8 +113,10 @@ foldrLazy f acc col =
     foldrOf = Helpers.foldrLazy (\c a -> foldrLazy f (a ()) c) acc
     recurse () =
       case col.basic of
-        Group cols -> foldrOf cols
-        Subcollage fore back -> foldrOf [ fore, back ]
+        Group cols ->
+          foldrOf cols
+        Subcollage fore back ->
+          foldrOf [ fore, back ]
         _ -> acc
   in
   f col recurse
@@ -124,8 +128,10 @@ foldl f acc col =
     foldlOf = List.foldl (\c a -> foldl f a c)
     recurse res =
       case col.basic of
-        Group cols -> foldlOf res cols
-        Subcollage fore back -> foldlOf res [ fore, back ]
+        Group cols ->
+          foldlOf res cols
+        Subcollage fore back ->
+          foldlOf res [ fore, back ]
         _ -> res
   in
   recurse <| f col acc
@@ -158,7 +164,8 @@ levels col =
             Group cols ->
               --NOTE: First recurse on the rest of the queue, then go for the group contents
               recurse result (rest ++ cols)
-            Subcollage fore back -> recurse result (rest ++ [ fore, back ])
+            Subcollage fore back ->
+              recurse result (rest ++ [ fore, back ])
             _ ->
               --NOTE: We only add non-groups to the result
               recurse (this :: result) rest
@@ -185,7 +192,8 @@ search pred col =
               Group cols ->
                 --NOTE: First recurse on the rest of the queue, then go for the group contents
                 recurse (rest ++ cols)
-              Subcollage fore back -> recurse (rest ++ [ fore, back ])
+              Subcollage fore back ->
+                recurse (rest ++ [ fore, back ])
               _ -> recurse rest
   in
   recurse [ col ]

@@ -9,16 +9,16 @@ import Color exposing (..)
 import Html exposing (Html)
 
 
+
 -- Model -----------------------------------------------------------------------
 
 
 type alias Model =
-    { active : Bool }
+  { active : Bool }
 
 
 init : Model
-init =
-    { active = False }
+init = { active = False }
 
 
 
@@ -26,14 +26,13 @@ init =
 
 
 type Msg
-    = Switch
+  = Switch
 
 
 update : Msg -> Model -> Model
 update msg model =
-    case msg of
-        Switch ->
-            { model | active = not model.active }
+  case msg of
+    Switch -> { model | active = not model.active }
 
 
 
@@ -42,8 +41,7 @@ update msg model =
 
 
 border : LineStyle
-border =
-    solid verythin <| uniform black
+border = solid verythin <| uniform black
 
 
 
@@ -52,8 +50,8 @@ border =
 
 txt : Collage Msg
 txt =
-    fromString "Hello collage!"
-        |> rendered
+  fromString "Hello collage!"
+    |> rendered
 
 
 
@@ -62,35 +60,35 @@ txt =
 
 elps : Model -> Collage Msg
 elps model =
-    ellipse 100 50
-        |> styled
-            ( uniform <|
-                if model.active then
-                    lightPurple
-                else
-                    lightBlue
-            , border
-            )
-        |> rotate (degrees -30)
-        |> onClick Switch
+  ellipse 100 50
+    |> styled
+        ( uniform <|
+            if model.active then
+              lightPurple
+            else
+              lightBlue
+        , border
+        )
+    |> rotate (degrees -30)
+    |> onClick Switch
 
 
 rect : Collage msg
 rect =
-    roundedRectangle 200 250 20
-        |> styled ( uniform lightOrange, border )
+  roundedRectangle 200 250 20
+    |> styled ( uniform lightOrange, border )
 
 
 tria : Collage msg
 tria =
-    triangle 100
-        |> styled ( uniform lightGreen, border )
+  triangle 100
+    |> styled ( uniform lightGreen, border )
 
 
 penta : Collage msg
 penta =
-    ngon 5 100
-        |> styled ( uniform lightCharcoal, border )
+  ngon 5 100
+    |> styled ( uniform lightCharcoal, border )
 
 
 
@@ -99,8 +97,8 @@ penta =
 
 alignments : Collage msg
 alignments =
-    horizontal <|
-        List.map (showOrigin << align top) [ rect, tria, rect, rect ]
+  horizontal <|
+    List.map (showOrigin << align top) [ rect, tria, rect, rect ]
 
 
 
@@ -109,22 +107,21 @@ alignments =
 
 view : Model -> Html Msg
 view model =
-    vertical
-        [ horizontal
-            [ rect
-            , vertical
-                [ tria
-                , tria |> rotate pi
-                ]
-                |> center
-            , debug penta
+  vertical
+    [ horizontal
+        [ rect
+        , vertical
+            [ tria
+            , tria |> rotate pi
             ]
-        , stack [ showEnvelope txt, elps model ]
+            |> center
+        , debug penta
         ]
-        |> debug
-        |> svg
+    , stack [ showEnvelope txt, elps model ]
+    ]
+    |> debug
+    |> svg
 
 
 main : Program Never Model Msg
-main =
-    Html.beginnerProgram { model = init, view = view, update = update }
+main = Html.beginnerProgram { model = init, view = view, update = update }

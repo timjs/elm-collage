@@ -1,4 +1,9 @@
-module Collage.Events exposing (on, onClick, onDoubleClick, onFocusIn, onFocusOut, onMouseDown, onMouseEnter, onMouseLeave, onMouseMove, onMouseOut, onMouseOver, onMouseUp)
+module Collage.Events exposing
+  ( onClick, onDoubleClick, onMouseDown, onMouseUp, onMouseEnter, onMouseLeave, onMouseOver, onMouseOut
+  , onFocusIn, onFocusOut
+  , on
+  , onMouseMove
+  )
 
 {-| Use this module to make your graphics interactive.
 It is as easy as you think it is.

@@ -9,26 +9,24 @@ import Html exposing (Html)
 
 sierpinski : Int -> Float -> Collage msg
 sierpinski n side =
-    case n of
-        0 ->
-            triangle side
-                |> filled (uniform Color.blue)
-
-        _ ->
-            let
-                smaller =
-                    sierpinski (n - 1) side
-            in
-            vertical
-                [ smaller
-                , horizontal [ smaller, smaller ] |> center
-                ]
+  case n of
+    0 ->
+      triangle side
+        |> filled (uniform Color.blue)
+    _ ->
+      let
+        smaller = sierpinski (n - 1) side
+      in
+      vertical
+        [ smaller
+        , horizontal [ smaller, smaller ] |> center
+        ]
 
 
 main : Html msg
 main =
-    sierpinski 5 10
-        |> svg
+  sierpinski 5 10
+    |> svg
 
 
 

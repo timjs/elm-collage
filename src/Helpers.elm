@@ -18,12 +18,13 @@ orLazy : Maybe a -> (() -> Maybe a) -> Maybe a
 orLazy ma fmb =
   case ma of
     Nothing -> fmb ()
-    Just _ -> ma
+    Just _ ->
+      ma
 
 
 {-| Convert a list of `Maybe a` to a list of `a` only for the values different from `Nothing`.
 
-    values [ Just 1, Nothing, Just 2 ] == [1, 2]
+    values [ Just 1, Nothing, Just 2 ] == [ 1, 2 ]
 
 -}
 values : List (Maybe a) -> List a
@@ -34,7 +35,8 @@ foldrValues : Maybe a -> List a -> List a
 foldrValues item list =
   case item of
     Nothing -> list
-    Just v -> v :: list
+    Just v ->
+      v :: list
 
 
 
@@ -45,4 +47,5 @@ foldrLazy : (e -> (() -> a) -> a) -> a -> List e -> a
 foldrLazy f acc list =
   case list of
     [] -> acc
-    x :: xs -> f x (\() -> foldrLazy f acc xs)
+    x :: xs ->
+      f x (\() -> foldrLazy f acc xs)

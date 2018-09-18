@@ -217,8 +217,7 @@ attrs collage =
             Text.Serif -> "serif"
             Text.Sansserif -> "sans-serif"
             Text.Monospace -> "monospace"
-            Text.Font name ->
-              name
+            Text.Font name -> name
       , Svg.fontSize <| fromInt style.size
       , Svg.fontWeight <|
           case style.weight of
@@ -291,16 +290,14 @@ decodeTransform collage =
 decodeFill : Core.FillStyle -> String
 decodeFill fs =
   case fs of
-    Core.Uniform c ->
-      decodeColor c
+    Core.Uniform c -> decodeColor c
     Core.Transparent -> "none"
 
 
 decodeFillOpacity : Core.FillStyle -> String
 decodeFillOpacity fs =
   case fs of
-    Core.Uniform c ->
-      decodeOpacity c
+    Core.Uniform c -> decodeOpacity c
     Core.Transparent -> "0"
 
 

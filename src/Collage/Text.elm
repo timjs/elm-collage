@@ -486,8 +486,7 @@ toCssFontSpec sty =
           Serif -> "serif"
           Sansserif -> "sans-serif"
           Monospace -> "monospace"
-          Font name ->
-            name
+          Font name -> name
       ]
   in
   String.concat <| List.intersperse " " <| spec

@@ -98,10 +98,8 @@ foldr f acc col =
     foldrOf = List.foldr (\c a -> foldr f a c) acc
     recurse =
       case col.basic of
-        Group cols ->
-          foldrOf cols
-        Subcollage fore back ->
-          foldrOf [ fore, back ]
+        Group cols -> foldrOf cols
+        Subcollage fore back -> foldrOf [ fore, back ]
         _ -> acc
   in
   f col recurse
@@ -113,10 +111,8 @@ foldrLazy f acc col =
     foldrOf = Helpers.foldrLazy (\c a -> foldrLazy f (a ()) c) acc
     recurse () =
       case col.basic of
-        Group cols ->
-          foldrOf cols
-        Subcollage fore back ->
-          foldrOf [ fore, back ]
+        Group cols -> foldrOf cols
+        Subcollage fore back -> foldrOf [ fore, back ]
         _ -> acc
   in
   f col recurse
@@ -128,10 +124,8 @@ foldl f acc col =
     foldlOf = List.foldl (\c a -> foldl f a c)
     recurse res =
       case col.basic of
-        Group cols ->
-          foldlOf res cols
-        Subcollage fore back ->
-          foldlOf res [ fore, back ]
+        Group cols -> foldlOf res cols
+        Subcollage fore back -> foldlOf res [ fore, back ]
         _ -> res
   in
   recurse <| f col acc
@@ -158,7 +152,8 @@ levels col =
     recurse result queue =
       --NOTE: This function is tail recursive :-)
       case queue of
-        [] -> List.reverse result
+        [] ->
+          List.reverse result
         this :: rest ->
           case this.basic of
             Group cols ->
@@ -181,7 +176,8 @@ search pred col =
   let
     recurse queue =
       case queue of
-        [] -> Nothing
+        [] ->
+          Nothing
         this :: rest ->
           if pred this then
             --NOTE: We found it!
@@ -194,7 +190,8 @@ search pred col =
                 recurse (rest ++ cols)
               Subcollage fore back ->
                 recurse (rest ++ [ fore, back ])
-              _ -> recurse rest
+              _ ->
+                recurse rest
   in
   recurse [ col ]
 

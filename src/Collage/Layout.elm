@@ -798,10 +798,8 @@ locate string anchor this =
       else
         Maybe.map (Core.apply col) <|
           case col.basic of
-            Core.Group cols ->
-              firstOf cols
-            Core.Subcollage fore back ->
-              firstOf [ fore, back ]
+            Core.Group cols -> firstOf cols
+            Core.Subcollage fore back -> firstOf [ fore, back ]
             _ -> Nothing
   in
   recurse this
@@ -821,7 +819,8 @@ locate_ string anchor this =
   let
     recurse queue =
       case queue of
-        [] -> Nothing
+        [] ->
+          Nothing
         col :: rest ->
           let
             match = Maybe.map ((==) string) col.name |> withDefault False
@@ -838,7 +837,8 @@ locate_ string anchor this =
                 recurse (rest ++ update cols)
               Core.Subcollage fore back ->
                 recurse (rest ++ update [ fore, back ])
-              _ -> recurse rest
+              _ ->
+                recurse rest
   in
   recurse [ this ]
 
@@ -850,8 +850,7 @@ names =
   let
     recurse col res =
       case col.name of
-        Just n ->
-          Dict.insert n col res
+        Just n -> Dict.insert n col res
         Nothing -> res
   in
   --NOTE: We use `foldr` here so named collages "higher up" will overwrite those down in the hierarchy.

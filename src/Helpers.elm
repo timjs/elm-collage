@@ -1,13 +1,10 @@
-module Helpers exposing (foldrLazy, orLazy, uncurry, values)
+module Helpers exposing
+  ( foldrLazy
+  , orLazy
+  , values
+  )
 
--- General ---------------------------------------------------------------------
-
-
-uncurry : (a -> b -> c) -> ( a, b ) -> c
-uncurry f ( a, b ) =
-  f a b
-
-
+{-| -}
 
 -- Maybe -----------------------------------------------------------------------
 

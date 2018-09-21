@@ -18,6 +18,7 @@
         "elm/html": "1.0.0 <= v < 2.0.0",
         "elm/json": "1.0.0 <= v < 2.0.0",
         "elm/svg": "1.0.0 <= v < 2.0.0",
+        "elm-community/basics-extra": "4.0.0 <= v < 5.0.0",
         "the-sett/elm-color": "1.0.0 <= v < 2.0.0"
     },
     "test-dependencies": {}

@@ -14,7 +14,6 @@ module Collage exposing
   , solid, broken, dot, dash, longdash, dashdot
   , ultrathin, verythin, thin, semithick, thick, verythick, ultrathick
   , LineCap(..), LineJoin(..)
-  {- (.) -} {- (.) -} {- (.) -} {- (.) -}
   )
 
 {-| The collage module is here to help you create freeform graphics.

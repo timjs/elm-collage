@@ -7,12 +7,12 @@ but we only provide a Svg backend here.
 
 -}
 
+import Basics.Extra exposing (uncurry)
 import Collage exposing (Collage, Point)
 import Collage.Core as Core
 import Collage.Layout as Layout
 import Collage.Text as Text exposing (Text)
 import Color exposing (Color)
-import Helpers exposing (uncurry)
 import Html exposing (Html)
 import Json.Decode as Json
 import List

@@ -4,7 +4,7 @@ With this library, you can create interactive scalable vector graphics.
 Its interface is based on the classic [Elm Graphics library](http://package.elm-lang.org/packages/evancz/elm-graphics/latest).
 However, you'll find that a couple of things are different
 and a lot of functionality has been added.
-You can find all the details in the module documentation.
+You can find all the details in the [module documentation](https://package.elm-lang.org/packages/timjs/elm-collage/latest/).
 
 The library consists of four main modules:
 

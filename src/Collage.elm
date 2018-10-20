@@ -825,7 +825,7 @@ You can also update existing line styles with record updates.
 
 To define a red, dashed line style with a thickness of 5px:
 
-    { color = rgb 255 20 20
+    { color = rgb255 255 20 20
     , thickness = 5
     , cap = Flat
     , join = Sharp

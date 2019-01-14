@@ -849,7 +849,7 @@ type alias LineStyle =
 You can use record updates to build the line style you want.
 For example, to make a thicker line, you could say:
 
-    { defaultLineStyle | width = verythick }
+    { defaultLineStyle | thickness = verythick }
 
 -}
 defaultLineStyle : LineStyle

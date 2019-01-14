@@ -1,9 +1,22 @@
 # Changelog
 
 
+## [2.0.1](https://github.com/timjs/elm-collage/compare/2.0.0...2.0.1) (2019-01-14)
+
+### Changed
+
+  - Typo in documentation (@robx)
+  - Use [avh4/elm-color](https://github.com/avh4/elm-color) instead of [the-sett/elm-color], as it is intended to become the [next standard](https://github.com/avh4/elm-color/issues/16).
+  - Add link to module documentation in README.
+
+
 ## [2.0.0](https://github.com/timjs/elm-collage/compare/1.6.0...2.0.0) (2018-09-03)
 
   **Updated for Elm 0.19!**
+
+  **Note:** because Elm 0.19 [removed the possibility to use native calls](https://discourse.elm-lang.org/t/native-code-in-0-19/826),
+  Elm Collage now reverted to a simplistic width calculation of rendered text.
+  [Any ideas to overcome this are welcome!](https://github.com/timjs/elm-collage/issues/36)
 
 ### Removed
 

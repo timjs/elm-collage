@@ -31,7 +31,7 @@ diamond label =
     shape =
       polygon points
         |> styled
-            ( uniform (Color.rgb 255 202 255)
+            ( uniform (Color.rgb255 255 202 255)
             , solid thin (uniform Color.black)
             )
         |> center

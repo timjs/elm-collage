@@ -304,18 +304,16 @@ decodeFillOpacity fs =
 decodeColor : Color -> String
 decodeColor c =
   let
-    { red, green, blue } = Color.toRgb c
-    r = fromInt red
-    g = fromInt green
-    b = fromInt blue
+    { red, green, blue } = Color.toRgba c
   in
-  String.concat [ "rgb(", r, ",", g, ",", b, ")" ]
+  Color.rgb red green blue
+    |> Color.toCssString
 
 
 decodeOpacity : Color -> String
 decodeOpacity c =
   let
-    { alpha } = Color.toRgb c
+    { alpha } = Color.toRgba c
   in
   fromFloat alpha
 

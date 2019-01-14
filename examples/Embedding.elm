@@ -3,7 +3,7 @@ module Embedding exposing (main)
 import Collage exposing (..)
 import Collage.Layout exposing (..)
 import Collage.Render exposing (..)
-import Color exposing (..)
+import Color
 import Html exposing (Html, text)
 
 

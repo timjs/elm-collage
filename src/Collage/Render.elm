@@ -246,10 +246,12 @@ attrs collage =
             Text.Through -> "line-through"
       , Svg.textAnchor <| "middle"
       , Svg.dominantBaseline "middle"
+      , Svg.opacity <| fromFloat collage.opacity
       , Svg.transform <| decodeTransform collage
       ]
     _ ->
-      [ Svg.transform <| decodeTransform collage
+      [ Svg.opacity <| fromFloat collage.opacity
+      , Svg.transform <| decodeTransform collage
       ]
 
 

@@ -1,4 +1,11 @@
-# Welcome to Elm Collage!
+# Welcome to Elm Collage
+
+## Looking for new maintainer!
+
+As I'm no longer using this library and Elm itself, it is time for Elm Collage to get [some love from somebody else](https://github.com/timjs/elm-collage/issues/40).
+Is there anybody willing to take over, maintain the library and help keeping Elm Collage alive?
+
+---
 
 With this library, you can create interactive scalable vector graphics.
 Its interface is based on the classic [Elm Graphics library](http://package.elm-lang.org/packages/evancz/elm-graphics/latest).

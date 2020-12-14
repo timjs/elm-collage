@@ -1,6 +1,11 @@
 # Changelog
 
 
+## [2.0.3](https://github.com/timjs/elm-collage/compare/2.0.2...2.0.3) (2020-12-14)
+
+Only doc changes (thanks to @indique)
+
+
 ## [2.0.2](https://github.com/timjs/elm-collage/compare/2.0.1...2.0.2) (2019-06-07)
 
 ### Changed

@@ -774,9 +774,9 @@ image dims =
 The resulting collage is subject to all of the regular transformations.
 
 -}
-html : ( Float, Float ) -> Html msg -> Collage msg
-html dims =
-  Core.collage << Core.Html dims
+html : ( Float, Float ) -> List (Html.Attribute msg) -> Html msg -> Collage msg
+html dims attrs =
+  Core.collage << Core.Html dims attrs
 
 
 

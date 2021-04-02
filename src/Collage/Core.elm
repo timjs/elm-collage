@@ -40,7 +40,7 @@ type BasicCollage fill line text msg
   | Path line Path
   | Text ( Float, Float ) (Text text)
   | Image ( Float, Float ) String
-  | Html ( Float, Float ) (Html msg)
+  | Html ( Float, Float ) (List (Html.Attribute msg)) (Html msg)
     --FIXME: Implement grouping as fold over stacking?
   | Group (List (Collage fill line text msg))
   | Subcollage (Collage fill line text msg) (Collage fill line text msg)

@@ -1,6 +1,13 @@
 # Changelog
 
 
+## [3.0.0](https://github.com/timjs/elm-collage/compare/2.0.3...3.0.0) (2021-04-15)
+
+### Changed
+
+  - Allow HTML collage ellements to have attributes (#42, thanks to @georgefst)
+
+
 ## [2.0.3](https://github.com/timjs/elm-collage/compare/2.0.2...2.0.3) (2020-12-14)
 
 Only doc changes (thanks to @indique)

@@ -151,12 +151,13 @@ render collage =
           ++ events collage.handlers
         )
         []
-    Core.Html ( w, h ) html ->
+    Core.Html ( w, h ) extraAttrs html ->
       Svg.foreignObject
         ([ Svg.id name ]
           ++ box w h
           ++ attrs collage
           ++ events collage.handlers
+          ++ extraAttrs
         )
         [ html ]
     Core.Group collages ->

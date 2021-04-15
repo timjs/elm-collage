@@ -274,7 +274,7 @@ handleBasic basic =
       handleBox 0 dims
     Core.Image dims _ ->
       handleBox 0 dims
-    Core.Html dims _ ->
+    Core.Html dims _ _ ->
       handleBox 0 dims
     -- Groups --
     Core.Group cols ->

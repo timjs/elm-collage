@@ -4,6 +4,7 @@
 
 As I'm no longer using this library and Elm itself, it is time for Elm Collage to get [some love from somebody else](https://github.com/timjs/elm-collage/issues/40).
 Is there anybody willing to take over, maintain the library and help keeping Elm Collage alive?
+Pull requests to update the library are still welcome btw! I won't develop any new features or code myself.
 
 ---
 

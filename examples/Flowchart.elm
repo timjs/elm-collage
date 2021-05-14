@@ -60,7 +60,7 @@ space =
 thinline : LineStyle
 thinline =
     { defaultLineStyle
-        | thickness = thin
+        | thickness = verythin
         , cap = Padded
     }
 
@@ -68,7 +68,7 @@ thinline =
 thickline : LineStyle
 thickline =
     { defaultLineStyle
-        | thickness = ultrathick
+        | thickness = semithick
         , cap = Padded
     }
 

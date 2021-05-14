@@ -6,6 +6,20 @@ import Random
 import Random.Extra
 
 
+randomShiftPoints : Float -> List Point -> Random.Generator (List Point)
+randomShiftPoints roughness points =
+    Random.list (List.length points) (Random.pair (Random.float (0 - roughness) roughness) (Random.float (0 - roughness) roughness))
+        |> Random.map
+            (\shifts ->
+                List.map2
+                    (\( x, y ) ( shiftX, shiftY ) ->
+                        ( x + shiftX, y + shiftY )
+                    )
+                    points
+                    shifts
+            )
+
+
 sketchy : Collage msg -> Random.Generator (Collage msg)
 sketchy collage =
     case collage.basic of
@@ -20,21 +34,31 @@ sketchy collage =
                                 (List.drop 1 ps ++ List.take (List.length ps - 1) ps)
                                 |> List.concat
                                 |> List.take ((List.length ps * 2) - 1)
+
+                        lineLength =
+                            List.map2
+                                (\( x1, y1 ) ( x2, y2 ) -> ( x2 - x1 ) ^ 2 + (y2 - y1) ^ 2 |> sqrt)
+                                ps
+                                (List.drop 1 ps ++ List.take (List.length ps - 1) ps)
+                                |> List.take (List.length ps)
+                                |> List.sum
+
+                        roughness =
+                            if lineLength / 50 > 5 then
+                                5
+                            else
+                                lineLength / 50
+
                     in
-                    Random.list (List.length curvedPs) (Random.pair (Random.float 0 10) (Random.float 0 10))
-                        |> Random.map
-                            (\shifts ->
-                                List.map2
-                                    (\( x, y ) ( shiftX, shiftY ) ->
-                                        ( x + shiftX, y + shiftY )
-                                    )
-                                    curvedPs
-                                    shifts
-                            )
-                        |> Random.map
-                            (\points ->
-                                { collage | basic = Core.Path style (Core.Curve points) }
-                            )
+                    Random.map2
+                        (\points1 points2 ->
+                            Collage.group
+                                [ { collage | basic = Core.Path style (Core.Curve points1) }
+                                , { collage | basic = Core.Path style (Core.Curve points2) }
+                                ]
+                        )
+                        (randomShiftPoints roughness curvedPs)
+                        (randomShiftPoints roughness curvedPs)
 
                 Core.Curve ps ->
                     Random.constant collage
@@ -42,16 +66,7 @@ sketchy collage =
         Core.Shape ( fill, line ) path ->
             case path of
                 Core.Polygon ps ->
-                    Random.list (List.length ps) (Random.pair (Random.float 0 10) (Random.float 0 10))
-                        |> Random.map
-                            (\shifts ->
-                                List.map2
-                                    (\( x, y ) ( shiftX, shiftY ) ->
-                                        ( x + shiftX, y + shiftY )
-                                    )
-                                    ps
-                                    shifts
-                            )
+                    randomShiftPoints 5 ps
                         |> Random.map
                             (\points ->
                                 { collage | basic = Core.Shape ( fill, line ) (Core.Polygon points) }

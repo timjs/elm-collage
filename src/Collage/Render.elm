@@ -96,10 +96,9 @@ render collage =
             []
 
         Core.Curve ps ->
-          Curve.catmullRom 1 ps
+          Curve.catmullRom 0.25 ps
             |> (\sp -> SubPath.element sp
                 ([ Svg.id name
-                 , Svg.points <| decodePoints ps
                  ]
                   ++ attrs collage
                   ++ events collage.handlers

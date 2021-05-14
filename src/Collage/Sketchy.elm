@@ -12,20 +12,32 @@ sketchy collage =
         Core.Path style path ->
             case path of
                 Core.Polyline ps ->
-                    Random.list (List.length ps) (Random.pair (Random.float 0 10) (Random.float 0 10))
+                    let
+                        curvedPs =
+                            List.map2
+                                (\( x1, y1 ) ( x2, y2 ) -> [ ( x1, y1 ), ( x1 + (x2 - x1) / 2, y1 + (y2 - y1) / 2 ) ])
+                                ps
+                                (List.drop 1 ps ++ List.take (List.length ps - 1) ps)
+                                |> List.concat
+                                |> List.take ((List.length ps * 2) - 1)
+                    in
+                    Random.list (List.length curvedPs) (Random.pair (Random.float 0 10) (Random.float 0 10))
                         |> Random.map
                             (\shifts ->
                                 List.map2
                                     (\( x, y ) ( shiftX, shiftY ) ->
                                         ( x + shiftX, y + shiftY )
                                     )
-                                    ps
+                                    curvedPs
                                     shifts
                             )
                         |> Random.map
                             (\points ->
-                                { collage | basic = Core.Path style (Core.Polyline points) }
+                                { collage | basic = Core.Path style (Core.Curve points) }
                             )
+
+                Core.Curve ps ->
+                    Random.constant collage
 
         Core.Shape ( fill, line ) path ->
             case path of

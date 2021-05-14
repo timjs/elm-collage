@@ -213,6 +213,7 @@ type Shape
 
 type Path
   = Polyline (List Point)
+  | Curve (List Point)
 
 
 type Text style

@@ -13,15 +13,19 @@ import Collage.Core as Core
 import Collage.Layout as Layout
 import Collage.Text as Text exposing (Text)
 import Color exposing (Color)
+import Curve
 import Html exposing (Html)
 import Json.Decode as Json
 import List
 import Maybe exposing (withDefault)
 import String exposing (fromFloat, fromInt)
+import SubPath exposing (SubPath)
 import Svg exposing (Attribute, Svg)
 import Svg.Attributes as Svg
 import Svg.Events as Svg
 import Tuple
+import Curve
+import SubPath
 
 
 {-| Render a collage as Svg in a view box of given width and height,
@@ -90,6 +94,16 @@ render collage =
               ++ events collage.handlers
             )
             []
+
+        Core.Curve ps ->
+          Curve.catmullRom 1 ps
+            |> (\sp -> SubPath.element sp
+                ([ Svg.id name
+                 , Svg.points <| decodePoints ps
+                 ]
+                  ++ attrs collage
+                  ++ events collage.handlers
+                ))
     Core.Shape ( fill, line ) shape ->
       case shape of
         Core.Polygon ps ->

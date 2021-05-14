@@ -269,6 +269,8 @@ handleBasic basic =
           thickness
         )
         ps
+    Core.Path attrs (Core.Curve ps) ->
+      handleBasic (Core.Path attrs (Core.Polyline ps))
     -- Boxes --
     Core.Text dims _ ->
       handleBox 0 dims

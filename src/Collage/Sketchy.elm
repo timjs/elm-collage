@@ -61,17 +61,18 @@ sketchPoints config ps =
             Random.pair (Random.float (0 - roughness) roughness) (Random.float (0 - roughness) roughness)
 
     in
-    Random.list (List.length ps) randomOffset
+    Random.list (List.length curvedPs) randomOffset
         |> Random.map
             (\shifts ->
                 List.map2
                     (\( x, y ) ( shiftX, shiftY ) ->
                         ( x + shiftX, y + shiftY )
                     )
-                    ps
+                    curvedPs
                     shifts
             )
 
+defaultConfig = { roughness = 2 }
 
 sketchy : Collage msg -> Random.Generator (Collage msg)
 sketchy collage =
@@ -86,8 +87,8 @@ sketchy collage =
                                 , { collage | basic = Core.Path style (Core.Curve points2) }
                                 ]
                         )
-                        (sketchPoints { roughness = 2 } ps)
-                        (sketchPoints { roughness = 2 } ps)
+                        (sketchPoints defaultConfig ps)
+                        (sketchPoints defaultConfig ps)
 
                 Core.Curve ps ->
                     Random.constant collage
@@ -95,14 +96,14 @@ sketchy collage =
         Core.Shape ( fill, line ) path ->
             case path of
                 Core.Polygon ps ->
-                    sketchLines { roughness = 3 } ps
+                    sketchLines defaultConfig ps
                         |> Random.map2
                             (\points lines ->
                                 Collage.group <|
                                     (List.map (\segment -> { collage | basic = Core.Path line (Core.Curve segment) }) lines)
                                     ++ [ { collage | basic = Core.Shape ( fill, Collage.invisible ) (Core.Polygon points) } ]
                             )
-                            (sketchPoints { roughness = 2 } ps)
+                            (sketchPoints defaultConfig ps)
 
                 Core.Rectangle w h r ->
                     let
@@ -114,14 +115,14 @@ sketchy collage =
                             ]
 
                         sketchedLines =
-                            sketchLines { roughness = 3 } ps
+                            sketchLines defaultConfig ps
                                 |> Random.map2
                                     (\points lines ->
                                         Collage.group <|
                                             (List.map (\segment -> { collage | basic = Core.Path line (Core.Curve segment) }) lines)
                                             ++ [ { collage | basic = Core.Shape ( fill, Collage.invisible ) (Core.Polygon points) } ]
                                     )
-                                    (sketchPoints { roughness = 2 } ps)
+                                    (sketchPoints defaultConfig ps)
                     in
                     sketchedLines
 

@@ -49,7 +49,7 @@ example =
 
 unit : Float
 unit =
-    30
+    50
 
 
 space : Collage msg

@@ -49,13 +49,12 @@ sketchPoints config ps =
                 |> List.sum
 
         roughness =
-            --FROM https://github.com/rough-stuff/rough/blob/master/src/renderer.ts#L274
             (if lineLength > 200 then
                 1
             else if lineLength > 500 then
                 0.4
             else
-                (-0.0016668) * lineLength + 1.233334) * config.roughness
+                (lineLength / 100)) * config.roughness
 
         randomOffset =
             Random.pair (Random.float (0 - roughness) roughness) (Random.float (0 - roughness) roughness)
@@ -134,8 +133,10 @@ sketchy collage =
                 |> Random.map (\group -> { collage | basic = Core.Group group })
 
         Core.Subcollage fore back ->
-            Random.Extra.combine (List.map sketchy [ fore, back ])
-                |> Random.map (\group -> { collage | basic = Core.Group group })
+            Random.map2
+                (\sketchedFore sketchedBack -> { collage | basic = Core.Subcollage sketchedFore sketchedBack })
+                (sketchy fore)
+                (sketchy back)
 
         _ ->
             Random.constant collage

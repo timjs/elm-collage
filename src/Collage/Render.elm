@@ -96,7 +96,7 @@ render collage =
             []
 
         Core.Curve ps ->
-          Curve.catmullRom 0.25 ps
+          Curve.bundle -0.03 ps
             |> (\sp -> SubPath.element sp
                 ([ Svg.id name
                  ]

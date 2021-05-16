@@ -113,17 +113,43 @@ sketchy collage =
                             , ( -w / 2, h / 2 )
                             ]
 
-                        sketchedLines =
-                            sketchLines defaultConfig ps
-                                |> Random.map2
-                                    (\points lines ->
-                                        Collage.group <|
-                                            (List.map (\segment -> { collage | basic = Core.Path line (Core.Curve segment) }) lines)
-                                            ++ [ { collage | basic = Core.Shape ( fill, Collage.invisible ) (Core.Polygon points) } ]
-                                    )
-                                    (sketchPoints defaultConfig ps)
                     in
-                    sketchedLines
+                    sketchLines defaultConfig ps
+                        |> Random.map2
+                            (\points lines ->
+                                Collage.group <|
+                                    (List.map (\segment -> { collage | basic = Core.Path line (Core.Polyline segment) }) lines)
+                                    ++ [ { collage | basic = Core.Shape ( fill, Collage.invisible ) (Core.Polygon points) } ]
+                            )
+                            (sketchPoints defaultConfig ps)
+
+                Core.Circle r ->
+                    let
+                        m =
+                            (r ^ 2 / 2 |> sqrt)
+
+                        ps =
+                            [ (0, -r)
+                            , (m, -m)
+                            , (r, 0)
+                            , (m, m)
+                            , (0, r)
+                            , (-m, m)
+                            , (-r, 0)
+                            , (-m, -m)
+                            , (0, -r)
+                            ]
+                    in
+                    Random.map2
+                        (\points1 points2 ->
+                            Collage.group <|
+                                [ { collage | basic = Core.Path line (Core.Curve points1) }
+                                , { collage | basic = Core.Path line (Core.Curve points2) }
+                                ]
+                                ++ [ { collage | basic = Core.Shape ( fill, Collage.invisible ) (Core.Circle r) } ]
+                        )
+                        (sketchPoints defaultConfig ps)
+                        (sketchPoints defaultConfig ps)
 
                 _ ->
                     Random.constant collage

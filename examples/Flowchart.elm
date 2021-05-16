@@ -132,7 +132,7 @@ box label =
 
 dot : Collage msg
 dot =
-    circle (unit / 3)
+    circle (unit)
         |> styled
             ( uniform green
             , thinline

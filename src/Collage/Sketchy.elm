@@ -154,6 +154,34 @@ sketchy collage =
                         (sketchPoints { defaultConfig | bowing = 0 } ps)
                         (sketchPoints { defaultConfig | bowing = 0 } ps)
 
+                Core.Ellipse rx ry ->
+                    let
+                        m r =
+                            (r ^ 2 / 2 |> sqrt)
+
+                        ps =
+                            [ (0, -ry)
+                            , (m rx, -(m ry))
+                            , (rx, 0)
+                            , (m rx, m ry)
+                            , (0, ry)
+                            , (-(m rx), m ry)
+                            , (-rx, 0)
+                            , (-(m rx), -(m ry))
+                            , (0, -ry)
+                            ]
+                    in
+                    Random.map2
+                        (\points1 points2 ->
+                            Collage.group <|
+                                [ { collage | basic = Core.Path line (Core.Curve points1) }
+                                , { collage | basic = Core.Path line (Core.Curve points2) }
+                                ]
+                                ++ [ { collage | basic = Core.Shape ( fill, Collage.invisible ) (Core.Ellipse rx ry) } ]
+                        )
+                        (sketchPoints { defaultConfig | bowing = 0 } ps)
+                        (sketchPoints { defaultConfig | bowing = 0 } ps)
+
                 _ ->
                     Random.constant collage
 

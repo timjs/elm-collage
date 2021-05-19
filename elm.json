@@ -19,8 +19,7 @@
         "elm/html": "1.0.0 <= v < 2.0.0",
         "elm/json": "1.0.0 <= v < 2.0.0",
         "elm/svg": "1.0.0 <= v < 2.0.0",
-        "elm-community/basics-extra": "4.0.0 <= v < 5.0.0",
-        "folkertdev/one-true-path-experiment": "6.0.0 <= v < 7.0.0"
+        "elm-community/basics-extra": "4.0.0 <= v < 5.0.0"
     },
     "test-dependencies": {}
 }

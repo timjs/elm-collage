@@ -13,20 +13,16 @@ import Collage.Core as Core
 import Collage.Layout as Layout
 import Collage.Text as Text exposing (Text)
 import Color exposing (Color)
-import Curve
 import Html exposing (Html)
 import Json.Decode as Json
 import List
 import Maybe exposing (withDefault)
 import String exposing (fromFloat, fromInt)
-import SubPath exposing (SubPath)
 import Svg exposing (Attribute, Svg)
 import Array exposing (Array)
 import Svg.Attributes as SvgA
 import Svg.Events as SvgE
 import Tuple
-import Curve
-import SubPath
 
 
 {-| Render a collage as Svg in a view box of given width and height,

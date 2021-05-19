@@ -41,7 +41,10 @@ update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
   case msg of
     Switch ->
-        ( { model | active = not model.active }, Cmd.none )
+        let
+            newModel = { model | active = not model.active }
+        in
+        ( newModel, sketchy (render newModel) |> Random.generate GeneratedSketchy )
     GeneratedSketchy collage ->
         ( { model | collage = collage }, Cmd.none )
 

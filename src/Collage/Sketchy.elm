@@ -8,6 +8,7 @@ import Random.Extra
 
 type alias Config =
     { roughness : Float
+    , bowing : Float
     }
 
 
@@ -32,13 +33,16 @@ sketchLines config ps =
 sketchPoints : Config -> List Point -> Random.Generator (List Point)
 sketchPoints config ps =
     let
-        curvedPs =
-            List.map2
-                (\( x1, y1 ) ( x2, y2 ) -> [ ( x1, y1 ), ( x1 + (x2 - x1) / 2, y1 + (y2 - y1) / 2 ) ])
+        bowedPs =
+            if config.bowing == 0 then
                 ps
-                (List.drop 1 ps ++ List.take (List.length ps - 1) ps)
-                |> List.concat
-                |> List.take ((List.length ps * 2) - 1)
+            else
+                List.map2
+                    (\( x1, y1 ) ( x2, y2 ) -> [ ( x1, y1 ), ( x1 + (x2 - x1) / 2, y1 + (y2 - y1) / 2 ) ])
+                    ps
+                    (List.drop 1 ps ++ List.take (List.length ps - 1) ps)
+                    |> List.concat
+                    |> List.take ((List.length ps * 2) - 1)
 
         lineLength =
             List.map2
@@ -60,18 +64,18 @@ sketchPoints config ps =
             Random.pair (Random.float (0 - roughness) roughness) (Random.float (0 - roughness) roughness)
 
     in
-    Random.list (List.length curvedPs) randomOffset
+    Random.list (List.length bowedPs) randomOffset
         |> Random.map
             (\shifts ->
                 List.map2
                     (\( x, y ) ( shiftX, shiftY ) ->
                         ( x + shiftX, y + shiftY )
                     )
-                    curvedPs
+                    bowedPs
                     shifts
             )
 
-defaultConfig = { roughness = 2 }
+defaultConfig = { roughness = 2, bowing = 1 }
 
 sketchy : Collage msg -> Random.Generator (Collage msg)
 sketchy collage =
@@ -148,8 +152,8 @@ sketchy collage =
                                 ]
                                 ++ [ { collage | basic = Core.Shape ( fill, Collage.invisible ) (Core.Circle r) } ]
                         )
-                        (sketchPoints defaultConfig ps)
-                        (sketchPoints defaultConfig ps)
+                        (sketchPoints { defaultConfig | bowing = 0 } ps)
+                        (sketchPoints { defaultConfig | bowing = 0 } ps)
 
                 _ ->
                     Random.constant collage

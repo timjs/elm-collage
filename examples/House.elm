@@ -5,8 +5,10 @@ import Collage exposing (..)
 import Collage.Events exposing (..)
 import Collage.Layout exposing (..)
 import Collage.Render exposing (..)
+import Collage.Sketchy exposing (sketchy)
 import Color exposing (..)
 import Html exposing (Html)
+import Random
 
 
 
@@ -14,7 +16,7 @@ import Html exposing (Html)
 
 
 type alias Model =
-  { hover : Part }
+  { hover : Part, collage: Collage Msg }
 
 
 type Part
@@ -27,21 +29,36 @@ type Part
   | Handle
 
 
-init : Model
-init = { hover = None }
+init : () -> ( Model, Cmd Msg )
+init _ =
+    let
+        model =
+            Model None (group [])
+    in
+    ( model, sketchy (house model) |> Random.generate GeneratedSketchy )
 
 
 
 -- Update ----------------------------------------------------------------------
 
 
-type alias Msg =
-  Part
+type Msg
+  = ChangePart Part
+  | GeneratedSketchy (Collage Msg)
 
 
-update : Msg -> Model -> Model
+update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
-  { hover = msg }
+    case msg of
+        ChangePart part ->
+            let
+                newModel =
+                    { model | hover = part }
+            in
+            ( newModel, sketchy (house newModel) |> Random.generate GeneratedSketchy )
+
+        GeneratedSketchy collage ->
+            ( { model | collage = collage }, Cmd.none )
 
 
 
@@ -60,7 +77,7 @@ house model =
              else
               fill
             )
-        |> onMouseEnter (always part)
+        |> onMouseEnter (always <| ChangePart part)
     --TODO: add `lengthen 0.75`
     roof = interactive Roof (uniform blue) (triangle 1)
     door = interactive Door (uniform red) (rectangle 0.2 0.4)
@@ -94,7 +111,7 @@ house model =
 
 view : Model -> Html Msg
 view model =
-  house model
+  model.collage
     |> scale 200
     |> svg
 
@@ -103,14 +120,13 @@ view model =
 -- Main ------------------------------------------------------------------------
 
 
-main : Program () Model Msg
 main =
-  Browser.sandbox
-    { init = init
-    , view = view
-    , update = update
-    }
-
+    Browser.element
+        { init = init
+        , update = update
+        , subscriptions = \_ -> Sub.none
+        , view = view
+        }
 
 
 {- Compare https://archives.haskell.org/projects.haskell.org/diagrams/blog/2015-04-30-GTK-coordinates.html:

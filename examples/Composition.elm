@@ -6,20 +6,26 @@ import Collage.Events exposing (onClick)
 import Collage.Layout exposing (..)
 import Collage.Render exposing (svg)
 import Collage.Text exposing (fromString)
+import Collage.Sketchy exposing (sketchy)
 import Color exposing (..)
 import Html exposing (Html)
-
+import Random
 
 
 -- Model -----------------------------------------------------------------------
 
 
 type alias Model =
-  { active : Bool }
+  { active : Bool, collage : Collage Msg }
 
 
-init : Model
-init = { active = False }
+init : () -> ( Model, Cmd Msg )
+init _ =
+    let
+        model =
+            Model False txt
+    in
+    ( model, sketchy (render model) |> Random.generate GeneratedSketchy )
 
 
 
@@ -27,13 +33,17 @@ init = { active = False }
 
 
 type Msg
-  = Switch
+    = Switch
+    | GeneratedSketchy (Collage Msg)
 
 
-update : Msg -> Model -> Model
+update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
   case msg of
-    Switch -> { model | active = not model.active }
+    Switch ->
+        ( { model | active = not model.active }, Cmd.none )
+    GeneratedSketchy collage ->
+        ( { model | collage = collage }, Cmd.none )
 
 
 
@@ -105,9 +115,7 @@ alignments =
 
 -- Main ------------------------------------------------------------------------
 
-
-view : Model -> Html Msg
-view model =
+render model =
   vertical
     [ horizontal
         [ rect
@@ -120,9 +128,17 @@ view model =
         ]
     , stack [ showEnvelope txt, elps model ]
     ]
-    |> debug
-    |> svg
+
+view : Model -> Html Msg
+view model =
+    model.collage |> svg
 
 
-main : Program () Model Msg
-main = Browser.sandbox { init = init, view = view, update = update }
+main =
+    Browser.element
+        { init = init
+        , update = update
+        , subscriptions = \_ -> Sub.none
+        , view = view
+        }
+

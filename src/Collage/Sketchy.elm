@@ -147,8 +147,7 @@ sketchy collage =
                     Random.map2
                         (\points1 points2 ->
                             Collage.group <|
-                                [ { collage | basic = Core.Path line (Core.Curve points1) }
-                                , { collage | basic = Core.Path line (Core.Curve points2) }
+                                [ { collage | basic = Core.Path line (Core.Curve ps) }
                                 ]
                                 ++ [ { collage | basic = Core.Shape ( fill, Collage.invisible ) (Core.Circle r) } ]
                         )

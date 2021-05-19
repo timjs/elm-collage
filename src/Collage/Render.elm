@@ -148,7 +148,7 @@ render collage =
         Core.Curve ps ->
             Svg.path
                 ([ SvgA.id name
-                 , SvgA.d (bCurvePath ps)
+                 , SvgA.d (bCurvePath (ps |> List.map (\(x1, y1) -> (x1, -y1))))
                  ]
                   ++ attrs collage
                   ++ events collage.handlers

@@ -8,6 +8,7 @@ import Collage.Sketchy exposing (..)
 import Collage.Text as Text exposing (Shape(..), fromString)
 import Color exposing (..)
 import Html exposing (Html)
+import Html.Attributes
 import List exposing (head)
 import Random
 
@@ -79,6 +80,7 @@ diamond label =
         text =
             fromString label
                 |> Text.shape Italic
+                |> Text.typeface (Text.Font "virgil")
                 |> rendered
 
         w =
@@ -112,6 +114,7 @@ box label =
     let
         text =
             fromString label
+                |> Text.typeface (Text.Font "virgil")
                 |> rendered
 
         w =
@@ -304,5 +307,7 @@ main =
 
 view : Model -> Html Msg
 view { collage } =
-    collage
-        |> svg
+    Html.div []
+        [ Html.node "style" [] [ Html.text "@font-face { font-family: 'Virgil'; src: url('https://excalidraw.com/Virgil.woff2'); }" ]
+        , collage |> svg
+        ]

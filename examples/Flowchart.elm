@@ -29,7 +29,7 @@ example : Flow
 example =
     Sequence
         (Sequence (Task "check diff")
-            (Choice "diff is as whished"
+            (Choice "diff is as wished"
                 (Sequence
                     (Parallel
                         [ Task "prepare changelog"
@@ -47,6 +47,10 @@ example =
 
 -- Elements --------------------------------------------------------------------
 
+
+fontFamily : String
+fontFamily =
+    "Caveat"
 
 unit : Float
 unit =
@@ -80,7 +84,8 @@ diamond label =
         text =
             fromString label
                 |> Text.shape Italic
-                |> Text.typeface (Text.Font "virgil")
+                |> Text.size Text.large
+                |> Text.typeface (Text.Font fontFamily)
                 |> rendered
 
         w =
@@ -114,7 +119,8 @@ box label =
     let
         text =
             fromString label
-                |> Text.typeface (Text.Font "virgil")
+                |> Text.typeface (Text.Font fontFamily)
+                |> Text.size Text.large
                 |> rendered
 
         w =
@@ -308,6 +314,6 @@ main =
 view : Model -> Html Msg
 view { collage } =
     Html.div []
-        [ Html.node "style" [] [ Html.text "@font-face { font-family: 'Virgil'; src: url('https://excalidraw.com/Virgil.woff2'); }" ]
+        [ Html.node "link" [ Html.Attributes.href ("https://fonts.googleapis.com/css2?family=" ++ fontFamily ++ "&display=swap"), Html.Attributes.rel "stylesheet" ]  []
         , collage |> svg
         ]

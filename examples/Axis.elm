@@ -1,5 +1,6 @@
 module Axis exposing (main)
 
+import Example
 import Collage exposing (..)
 import Collage.Render exposing (..)
 import Collage.Text exposing (Text, fromString)
@@ -7,8 +8,16 @@ import Color exposing (..)
 import Html exposing (Html)
 
 
-main : Html msg
+main : Platform.Program () (Example.Model () (Collage ())) (Example.Msg ())
 main =
+    Example.example
+        { init = collage
+        , update = (\_ _ -> collage)
+        , render = (\_ -> collage)
+        , view = svg
+        }
+
+collage =
   let
     up =
       triangle 10
@@ -43,4 +52,3 @@ main =
     , box
     , ellipse 20 40 |> filled (uniform red) |> shift ( 50, 50 )
     ]
-    |> svg

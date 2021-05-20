@@ -1,5 +1,6 @@
 module Names exposing (main)
 
+import Example
 import Collage exposing (..)
 import Collage.Core as Core
 import Collage.Layout exposing (..)
@@ -50,8 +51,8 @@ mark =
     |> name "mark"
 
 
-collage : Collage msg
-collage =
+init : Collage msg
+init =
   let
     pos =
       locate "circ" topRight circ
@@ -70,8 +71,18 @@ collage =
 -- Main ------------------------------------------------------------------------
 
 
-main : Html msg
+main : Platform.Program () (Example.Model () (Collage ())) (Example.Msg ())
 main =
+    Example.example
+        { init = init
+        , update = (\_ _ -> init)
+        , render = (\_ -> init)
+        , view = view
+        }
+
+
+view : Collage msg -> Html msg
+view collage =
   Html.div []
     [ svg collage
     , Html.p []

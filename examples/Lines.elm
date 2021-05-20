@@ -1,5 +1,6 @@
 module Lines exposing (lines, main)
 
+import Example
 import Collage exposing (..)
 import Collage.Layout exposing (..)
 import Collage.Render exposing (svg)
@@ -24,8 +25,7 @@ lines =
       List.map hline [ ultrathin, verythin, thin, semithick, thick, verythick, ultrathick ]
 
 
-main : Html msg
-main =
+collage =
   horizontal
     [ gap
     , vertical
@@ -34,4 +34,13 @@ main =
         , gap
         ]
     ]
-    |> svg
+
+main : Platform.Program () (Example.Model () (Collage ())) (Example.Msg ())
+main =
+    Example.example
+        { init = collage
+        , update = (\_ _ -> collage)
+        , render = (\_ -> collage)
+        , view = svg
+        }
+

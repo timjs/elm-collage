@@ -1,5 +1,6 @@
 module Path exposing (main)
 
+import Example
 import Collage exposing (..)
 import Collage.Layout exposing (..)
 import Collage.Render exposing (svg)
@@ -29,6 +30,11 @@ zigzag =
         ]
 
 
-main : Html msg
+main : Platform.Program () (Example.Model () (Collage ())) (Example.Msg ())
 main =
-    zigzag |> svg
+    Example.example
+        { init = zigzag
+        , update = (\_ _ -> zigzag)
+        , render = (\_ -> zigzag)
+        , view = svg
+        }

@@ -5,6 +5,7 @@ import Collage exposing (..)
 import Collage.Render exposing (svg)
 import Collage.Sketchy as Sketchy exposing (sketchy)
 import Html exposing (Html)
+import Html.Attributes
 import Html.Events
 import Random
 
@@ -96,7 +97,7 @@ button name msg =
 view : (Collage childMsg -> Html childMsg) -> Model childMsg childModel -> Html (Msg childMsg)
 view childView model =
     Html.div []
-        [ Html.div []
+        [ Html.div [ Html.Attributes.style "margin-bottom" "10px" ]
             [ button "Normal" ClickedNormal
             , button "Sketchy" ClickedSketchy
             ]

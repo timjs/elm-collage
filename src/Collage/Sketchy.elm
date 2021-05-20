@@ -23,6 +23,15 @@ segments closed ps =
             else
                 List.take ((List.length ps) - 1))
 
+rotate : List a -> List a
+rotate list =
+    case list  of
+        head :: tail ->
+            tail ++ [ head ]
+
+        _ ->
+            list
+
 sketchLines : Config -> List Point -> Random.Generator (List (List Point))
 sketchLines config ps =
     segments True ps
@@ -147,7 +156,7 @@ sketchy collage =
                     Random.map2
                         (\points1 points2 ->
                             Collage.group <|
-                                [ { collage | basic = Core.Path line (Core.Curve ps) }
+                                [ { collage | basic = Core.Path line (Core.Curve (points1 ++ (rotate points2))) }
                                 ]
                                 ++ [ { collage | basic = Core.Shape ( fill, Collage.invisible ) (Core.Circle r) } ]
                         )
@@ -174,8 +183,7 @@ sketchy collage =
                     Random.map2
                         (\points1 points2 ->
                             Collage.group <|
-                                [ { collage | basic = Core.Path line (Core.Curve points1) }
-                                , { collage | basic = Core.Path line (Core.Curve points2) }
+                                [ { collage | basic = Core.Path line (Core.Curve (points1 ++ (rotate points2))) }
                                 ]
                                 ++ [ { collage | basic = Core.Shape ( fill, Collage.invisible ) (Core.Ellipse rx ry) } ]
                         )

@@ -108,14 +108,14 @@ bCurvePath ps =
                     Array.indexedMap (\i p ->
                        case (neighbors arr i) of
                             Just (((m1x, m1y), (p1x, p1y)), ((ix, iy), (p2x, p2y))) ->
-                                [ "C", [ ix + (p1x - m1x) / 3, iy + (p1y - m1y) / 3  ]
-                                    |> List.map (String.fromFloat)
+                                [ "C", [ ix + (p1x - m1x) / 6, iy + (p1y - m1y) / 6  ]
+                                    |> List.map (String.fromInt << round)
                                     |> String.join " "
-                                , ",", [ p1x + (p2x - ix) / 3, p1y + (p2y - iy) / 3  ]
-                                    |> List.map (String.fromFloat)
+                                , ",", [ p1x + (ix - p2x) / 6, p1y + (iy - p2y) / 6  ]
+                                    |> List.map (String.fromInt << round)
                                     |> String.join " "
                                 , ",", [ p1x, p1y ]
-                                    |> List.map (String.fromFloat)
+                                    |> List.map (String.fromInt << round)
                                     |> String.join " "
                                 ] |> String.join " "
                             Nothing ->

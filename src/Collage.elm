@@ -4,7 +4,7 @@ module Collage exposing
   , group
   , Shape, rectangle, square, roundedRectangle, roundedSquare, ellipse, circle, polygon, ngon, triangle
   , filled, outlined, styled
-  , Path, line, segment, path
+  , Path, line, segment, path, curve
   , traced, close
   , rendered
   , image, html
@@ -628,7 +628,7 @@ type alias Path =
 
 
 -- Creating paths -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
--- TODO: add curves (aka Bezier paths), arcs (part of Bezier paths)
+-- TODO: add arcs (part of Bezier paths)
 
 
 {-| Draw a horizontal line with a given length.
@@ -673,6 +673,11 @@ It can be thought of as drawing a “connect-the-dots” line through a list of 
 path : List Point -> Path
 path = Core.Polyline
 
+
+{-| Create a curve that goes through a sequence of points.
+-}
+curve : List Point -> Path
+curve = Core.Curve
 
 
 -- Turning paths into collages -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -

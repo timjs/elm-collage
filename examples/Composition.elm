@@ -1,32 +1,18 @@
 module Composition exposing (main)
 
-import Browser
 import Collage exposing (..)
 import Collage.Events exposing (onClick)
 import Collage.Layout exposing (..)
-import Collage.Render exposing (svg)
 import Collage.Text exposing (fromString)
-import Collage.Sketchy as Sketchy exposing (sketchy)
 import Color exposing (..)
-import Html exposing (Html)
-import Html.Events
-import Random
+import Example
 
 
 -- Model -----------------------------------------------------------------------
 
 
 type alias Model =
-  { active : Bool, sketchy: Bool, collage : Collage Msg }
-
-
-init : () -> ( Model, Cmd Msg )
-init _ =
-    let
-        model =
-            Model False False (render False)
-    in
-    ( model, Cmd.none )
+  { active : Bool }
 
 
 
@@ -35,38 +21,13 @@ init _ =
 
 type Msg
     = Switch
-    | ClickedNormal
-    | ClickedSketchy
-    | GeneratedSketchy (Collage Msg)
 
 
-update : Msg -> Model -> ( Model, Cmd Msg )
+update : Msg -> Model -> Model
 update msg model =
-    let
-        renderModel m =
-            ( { m | collage = render m.active }
-            , if m.sketchy then
-                sketchy Sketchy.defaultConfig (render m.active)
-                    |> Random.generate GeneratedSketchy
-                else
-                    Cmd.none
-            )
-    in
   case msg of
     Switch ->
         { model | active = not model.active }
-            |> renderModel
-
-    ClickedNormal ->
-        { model | sketchy = False }
-            |> renderModel
-
-    ClickedSketchy ->
-        { model | sketchy = True }
-            |> renderModel
-
-    GeneratedSketchy collage ->
-        ( { model | collage = collage }, Cmd.none )
 
 
 
@@ -138,7 +99,7 @@ alignments =
 
 -- Main ------------------------------------------------------------------------
 
-render active =
+render model =
   vertical
     [ horizontal
         [ rect
@@ -149,31 +110,14 @@ render active =
             |> center
         , debug penta
         ]
-    , stack [ showEnvelope txt, elps active ]
+    , stack [ showEnvelope txt, elps model.active ]
     ]
 
 
-button : String -> Msg -> Html Msg
-button name msg =
-    Html.button [ Html.Events.onClick msg ] [ Html.text name ]
-
-
-view : Model -> Html Msg
-view model =
-    Html.div []
-        [ Html.div []
-            [ button "Normal" ClickedNormal
-            , button "Sketchy" ClickedSketchy
-            ]
-        , model.collage |> svg
-        ]
-
-
+main : Platform.Program () (Example.Model Msg Model) (Example.Msg Msg)
 main =
-    Browser.element
-        { init = init
+    Example.example
+        { init = Model False
         , update = update
-        , subscriptions = \_ -> Sub.none
-        , view = view
+        , render = render
         }
-

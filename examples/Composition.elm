@@ -9,6 +9,7 @@ import Collage.Text exposing (fromString)
 import Collage.Sketchy as Sketchy exposing (sketchy)
 import Color exposing (..)
 import Html exposing (Html)
+import Html.Events
 import Random
 
 
@@ -16,16 +17,16 @@ import Random
 
 
 type alias Model =
-  { active : Bool, collage : Collage Msg }
+  { active : Bool, sketchy: Bool, collage : Collage Msg }
 
 
 init : () -> ( Model, Cmd Msg )
 init _ =
     let
         model =
-            Model False txt
+            Model False False (render False)
     in
-    ( model, sketchy Sketchy.defaultConfig (render model) |> Random.generate GeneratedSketchy )
+    ( model, Cmd.none )
 
 
 
@@ -34,17 +35,36 @@ init _ =
 
 type Msg
     = Switch
+    | ClickedNormal
+    | ClickedSketchy
     | GeneratedSketchy (Collage Msg)
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
+    let
+        renderModel m =
+            ( { m | collage = render m.active }
+            , if m.sketchy then
+                sketchy Sketchy.defaultConfig (render m.active)
+                    |> Random.generate GeneratedSketchy
+                else
+                    Cmd.none
+            )
+    in
   case msg of
     Switch ->
-        let
-            newModel = { model | active = not model.active }
-        in
-        ( newModel, sketchy Sketchy.defaultConfig (render newModel) |> Random.generate GeneratedSketchy )
+        { model | active = not model.active }
+            |> renderModel
+
+    ClickedNormal ->
+        { model | sketchy = False }
+            |> renderModel
+
+    ClickedSketchy ->
+        { model | sketchy = True }
+            |> renderModel
+
     GeneratedSketchy collage ->
         ( { model | collage = collage }, Cmd.none )
 
@@ -72,12 +92,12 @@ txt =
 -- Shapes --
 
 
-elps : Model -> Collage Msg
-elps model =
+elps : Bool -> Collage Msg
+elps active =
   ellipse 100 50
     |> styled
         ( uniform <|
-            if model.active then
+            if active then
               lightPurple
             else
               lightBlue
@@ -118,7 +138,7 @@ alignments =
 
 -- Main ------------------------------------------------------------------------
 
-render model =
+render active =
   vertical
     [ horizontal
         [ rect
@@ -129,12 +149,24 @@ render model =
             |> center
         , debug penta
         ]
-    , stack [ showEnvelope txt, elps model ]
+    , stack [ showEnvelope txt, elps active ]
     ]
+
+
+button : String -> Msg -> Html Msg
+button name msg =
+    Html.button [ Html.Events.onClick msg ] [ Html.text name ]
+
 
 view : Model -> Html Msg
 view model =
-    model.collage |> svg
+    Html.div []
+        [ Html.div []
+            [ button "Normal" ClickedNormal
+            , button "Sketchy" ClickedSketchy
+            ]
+        , model.collage |> svg
+        ]
 
 
 main =

@@ -131,7 +131,7 @@ sketchy collage =
                         |> Random.map2
                             (\points lines ->
                                 Collage.group <|
-                                    (List.map (\segment -> { collage | basic = Core.Path line (Core.Polyline segment) }) lines)
+                                    (List.map (\segment -> { collage | basic = Core.Path line (Core.Curve segment) }) lines)
                                     ++ [ { collage | basic = Core.Shape ( fill, Collage.invisible ) (Core.Polygon points) } ]
                             )
                             (sketchPoints defaultConfig ps)
@@ -142,15 +142,15 @@ sketchy collage =
                             (r ^ 2 / 2 |> sqrt)
 
                         ps =
-                            [ (0, -r)
-                            , (m, -m)
-                            , (r, 0)
-                            , (m, m)
-                            , (0, r)
+                            [ (0, r)
                             , (-m, m)
                             , (-r, 0)
                             , (-m, -m)
                             , (0, -r)
+                            , (m, -m)
+                            , (r, 0)
+                            , (m, m)
+                            , (0, r)
                             ]
                     in
                     Random.map2
@@ -169,15 +169,15 @@ sketchy collage =
                             (r ^ 2 / 2 |> sqrt)
 
                         ps =
-                            [ (0, -ry)
-                            , (m rx, -(m ry))
-                            , (rx, 0)
-                            , (m rx, m ry)
-                            , (0, ry)
+                            [ (0, ry)
                             , (-(m rx), m ry)
                             , (-rx, 0)
                             , (-(m rx), -(m ry))
                             , (0, -ry)
+                            , (m rx, -(m ry))
+                            , (rx, 0)
+                            , (m rx, m ry)
+                            , (0, ry)
                             ]
                     in
                     Random.map2

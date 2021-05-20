@@ -13,6 +13,7 @@ type alias Config msg model =
     { init : model
     , update : msg -> model -> model
     , render : model -> Collage msg
+    , view : Collage msg -> Html msg
     }
 
 
@@ -47,9 +48,6 @@ init render child =
 update : Config childMsg childModel -> Msg childMsg -> Model childMsg childModel -> ( Model childMsg childModel, Cmd (Msg childMsg) )
 update config msg model =
     let
-        debug =
-            Debug.log "msg" msg
-
         render m =
             case m.renderer of
                 Sketchy ->
@@ -86,7 +84,7 @@ example config =
         { init = \_ -> init config.render config.init
         , update = update config
         , subscriptions = \_ -> Sub.none
-        , view = view
+        , view = view config.view
         }
 
 
@@ -95,14 +93,14 @@ button name msg =
     Html.button [ Html.Events.onClick msg ] [ Html.text name ]
 
 
-view : Model childMsg childModel -> Html (Msg childMsg)
-view model =
+view : (Collage childMsg -> Html childMsg) -> Model childMsg childModel -> Html (Msg childMsg)
+view childView model =
     Html.div []
         [ Html.div []
             [ button "Normal" ClickedNormal
             , button "Sketchy" ClickedSketchy
             ]
         , model.collage
-            |> svg
+            |> childView
             |> Html.map ChildMsg
         ]

@@ -1,14 +1,12 @@
 module House exposing (house, main)
 
-import Browser
 import Collage exposing (..)
+import Example
 import Collage.Events exposing (..)
 import Collage.Layout exposing (..)
 import Collage.Render exposing (..)
-import Collage.Sketchy exposing (sketchy, defaultConfig)
 import Color exposing (..)
 import Html exposing (Html)
-import Random
 
 
 
@@ -16,7 +14,7 @@ import Random
 
 
 type alias Model =
-  { hover : Part, collage: Collage Msg }
+  { hover : Part }
 
 
 type Part
@@ -29,36 +27,18 @@ type Part
   | Handle
 
 
-init : () -> ( Model, Cmd Msg )
-init _ =
-    let
-        model =
-            Model None (group [])
-    in
-    ( model, sketchy defaultConfig (house model) |> Random.generate GeneratedSketchy )
-
-
-
 -- Update ----------------------------------------------------------------------
 
 
 type Msg
   = ChangePart Part
-  | GeneratedSketchy (Collage Msg)
 
 
-update : Msg -> Model -> ( Model, Cmd Msg )
+update : Msg -> Model -> Model
 update msg model =
     case msg of
         ChangePart part ->
-            let
-                newModel =
-                    { model | hover = part }
-            in
-            ( newModel, sketchy defaultConfig (house newModel) |> Random.generate GeneratedSketchy )
-
-        GeneratedSketchy collage ->
-            ( { model | collage = collage }, Cmd.none )
+            { model | hover = part }
 
 
 
@@ -109,9 +89,9 @@ house model =
     ]
 
 
-view : Model -> Html Msg
-view model =
-  model.collage
+view : Collage Msg -> Html Msg
+view collage =
+  collage
     |> scale 200
     |> svg
 
@@ -120,11 +100,12 @@ view model =
 -- Main ------------------------------------------------------------------------
 
 
+main : Platform.Program () (Example.Model Msg Model) (Example.Msg Msg)
 main =
-    Browser.element
-        { init = init
+    Example.example
+        { init = Model None
         , update = update
-        , subscriptions = \_ -> Sub.none
+        , render = house
         , view = view
         }
 

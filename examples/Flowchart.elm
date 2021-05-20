@@ -1,16 +1,14 @@
 module Flowchart exposing (main)
 
-import Browser
+import Example
 import Collage exposing (..)
+import Collage.Render
 import Collage.Layout exposing (..)
-import Collage.Render exposing (..)
-import Collage.Sketchy exposing (..)
 import Collage.Text as Text exposing (Shape(..), fromString)
 import Color exposing (..)
 import Html exposing (Html)
 import Html.Attributes
 import List exposing (head)
-import Random
 
 
 
@@ -274,46 +272,27 @@ render flow =
 -- Main ------------------------------------------------------------------------
 
 
-type alias Model =
-    { collage : Collage Msg }
-
-
-init : () -> ( Model, Cmd Msg )
-init _ =
-    let
-        model =
-            Model (render example)
-    in
-    ( model, sketchy defaultConfig (render example) |> Random.generate GeneratedSketchy )
-
-
-
--- UPDATE
-
-
 type Msg
-    = GeneratedSketchy (Collage Msg)
+    = NoOp
 
 
-update : Msg -> Model -> ( Model, Cmd Msg )
-update msg model =
-    case msg of
-        GeneratedSketchy collage ->
-            ( Model collage, Cmd.none )
+type alias Model =
+    Flow
 
 
+main : Platform.Program () (Example.Model Msg Model) (Example.Msg Msg)
 main =
-    Browser.element
-        { init = init
-        , update = update
-        , subscriptions = \_ -> Sub.none
+    Example.example
+        { init = example
+        , update = (\_ model -> model)
+        , render = render
         , view = view
         }
 
 
-view : Model -> Html Msg
-view { collage } =
+view : Collage Msg -> Html Msg
+view collage =
     Html.div []
         [ Html.node "link" [ Html.Attributes.href ("https://fonts.googleapis.com/css2?family=" ++ fontFamily ++ "&display=swap"), Html.Attributes.rel "stylesheet" ]  []
-        , collage |> svg
+        , collage |> Collage.Render.svg
         ]

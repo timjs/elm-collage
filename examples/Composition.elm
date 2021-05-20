@@ -1,6 +1,7 @@
 module Composition exposing (main)
 
 import Collage exposing (..)
+import Collage.Render
 import Collage.Events exposing (onClick)
 import Collage.Layout exposing (..)
 import Collage.Text exposing (fromString)
@@ -120,4 +121,5 @@ main =
         { init = Model False
         , update = update
         , render = render
+        , view = Collage.Render.svg
         }

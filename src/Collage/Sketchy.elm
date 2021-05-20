@@ -1,4 +1,4 @@
-module Collage.Sketchy exposing (sketchy)
+module Collage.Sketchy exposing (sketchy, defaultConfig)
 
 import Collage exposing (Collage, Point)
 import Collage.Core as Core
@@ -84,10 +84,12 @@ sketchPoints config ps =
                     shifts
             )
 
-defaultConfig = { roughness = 2, bowing = 1 }
+defaultConfig : Config
+defaultConfig =
+    { roughness = 2, bowing = 1 }
 
-sketchy : Collage msg -> Random.Generator (Collage msg)
-sketchy collage =
+sketchy : Config -> Collage msg -> Random.Generator (Collage msg)
+sketchy config collage =
     case collage.basic of
         Core.Path style path ->
             case path of
@@ -99,8 +101,8 @@ sketchy collage =
                                 , { collage | basic = Core.Path style (Core.Curve points2) }
                                 ]
                         )
-                        (sketchPoints defaultConfig ps)
-                        (sketchPoints defaultConfig ps)
+                        (sketchPoints config ps)
+                        (sketchPoints config ps)
 
                 Core.Curve ps ->
                     Random.constant collage
@@ -108,14 +110,14 @@ sketchy collage =
         Core.Shape ( fill, line ) path ->
             case path of
                 Core.Polygon ps ->
-                    sketchLines defaultConfig ps
+                    sketchLines config ps
                         |> Random.map2
                             (\points lines ->
                                 Collage.group <|
                                     (List.map (\segment -> { collage | basic = Core.Path line (Core.Curve segment) }) lines)
                                     ++ [ { collage | basic = Core.Shape ( fill, Collage.invisible ) (Core.Polygon points) } ]
                             )
-                            (sketchPoints defaultConfig ps)
+                            (sketchPoints config ps)
 
                 Core.Rectangle w h r ->
                     let
@@ -127,14 +129,14 @@ sketchy collage =
                             ]
 
                     in
-                    sketchLines defaultConfig ps
+                    sketchLines config ps
                         |> Random.map2
                             (\points lines ->
                                 Collage.group <|
                                     (List.map (\segment -> { collage | basic = Core.Path line (Core.Curve segment) }) lines)
                                     ++ [ { collage | basic = Core.Shape ( fill, Collage.invisible ) (Core.Polygon points) } ]
                             )
-                            (sketchPoints defaultConfig ps)
+                            (sketchPoints config ps)
 
                 Core.Circle r ->
                     let
@@ -160,8 +162,8 @@ sketchy collage =
                                 ]
                                 ++ [ { collage | basic = Core.Shape ( fill, Collage.invisible ) (Core.Circle r) } ]
                         )
-                        (sketchPoints { defaultConfig | bowing = 0 } ps)
-                        (sketchPoints { defaultConfig | bowing = 0 } ps)
+                        (sketchPoints { config | bowing = 0 } ps)
+                        (sketchPoints { config | bowing = 0 } ps)
 
                 Core.Ellipse rx ry ->
                     let
@@ -187,21 +189,21 @@ sketchy collage =
                                 ]
                                 ++ [ { collage | basic = Core.Shape ( fill, Collage.invisible ) (Core.Ellipse rx ry) } ]
                         )
-                        (sketchPoints { defaultConfig | bowing = 0 } ps)
-                        (sketchPoints { defaultConfig | bowing = 0 } ps)
+                        (sketchPoints { config | bowing = 0 } ps)
+                        (sketchPoints { config | bowing = 0 } ps)
 
                 _ ->
                     Random.constant collage
 
         Core.Group collages ->
-            Random.Extra.combine (List.map sketchy collages)
+            Random.Extra.combine (List.map (sketchy config) collages)
                 |> Random.map (\group -> { collage | basic = Core.Group group })
 
         Core.Subcollage fore back ->
             Random.map2
                 (\sketchedFore sketchedBack -> { collage | basic = Core.Subcollage sketchedFore sketchedBack })
-                (sketchy fore)
-                (sketchy back)
+                (sketchy config fore)
+                (sketchy config back)
 
         _ ->
             Random.constant collage

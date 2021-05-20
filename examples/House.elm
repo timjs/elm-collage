@@ -5,7 +5,7 @@ import Collage exposing (..)
 import Collage.Events exposing (..)
 import Collage.Layout exposing (..)
 import Collage.Render exposing (..)
-import Collage.Sketchy exposing (sketchy)
+import Collage.Sketchy exposing (sketchy, defaultConfig)
 import Color exposing (..)
 import Html exposing (Html)
 import Random
@@ -35,7 +35,7 @@ init _ =
         model =
             Model None (group [])
     in
-    ( model, sketchy (house model) |> Random.generate GeneratedSketchy )
+    ( model, sketchy defaultConfig (house model) |> Random.generate GeneratedSketchy )
 
 
 
@@ -55,7 +55,7 @@ update msg model =
                 newModel =
                     { model | hover = part }
             in
-            ( newModel, sketchy (house newModel) |> Random.generate GeneratedSketchy )
+            ( newModel, sketchy defaultConfig (house newModel) |> Random.generate GeneratedSketchy )
 
         GeneratedSketchy collage ->
             ( { model | collage = collage }, Cmd.none )

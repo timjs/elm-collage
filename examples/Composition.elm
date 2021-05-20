@@ -6,7 +6,7 @@ import Collage.Events exposing (onClick)
 import Collage.Layout exposing (..)
 import Collage.Render exposing (svg)
 import Collage.Text exposing (fromString)
-import Collage.Sketchy exposing (sketchy)
+import Collage.Sketchy as Sketchy exposing (sketchy)
 import Color exposing (..)
 import Html exposing (Html)
 import Random
@@ -25,7 +25,7 @@ init _ =
         model =
             Model False txt
     in
-    ( model, sketchy (render model) |> Random.generate GeneratedSketchy )
+    ( model, sketchy Sketchy.defaultConfig (render model) |> Random.generate GeneratedSketchy )
 
 
 
@@ -44,7 +44,7 @@ update msg model =
         let
             newModel = { model | active = not model.active }
         in
-        ( newModel, sketchy (render newModel) |> Random.generate GeneratedSketchy )
+        ( newModel, sketchy Sketchy.defaultConfig (render newModel) |> Random.generate GeneratedSketchy )
     GeneratedSketchy collage ->
         ( { model | collage = collage }, Cmd.none )
 

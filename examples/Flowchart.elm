@@ -284,7 +284,7 @@ init _ =
         model =
             Model (render example)
     in
-    ( model, sketchy (render example) |> Random.generate GeneratedSketchy )
+    ( model, sketchy defaultConfig (render example) |> Random.generate GeneratedSketchy )
 
 
 

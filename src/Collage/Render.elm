@@ -74,59 +74,6 @@ svgAbsolute ( width, height ) collage =
     ]
 
 
--- FROM https://github.com/rough-stuff/rough/blob/e9b0fdf36952a7a0f02e8015f4abac1ad39981c5/src/renderer.ts#L367
-bCurvePath : List Point -> String
-bCurvePath ps =
-    let
-        neighbors arr index =
-            Maybe.map4
-                (\m1 p1 i p2 ->
-                    ((m1, p1), (i, p2))
-                )
-                (Array.get (index - 1) arr)
-                (Array.get (index + 1) arr)
-                (Array.get index arr)
-                (Array.get (index + 2) arr)
-    in
-    case ps of
-        [] ->
-            ""
-
-        [ p ] ->
-            ""
-
-        [ (x1, y1), (x2, y2) ] ->
-            [ "M", [ x1, y1 ] |> List.map (String.fromFloat) |> String.join " "
-            , "L", [ x2, y2 ] |> List.map (String.fromFloat) |> String.join " "
-            ] |> String.join " "
-
-        (x1, y1) :: tail ->
-           let
-               last = List.reverse tail |> List.take 1
-               arr = Array.fromList ((x1, y1) :: (x1, y1) :: tail ++ last)
-               curves =
-                    Array.indexedMap (\i p ->
-                       case (neighbors arr i) of
-                            Just (((m1x, m1y), (p1x, p1y)), ((ix, iy), (p2x, p2y))) ->
-                                [ "C", [ ix + (p1x - m1x) / 6, iy + (p1y - m1y) / 6  ]
-                                    |> List.map (String.fromInt << round)
-                                    |> String.join " "
-                                , ",", [ p1x + (ix - p2x) / 6, p1y + (iy - p2y) / 6  ]
-                                    |> List.map (String.fromInt << round)
-                                    |> String.join " "
-                                , ",", [ p1x, p1y ]
-                                    |> List.map (String.fromInt << round)
-                                    |> String.join " "
-                                ] |> String.join " "
-                            Nothing ->
-                                ""
-                        ) arr
-                        |> Array.toList
-
-           in
-           ([ "M", String.fromFloat x1, String.fromFloat y1 ] ++ curves) |> String.join " "
-
-
 render : Collage msg -> Svg msg
 render collage =
   let
@@ -148,7 +95,7 @@ render collage =
         Core.Curve ps ->
             Svg.path
                 ([ SvgA.id name
-                 , SvgA.d (bCurvePath (ps |> List.map (\(x1, y1) -> (x1, -y1))))
+                 , SvgA.d (bezierCurvePath (ps |> List.map (\(x1, y1) -> (x1, -y1))))
                  ]
                   ++ attrs collage
                   ++ events collage.handlers
@@ -395,3 +342,56 @@ decodeDashing ds =
   ds
     |> List.map decodeOnOff
     |> String.join " "
+
+
+-- BASED ON https://github.com/rough-stuff/rough/blob/e9b0fdf36952a7a0f02e8015f4abac1ad39981c5/src/renderer.ts#L367
+bezierCurvePath : List Point -> String
+bezierCurvePath ps =
+    let
+        neighbors arr index =
+            Maybe.map4
+                (\m1 p1 i p2 ->
+                    ((m1, p1), (i, p2))
+                )
+                (Array.get (index - 1) arr)
+                (Array.get (index + 1) arr)
+                (Array.get index arr)
+                (Array.get (index + 2) arr)
+    in
+    case ps of
+        [] ->
+            ""
+
+        [ p ] ->
+            ""
+
+        [ (x1, y1), (x2, y2) ] ->
+            [ "M", [ x1, y1 ] |> List.map (String.fromFloat) |> String.join " "
+            , "L", [ x2, y2 ] |> List.map (String.fromFloat) |> String.join " "
+            ] |> String.join " "
+
+        (x1, y1) :: tail ->
+           let
+               last = List.reverse tail |> List.take 1
+               arr = Array.fromList ((x1, y1) :: (x1, y1) :: tail ++ last)
+               curves =
+                    Array.indexedMap (\i p ->
+                       case (neighbors arr i) of
+                            Just (((m1x, m1y), (p1x, p1y)), ((ix, iy), (p2x, p2y))) ->
+                                [ "C", [ ix + (p1x - m1x) / 6, iy + (p1y - m1y) / 6  ]
+                                    |> List.map (String.fromInt << round)
+                                    |> String.join " "
+                                , ",", [ p1x + (ix - p2x) / 6, p1y + (iy - p2y) / 6  ]
+                                    |> List.map (String.fromInt << round)
+                                    |> String.join " "
+                                , ",", [ p1x, p1y ]
+                                    |> List.map (String.fromInt << round)
+                                    |> String.join " "
+                                ] |> String.join " "
+                            Nothing ->
+                                ""
+                        ) arr
+                        |> Array.toList
+
+           in
+           ([ "M", String.fromFloat x1, String.fromFloat y1 ] ++ curves) |> String.join " "

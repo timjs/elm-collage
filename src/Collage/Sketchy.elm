@@ -55,7 +55,15 @@ sketchy config collage =
                         (sketchPoints config ps)
 
                 Core.Curve ps ->
-                    Random.constant collage
+                    Random.map2
+                        (\points1 points2 ->
+                            Collage.group
+                                [ { collage | basic = Core.Path style (Core.Curve points1) }
+                                , { collage | basic = Core.Path style (Core.Curve points2) }
+                                ]
+                        )
+                        (sketchPoints config ps)
+                        (sketchPoints config ps)
 
         Core.Shape ( fill, line ) path ->
             -- FIXME: Use hachures for fills or at least curve shape edges.

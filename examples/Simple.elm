@@ -1,13 +1,14 @@
 module Simple exposing (main)
 
-import Example
-import Collage exposing (Collage, circle, filled, rectangle, uniform)
+import Collage exposing (circle, filled, rectangle, uniform)
 import Collage.Layout exposing (at, topLeft)
+import Collage.Render exposing (svg)
 import Color
 import Html exposing (Html)
 
 
-collage =
+main : Html msg
+main =
   let
     circ =
       circle 50
@@ -18,13 +19,4 @@ collage =
   in
   rect
     |> at topLeft circ
-
-
-main : Platform.Program () (Example.Model () (Collage ())) (Example.Msg ())
-main =
-    Example.example
-        { init = collage
-        , update = (\_ _ -> collage)
-        , render = (\_ -> collage)
-        , view = identity
-        }
+    |> svg

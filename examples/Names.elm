@@ -1,6 +1,5 @@
 module Names exposing (main)
 
-import Example
 import Collage exposing (..)
 import Collage.Core as Core
 import Collage.Layout exposing (..)
@@ -51,8 +50,8 @@ mark =
     |> name "mark"
 
 
-init : Collage msg
-init =
+collage : Collage msg
+collage =
   let
     pos =
       locate "circ" topRight circ
@@ -71,29 +70,19 @@ init =
 -- Main ------------------------------------------------------------------------
 
 
-main : Platform.Program () (Example.Model () (Collage ())) (Example.Msg ())
+main : Html msg
 main =
-    Example.example
-        { init = init
-        , update = (\_ _ -> init)
-        , render = (\_ -> init)
-        , view = view
-        }
-
-
-view : Html msg -> Html msg
-view collage =
   Html.div []
-    [ collage
+    [ svg collage
     , Html.p []
         [ { names =
-              names init
+              names collage
           , rectTopRight =
-              locate "rect" topRight init
+              locate "rect" topRight collage
           , rect =
-              Core.search (.name >> Maybe.map ((==) "rect") >> Maybe.withDefault False) init
+              Core.search (.name >> Maybe.map ((==) "rect") >> Maybe.withDefault False) collage
           , levels =
-              List.map .name <| Core.levels init
+              List.map .name <| Core.levels collage
           }
             |> Debug.toString
             |> text

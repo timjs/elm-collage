@@ -143,13 +143,10 @@ Ok, you get the grip!
 
 # Paths
 
-_Please fill in an issue if you want support for curves and arcs (aka Bézier paths).
-I like to know if people want this before implementing it._
-
 
 ## Drawing paths
 
-@docs Path, line, segment, path
+@docs Path, line, segment, path, curve
 
 
 ## Turning paths into collages or shapes

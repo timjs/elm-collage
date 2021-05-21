@@ -1,22 +1,43 @@
 module Collage.Sketchy exposing (Config, defaultConfig, sketchy)
 
+{-| Transform a collage so it looks rough and hand drawn.
+
+@docs Config, defaultConfig, sketchy
+
+-}
+
 import Collage exposing (Collage, Point)
 import Collage.Core as Core
 import Random
 import Random.Extra
 
 
+{-| Configure how rough results should look.
+
+- `roughness` controls how far points will be shifted from original locations.
+- `bowing` controls depth of curvature between two points on a line. Currently only responds to 0 or 1 values.
+
+-}
 type alias Config =
     { roughness : Float
     , bowing : Float
     }
 
 
+{-| Default configuration values.
+
+    { roughness = 2, bowing = 1 }
+-}
 defaultConfig : Config
 defaultConfig =
     { roughness = 2, bowing = 1 }
 
 
+{-| Generate a sketched version of a collage.
+
+    sketchy defaultConfig collage
+        |> Random.generate GeneratedSketchy
+-}
 sketchy : Config -> Collage msg -> Random.Generator (Collage msg)
 sketchy config collage =
     case collage.basic of
@@ -37,6 +58,7 @@ sketchy config collage =
                     Random.constant collage
 
         Core.Shape ( fill, line ) path ->
+            -- FIXME: Use hachures for fills or at least curve shape edges.
             case path of
                 Core.Polygon ps ->
                     sketchLines config ps

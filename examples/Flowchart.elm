@@ -2,7 +2,6 @@ module Flowchart exposing (main)
 
 import Example
 import Collage exposing (..)
-import Collage.Render
 import Collage.Layout exposing (..)
 import Collage.Text as Text exposing (Shape(..), fromString)
 import Color exposing (..)
@@ -290,9 +289,9 @@ main =
         }
 
 
-view : Collage Msg -> Html Msg
+view : Html Msg -> Html Msg
 view collage =
     Html.div []
         [ Html.node "link" [ Html.Attributes.href ("https://fonts.googleapis.com/css2?family=" ++ fontFamily ++ "&display=swap"), Html.Attributes.rel "stylesheet" ]  []
-        , collage |> Collage.Render.svg
+        , collage
         ]

@@ -3,7 +3,6 @@ module Simple exposing (main)
 import Example
 import Collage exposing (Collage, circle, filled, rectangle, uniform)
 import Collage.Layout exposing (at, topLeft)
-import Collage.Render exposing (svg)
 import Color
 import Html exposing (Html)
 
@@ -27,5 +26,5 @@ main =
         { init = collage
         , update = (\_ _ -> collage)
         , render = (\_ -> collage)
-        , view = svg
+        , view = identity
         }

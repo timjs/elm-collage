@@ -81,19 +81,19 @@ main =
         }
 
 
-view : Collage msg -> Html msg
+view : Html msg -> Html msg
 view collage =
   Html.div []
-    [ svg collage
+    [ collage
     , Html.p []
         [ { names =
-              names collage
+              names init
           , rectTopRight =
-              locate "rect" topRight collage
+              locate "rect" topRight init
           , rect =
-              Core.search (.name >> Maybe.map ((==) "rect") >> Maybe.withDefault False) collage
+              Core.search (.name >> Maybe.map ((==) "rect") >> Maybe.withDefault False) init
           , levels =
-              List.map .name <| Core.levels collage
+              List.map .name <| Core.levels init
           }
             |> Debug.toString
             |> text

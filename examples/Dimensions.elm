@@ -3,7 +3,6 @@ module Dimensions exposing (diamond, main)
 import Example
 import Collage exposing (..)
 import Collage.Layout exposing (..)
-import Collage.Render exposing (..)
 import Collage.Text as Text exposing (Shape(..), Text, fromString)
 import Color exposing (Color)
 import Html exposing (Html)
@@ -57,6 +56,6 @@ main =
         { init = collage
         , update = (\_ _ -> collage)
         , render = (\_ -> collage)
-        , view = svg
+        , view = identity
         }
 

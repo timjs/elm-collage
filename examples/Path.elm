@@ -3,7 +3,6 @@ module Path exposing (main)
 import Example
 import Collage exposing (..)
 import Collage.Layout exposing (..)
-import Collage.Render exposing (svg)
 import Color exposing (..)
 import Html exposing (Html)
 
@@ -36,5 +35,5 @@ main =
         { init = zigzag
         , update = (\_ _ -> zigzag)
         , render = (\_ -> zigzag)
-        , view = svg
+        , view = identity
         }

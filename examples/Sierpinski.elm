@@ -3,7 +3,6 @@ module Sierpinski exposing (main, sierpinski)
 import Example
 import Collage exposing (..)
 import Collage.Layout exposing (..)
-import Collage.Render exposing (..)
 import Color
 import Html exposing (Html)
 
@@ -34,7 +33,7 @@ main =
         { init = collage
         , update = (\_ _ -> collage)
         , render = (\_ -> collage)
-        , view = svg
+        , view = identity
         }
 
 

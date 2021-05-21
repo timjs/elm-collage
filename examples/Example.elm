@@ -14,7 +14,7 @@ type alias Config msg model =
     { init : model
     , update : msg -> model -> model
     , render : model -> Collage msg
-    , view : Collage msg -> Html msg
+    , view : Html msg -> Html msg
     }
 
 
@@ -94,7 +94,7 @@ button name msg =
     Html.button [ Html.Events.onClick msg ] [ Html.text name ]
 
 
-view : (Collage childMsg -> Html childMsg) -> Model childMsg childModel -> Html (Msg childMsg)
+view : (Html childMsg -> Html childMsg) -> Model childMsg childModel -> Html (Msg childMsg)
 view childView model =
     Html.div []
         [ Html.div [ Html.Attributes.style "margin-bottom" "10px" ]
@@ -102,6 +102,7 @@ view childView model =
             , button "Sketchy" ClickedSketchy
             ]
         , model.collage
+            |> svg
             |> childView
             |> Html.map ChildMsg
         ]

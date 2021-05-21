@@ -4,7 +4,6 @@ import Collage exposing (..)
 import Example
 import Collage.Events exposing (..)
 import Collage.Layout exposing (..)
-import Collage.Render exposing (..)
 import Color exposing (..)
 import Html exposing (Html)
 
@@ -89,14 +88,6 @@ house model =
     ]
 
 
-view : Collage Msg -> Html Msg
-view collage =
-  collage
-    |> scale 200
-    |> svg
-
-
-
 -- Main ------------------------------------------------------------------------
 
 
@@ -105,8 +96,8 @@ main =
     Example.example
         { init = Model None
         , update = update
-        , render = house
-        , view = view
+        , render = house >> (scale 200)
+        , view = identity
         }
 
 

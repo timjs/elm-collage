@@ -7,7 +7,6 @@ import Collage.Sketchy as Sketchy exposing (sketchy)
 import Html exposing (Html)
 import Html.Attributes
 import Html.Events
-import Random
 
 
 type alias Config msg model =
@@ -21,7 +20,6 @@ type alias Config msg model =
 type Msg childMsg
     = ClickedNormal
     | ClickedSketchy
-    | GeneratedSketchy (Collage childMsg)
     | ChildMsg childMsg
 
 
@@ -34,6 +32,7 @@ type alias Model childMsg childModel =
     { collage : Collage childMsg
     , renderer : Renderer
     , model : childModel
+    , sketchyConfig : Sketchy.Config
     }
 
 
@@ -41,7 +40,7 @@ init : (childModel -> Collage childMsg) -> childModel -> ( Model childMsg childM
 init render child =
     let
         model =
-            Model (render child) Normal child
+            Model (render child) Normal child Sketchy.defaultConfig
     in
     ( model, Cmd.none )
 
@@ -52,9 +51,8 @@ update config msg model =
         render m =
             case m.renderer of
                 Sketchy ->
-                    ( m
-                    , sketchy Sketchy.defaultConfig (config.render m.model)
-                        |> Random.generate GeneratedSketchy
+                    ( { m | collage = sketchy m.sketchyConfig (config.render m.model) }
+                    , Cmd.none
                     )
 
                 Normal ->
@@ -68,11 +66,8 @@ update config msg model =
                 |> render
 
         ClickedSketchy ->
-            { model | renderer = Sketchy }
+            { model | renderer = Sketchy, sketchyConfig = (Sketchy.nextSeed model.sketchyConfig) }
                 |> render
-
-        GeneratedSketchy collage ->
-            ( { model | collage = collage }, Cmd.none )
 
         ChildMsg cMsg ->
             { model | model = config.update cMsg model.model }

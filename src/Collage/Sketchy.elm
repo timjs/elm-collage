@@ -1,4 +1,7 @@
-module Collage.Sketchy exposing (Config, defaultConfig, sketchy)
+module Collage.Sketchy exposing
+    ( Config, defaultConfig, sketchy
+    , nextSeed
+    )
 
 {-| Transform a collage so it looks rough and hand drawn.
 
@@ -6,77 +9,82 @@ module Collage.Sketchy exposing (Config, defaultConfig, sketchy)
 
 -}
 
+import Array
 import Collage exposing (Collage, Point)
 import Collage.Core as Core
-import Random
-import Random.Extra
 
 
 {-| Configure how rough results should look.
 
-- `roughness` controls how far points will be shifted from original locations.
-- `bowing` controls depth of curvature between two points on a line. Currently only responds to 0 or 1 values.
+  - `roughness` controls how far points will be shifted from original locations.
+  - `bowing` controls depth of curvature between two points on a line. Currently only responds to 0 or 1 values.
+  - `seed` controls random number generator. Sketching the same collage twice with the same seed will produce identical results.
 
 -}
 type alias Config =
     { roughness : Float
     , bowing : Float
+    , seed : Int
     }
 
 
 {-| Default configuration values.
 
-    { roughness = 2, bowing = 1 }
+    { roughness = 2, bowing = 1, seed = 0 }
+
 -}
 defaultConfig : Config
 defaultConfig =
-    { roughness = 2, bowing = 1 }
+    { roughness = 3, bowing = 1, seed = 0 }
+
+
+nextSeed : Config -> Config
+nextSeed config =
+    { config | seed = config.seed + 1 }
 
 
 {-| Generate a sketched version of a collage.
 
     sketchy defaultConfig collage
         |> Random.generate GeneratedSketchy
+
 -}
-sketchy : Config -> Collage msg -> Random.Generator (Collage msg)
+sketchy : Config -> Collage msg -> Collage msg
 sketchy config collage =
     case collage.basic of
         Core.Path style path ->
             case path of
                 Core.Polyline ps ->
-                    Random.map2
-                        (\points1 points2 ->
-                            Collage.group
-                                [ { collage | basic = Core.Path style (Core.Curve points1) }
-                                , { collage | basic = Core.Path style (Core.Curve points2) }
-                                ]
-                        )
+                    (\points1 points2 ->
+                        Collage.group
+                            [ { collage | basic = Core.Path style (Core.Curve points1) }
+                            , { collage | basic = Core.Path style (Core.Curve points2) }
+                            ]
+                    )
                         (sketchPoints config ps)
-                        (sketchPoints config ps)
+                        (sketchPoints (nextSeed config) ps)
 
                 Core.Curve ps ->
-                    Random.map2
-                        (\points1 points2 ->
-                            Collage.group
-                                [ { collage | basic = Core.Path style (Core.Curve points1) }
-                                , { collage | basic = Core.Path style (Core.Curve points2) }
-                                ]
-                        )
+                    (\points1 points2 ->
+                        Collage.group
+                            [ { collage | basic = Core.Path style (Core.Curve points1) }
+                            , { collage | basic = Core.Path style (Core.Curve points2) }
+                            ]
+                    )
                         (sketchPoints config ps)
-                        (sketchPoints config ps)
+                        (sketchPoints (nextSeed config) ps)
 
         Core.Shape ( fill, line ) path ->
             -- FIXME: Use hachures for fills or at least curve shape edges.
             case path of
                 Core.Polygon ps ->
-                    sketchLines config ps
-                        |> Random.map2
-                            (\points lines ->
-                                Collage.group <|
-                                    List.map (\segment -> { collage | basic = Core.Path line (Core.Curve segment) }) lines
-                                        ++ [ { collage | basic = Core.Shape ( fill, Collage.invisible ) (Core.Polygon points) } ]
-                            )
-                            (sketchPoints config ps)
+                    (\points lines ->
+                        Collage.group <|
+                            List.map (\segment -> { collage | basic = Core.Path line (Core.Curve segment) }) lines
+                                ++ [ { collage | basic = Core.Shape ( fill, Collage.invisible ) (Core.Polygon points) } ]
+                    )
+                        (sketchPoints config ps)
+                        (sketchLines (nextSeed config) ps)
 
                 Core.Rectangle w h r ->
                     let
@@ -87,60 +95,56 @@ sketchy config collage =
                             , ( -w / 2, h / 2 )
                             ]
                     in
-                    sketchLines config ps
-                        |> Random.map2
-                            (\points lines ->
-                                Collage.group <|
-                                    List.map (\segment -> { collage | basic = Core.Path line (Core.Curve segment) }) lines
-                                        ++ [ { collage | basic = Core.Shape ( fill, Collage.invisible ) (Core.Polygon points) } ]
-                            )
-                            (sketchPoints config ps)
+                    (\points lines ->
+                        Collage.group <|
+                            List.map (\segment -> { collage | basic = Core.Path line (Core.Curve segment) }) lines
+                                ++ [ { collage | basic = Core.Shape ( fill, Collage.invisible ) (Core.Polygon points) } ]
+                    )
+                        (sketchPoints config ps)
+                        (sketchLines config ps)
 
                 Core.Circle r ->
                     let
                         ps =
                             ellipsePoints r r
                     in
-                    Random.map2
-                        (\points1 points2 ->
-                            Collage.group <|
-                                [ { collage | basic = Core.Path line (Core.Curve (points1 ++ rotate points2)) }
-                                ]
-                                    ++ [ { collage | basic = Core.Shape ( fill, Collage.invisible ) (Core.Circle r) } ]
-                        )
+                    (\points1 points2 ->
+                        Collage.group <|
+                            [ { collage | basic = Core.Path line (Core.Curve (points1 ++ rotate points2)) }
+                            ]
+                                ++ [ { collage | basic = Core.Shape ( fill, Collage.invisible ) (Core.Circle r) } ]
+                    )
                         (sketchPoints { config | bowing = 0 } ps)
-                        (sketchPoints { config | bowing = 0 } ps)
+                        (sketchPoints (nextSeed { config | bowing = 0 }) ps)
 
                 Core.Ellipse rx ry ->
                     let
                         ps =
                             ellipsePoints rx ry
                     in
-                    Random.map2
-                        (\points1 points2 ->
-                            Collage.group <|
-                                [ { collage | basic = Core.Path line (Core.Curve (points1 ++ rotate points2)) }
-                                ]
-                                    ++ [ { collage | basic = Core.Shape ( fill, Collage.invisible ) (Core.Ellipse rx ry) } ]
-                        )
+                    (\points1 points2 ->
+                        Collage.group <|
+                            [ { collage | basic = Core.Path line (Core.Curve (points1 ++ rotate points2)) }
+                            ]
+                                ++ [ { collage | basic = Core.Shape ( fill, Collage.invisible ) (Core.Ellipse rx ry) } ]
+                    )
                         (sketchPoints { config | bowing = 0 } ps)
-                        (sketchPoints { config | bowing = 0 } ps)
+                        (sketchPoints (nextSeed { config | bowing = 0 }) ps)
 
                 _ ->
-                    Random.constant collage
+                    collage
 
         Core.Group collages ->
-            Random.Extra.combine (List.map (sketchy config) collages)
-                |> Random.map (\group -> { collage | basic = Core.Group group })
+            List.map (sketchy (nextSeed config)) collages
+                |> (\group -> { collage | basic = Core.Group group })
 
         Core.Subcollage fore back ->
-            Random.map2
-                (\sketchedFore sketchedBack -> { collage | basic = Core.Subcollage sketchedFore sketchedBack })
-                (sketchy config fore)
-                (sketchy config back)
+            (\sketchedFore sketchedBack -> { collage | basic = Core.Subcollage sketchedFore sketchedBack })
+                (sketchy (nextSeed config) fore)
+                (sketchy (nextSeed config) back)
 
         _ ->
-            Random.constant collage
+            collage
 
 
 
@@ -171,14 +175,13 @@ rotate list =
             list
 
 
-sketchLines : Config -> List Point -> Random.Generator (List (List Point))
+sketchLines : Config -> List Point -> List (List Point)
 sketchLines config ps =
     segments True ps
-        |> List.concatMap (\( a, b ) -> [ sketchPoints config [ a, b ], sketchPoints config [ a, b ] ])
-        |> Random.Extra.combine
+        |> List.concatMap (\( a, b ) -> [ sketchPoints config [ a, b ], sketchPoints (nextSeed config) [ a, b ] ])
 
 
-sketchPoints : Config -> List Point -> Random.Generator (List Point)
+sketchPoints : Config -> List Point -> List Point
 sketchPoints config ps =
     let
         bowedPs =
@@ -213,19 +216,18 @@ sketchPoints config ps =
             )
                 * config.roughness
 
-        randomOffset =
-            Random.pair (Random.float (0 - roughness) roughness) (Random.float (0 - roughness) roughness)
+        randomOffset i =
+            ( random (config.seed + i) * roughness, random (config.seed + i + 1) * roughness )
     in
-    Random.list (List.length bowedPs) randomOffset
-        |> Random.map
-            (\shifts ->
-                List.map2
-                    (\( x, y ) ( shiftX, shiftY ) ->
-                        ( x + shiftX, y + shiftY )
-                    )
-                    bowedPs
-                    shifts
-            )
+    List.indexedMap
+        (\i ( x, y ) ->
+            let
+                ( shiftX, shiftY ) =
+                    randomOffset (i * 2)
+            in
+            ( x + shiftX, y + shiftY )
+        )
+        bowedPs
 
 
 ellipsePoints : Float -> Float -> List Point
@@ -244,3 +246,11 @@ ellipsePoints rx ry =
     , ( m rx, m ry )
     , ( 0, ry )
     ]
+
+
+random : Int -> Float
+random i =
+    [ -0.99, -0.33, -0.84, 0.24, 0.45, 0.25, -0.63, -0.36, -0.4, -0.99, 0.21, -0.14, -0.96, -0.28, -0.17, 0.58, -0.65, 0.36, 0.38, -0.44, -0.33, 0.36, -0.72, -0.76, -0.92, -0.89, -0.82, -0.53, 0.25, 0.2, -0.9, -0.83, 0.22, 0.27, 0.05, -0.38, 0.68, -0.25, 0.8, 0.47, 0.62, 0.39, 0.74, -0.09, 0.23, -0.97, 0.21, 0.88, -0.32, -0.96, 0.01, -0.25, -0.99, -0.37, -0.73, -0.42, -0.54, 0.01, 0.95, -0.11, -0.59, -0.65, -0.28, 0.14, -0.22, -0.98, -0.9, 0.19, 0.35, 0.06, 0.53, 0.89, -0.01, 0.98, -0.35, 0.91, 0.49, 0.18, -0.99, 0.54, 0.45, -0.11, -0.91, -0.75, -0.61, -0.21, 0.9, 0.97, 0.68, 0.51, -0.18, 0.66, -0.05, 0.11, 0.98, 0.87, -0.88, 0.2, -0.82, -0.01 ]
+        |> Array.fromList
+        |> Array.get (modBy i 100)
+        |> Maybe.withDefault 0.5

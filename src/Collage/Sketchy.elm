@@ -5,7 +5,7 @@ module Collage.Sketchy exposing
 
 {-| Transform a collage so it looks rough and hand drawn.
 
-@docs Config, defaultConfig, sketchy
+@docs Config, defaultConfig, sketchy, nextSeed
 
 -}
 
@@ -18,7 +18,7 @@ import Collage.Core as Core
 
   - `roughness` controls how far points will be shifted from original locations.
   - `bowing` controls depth of curvature between two points on a line. Currently only responds to 0 or 1 values.
-  - `seed` controls random number generator. Sketching the same collage twice with the same seed will produce identical results.
+  - `seed` controls random number generator. Reuse the same seed to reproduce an identical sketched collage.
 
 -}
 type alias Config =
@@ -38,6 +38,11 @@ defaultConfig =
     { roughness = 3, bowing = 1, seed = 0 }
 
 
+{-| Helper for incrementing the seed value to generate a new randomized Sketchy collage.
+
+    sketchy (nextSeed config) collage
+
+-}
 nextSeed : Config -> Config
 nextSeed config =
     { config | seed = config.seed + 1 }
@@ -46,7 +51,7 @@ nextSeed config =
 {-| Generate a sketched version of a collage.
 
     sketchy defaultConfig collage
-        |> Random.generate GeneratedSketchy
+        |> Collage.Render.svg
 
 -}
 sketchy : Config -> Collage msg -> Collage msg
@@ -248,6 +253,13 @@ ellipsePoints rx ry =
     ]
 
 
+{-| Faster and easier way to shift points randomly.
+
+Generated manually:
+
+    $ ruby -e "puts 100.times.map{|i| Random.new.rand(-1.0..1.0).round(2) }.to_s"
+
+-}
 random : Int -> Float
 random i =
     [ -0.99, -0.33, -0.84, 0.24, 0.45, 0.25, -0.63, -0.36, -0.4, -0.99, 0.21, -0.14, -0.96, -0.28, -0.17, 0.58, -0.65, 0.36, 0.38, -0.44, -0.33, 0.36, -0.72, -0.76, -0.92, -0.89, -0.82, -0.53, 0.25, 0.2, -0.9, -0.83, 0.22, 0.27, 0.05, -0.38, 0.68, -0.25, 0.8, 0.47, 0.62, 0.39, 0.74, -0.09, 0.23, -0.97, 0.21, 0.88, -0.32, -0.96, 0.01, -0.25, -0.99, -0.37, -0.73, -0.42, -0.54, 0.01, 0.95, -0.11, -0.59, -0.65, -0.28, 0.14, -0.22, -0.98, -0.9, 0.19, 0.35, 0.06, 0.53, 0.89, -0.01, 0.98, -0.35, 0.91, 0.49, 0.18, -0.99, 0.54, 0.45, -0.11, -0.91, -0.75, -0.61, -0.21, 0.9, 0.97, 0.68, 0.51, -0.18, 0.66, -0.05, 0.11, 0.98, 0.87, -0.88, 0.2, -0.82, -0.01 ]

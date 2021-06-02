@@ -1,7 +1,4 @@
-module Collage.Sketchy exposing
-    ( Config, defaultConfig, sketchy
-    , nextSeed
-    )
+module Collage.Sketchy exposing (Config, defaultConfig, sketchy, nextSeed)
 
 {-| Transform a collage so it looks rough and hand drawn.
 
@@ -158,12 +155,9 @@ sketchy config collage =
 
 segments : Bool -> List Point -> List ( Point, Point )
 segments closed ps =
-    List.map2
-        Tuple.pair
-        ps
-        (List.drop 1 ps ++ List.take (List.length ps - 1) ps)
+    List.map2 Tuple.pair ps (rotate ps)
         |> (if closed then
-                List.take (List.length ps)
+                identity
 
             else
                 List.take (List.length ps - 1)
@@ -194,18 +188,20 @@ sketchPoints config ps =
                 ps
 
             else
-                List.map2
-                    (\( x1, y1 ) ( x2, y2 ) -> [ ( x1, y1 ), ( x1 + (x2 - x1) / 2, y1 + (y2 - y1) / 2 ) ])
-                    ps
-                    (List.drop 1 ps ++ List.take (List.length ps - 1) ps)
+                segments True ps
+                    |> List.map
+                        (\( ( x1, y1 ), ( x2, y2 ) ) ->
+                            [ ( x1, y1 )
+                            , ( x1 + (x2 - x1) / 2, y1 + (y2 - y1) / 2 )
+                            ]
+                        )
                     |> List.concat
                     |> List.take ((List.length ps * 2) - 1)
 
         lineLength =
-            List.map2
-                (\( x1, y1 ) ( x2, y2 ) -> (x2 - x1) ^ 2 + (y2 - y1) ^ 2 |> sqrt)
-                ps
-                (List.drop 1 ps ++ List.take (List.length ps - 1) ps)
+            segments True ps
+                |> List.map
+                    (\( ( x1, y1 ), ( x2, y2 ) ) -> (x2 - x1) ^ 2 + (y2 - y1) ^ 2 |> sqrt)
                 |> List.take (List.length ps)
                 |> List.sum
 

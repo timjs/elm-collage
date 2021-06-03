@@ -15,7 +15,7 @@ type alias Edge =
     }
 
 
-hachureLines : List Point -> List Core.Path
+hachureLines : List Point -> List (Point, Point)
 hachureLines vertices =
     let
         edges =
@@ -36,14 +36,14 @@ hachureLines vertices =
 
         yValues =
             List.range (round ymin) (round ymax)
-                |> List.filter (\i -> modBy 5 i == 0)
+                |> List.filter (\i -> modBy 1 i == 0)
                 |> List.map toFloat
     in
     yValues
         |> List.concatMap (horizontalLine edges)
 
 
-horizontalLine : List Edge -> Float -> List Path
+horizontalLine : List Edge -> Float -> List (Point, Point)
 horizontalLine edges y =
     List.map (\e -> { e | x = e.x + (y - e.ymin) * e.islope }) edges
         |> List.filter (\e -> e.ymin <= y && e.ymax > y)
@@ -54,7 +54,7 @@ horizontalLine edges y =
                     []
 
                 [ a, b ] ->
-                    [ segment (a.x, y) (b.x, y) ]
+                    [ ((a.x, y), (b.x, y)) ]
 
                 _ ->
                     Debug.todo "complex polygon"

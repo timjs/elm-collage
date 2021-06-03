@@ -78,7 +78,8 @@ sketchy config collage =
 
                 sketchFill ps =
                     Fill.hachureLines ps
-                        |> List.map (Collage.solid Collage.thin fill |> Collage.traced)
+                        |> List.indexedMap (\i (a, b) -> sketchPoints { config | seed = config.seed + i, roughness = 2 } [a, b] |> Collage.curve)
+                        |> List.map (Collage.solid Collage.verythin fill |> Collage.traced)
 
                 sketchEllipse ps =
                     sketchPoints { config | bowing = 0 } (ps ++ rotate ps)
@@ -220,5 +221,5 @@ random : Int -> Float
 random i =
     [ -0.99, -0.33, -0.84, 0.24, 0.45, 0.25, -0.63, -0.36, -0.4, -0.99, 0.21, -0.14, -0.96, -0.28, -0.17, 0.58, -0.65, 0.36, 0.38, -0.44, -0.33, 0.36, -0.72, -0.76, -0.92, -0.89, -0.82, -0.53, 0.25, 0.2, -0.9, -0.83, 0.22, 0.27, 0.05, -0.38, 0.68, -0.25, 0.8, 0.47, 0.62, 0.39, 0.74, -0.09, 0.23, -0.97, 0.21, 0.88, -0.32, -0.96, 0.01, -0.25, -0.99, -0.37, -0.73, -0.42, -0.54, 0.01, 0.95, -0.11, -0.59, -0.65, -0.28, 0.14, -0.22, -0.98, -0.9, 0.19, 0.35, 0.06, 0.53, 0.89, -0.01, 0.98, -0.35, 0.91, 0.49, 0.18, -0.99, 0.54, 0.45, -0.11, -0.91, -0.75, -0.61, -0.21, 0.9, 0.97, 0.68, 0.51, -0.18, 0.66, -0.05, 0.11, 0.98, 0.87, -0.88, 0.2, -0.82, -0.01 ]
         |> Array.fromList
-        |> Array.get (modBy i 100)
+        |> Array.get (modBy 100 i)
         |> Maybe.withDefault 0.5

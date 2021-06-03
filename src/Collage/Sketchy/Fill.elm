@@ -45,8 +45,8 @@ hachureLines vertices =
 
 horizontalLine : List Edge -> Float -> List Path
 horizontalLine edges y =
-    List.map (\e -> { e | x = e.x + y * e.islope }) edges
-        |> List.filter (\e -> e.ymin < y && e.ymax > y)
+    List.map (\e -> { e | x = e.x + (y - e.ymin) * e.islope }) edges
+        |> List.filter (\e -> e.ymin <= y && e.ymax > y)
         |> List.sortBy .x
         |> (\l ->
             case l of
@@ -69,7 +69,7 @@ segmentToEdge ((x1, y1), (x2, y2)) =
         { ymin = min y1 y2
         , ymax = max y1 y2
         , x =
-            if y1 < y2 then
+            if y1 <= y2 then
                 x1
             else
                 x2

@@ -9,6 +9,8 @@ module Collage.Sketchy exposing (Config, defaultConfig, sketchy, nextSeed)
 import Array
 import Collage exposing (Collage, Point)
 import Collage.Core as Core
+import Collage.Sketchy.Helpers exposing (segments, rotate)
+import Collage.Sketchy.Fill as Fill
 
 
 {-| Configure how rough results should look.
@@ -81,9 +83,11 @@ sketchy config collage =
             case path of
                 Core.Polygon ps ->
                     (\points lines ->
-                        Collage.group <|
-                            List.map (\segment -> { collage | basic = Core.Path line (Core.Curve segment) }) lines
-                                ++ [ { collage | basic = Core.Shape ( fill, Collage.invisible ) (Core.Polygon points) } ]
+                        { collage | basic =
+                            Core.Group <|
+                                (List.map (\segment -> Core.Curve segment |> Collage.traced line) lines
+                                    ++ (Fill.hachureLines ps |> List.map (Collage.traced (Collage.solid Collage.thin fill))))
+                        }
                     )
                         (sketchPoints config ps)
                         (sketchLines (nextSeed config) ps)
@@ -98,9 +102,11 @@ sketchy config collage =
                             ]
                     in
                     (\points lines ->
-                        Collage.group <|
-                            List.map (\segment -> { collage | basic = Core.Path line (Core.Curve segment) }) lines
-                                ++ [ { collage | basic = Core.Shape ( fill, Collage.invisible ) (Core.Polygon points) } ]
+                        { collage | basic =
+                            Core.Group <|
+                                (List.map (\segment -> Core.Curve segment |> Collage.traced line) lines
+                                    ++ (Fill.hachureLines ps |> List.map (Collage.traced (Collage.solid Collage.thin fill))))
+                        }
                     )
                         (sketchPoints config ps)
                         (sketchLines config ps)
@@ -151,27 +157,6 @@ sketchy config collage =
 
 
 -- INTERNAL
-
-
-segments : Bool -> List Point -> List ( Point, Point )
-segments closed ps =
-    List.map2 Tuple.pair ps (rotate ps)
-        |> (if closed then
-                identity
-
-            else
-                List.take (List.length ps - 1)
-           )
-
-
-rotate : List a -> List a
-rotate list =
-    case list of
-        head :: tail ->
-            tail ++ [ head ]
-
-        _ ->
-            list
 
 
 sketchLines : Config -> List Point -> List (List Point)

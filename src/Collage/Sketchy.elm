@@ -10,7 +10,7 @@ import Array
 import Collage exposing (Collage, Point)
 import Collage.Core as Core
 import Collage.Sketchy.Fill as Fill
-import Collage.Sketchy.Helpers exposing (rotate, segments)
+import Collage.Sketchy.Helpers exposing (rotateList, segments)
 
 
 {-| Configure how rough results should look.
@@ -81,11 +81,11 @@ sketchy config collage =
 
                 sketchFill ps =
                     Fill.hachureLines hachureThickness ps
-                        |> List.indexedMap (\i (a, b) -> sketchPoints { config | seed = config.seed + i, roughness = 1 } [a, b] |> Collage.curve)
+                        |> List.indexedMap (\i ends -> sketchPoints { config | seed = config.seed + i, roughness = 1 } ends |> Collage.curve)
                         |> List.map (Collage.solid hachureThickness fill |> Collage.traced)
 
                 sketchEllipse ps =
-                    sketchPoints { config | bowing = 0 } (ps ++ rotate ps)
+                    sketchPoints { config | bowing = 0 } (ps ++ rotateList ps)
                         |> Collage.curve
                         |> Collage.traced line
             in

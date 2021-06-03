@@ -1,11 +1,11 @@
-module Collage.Sketchy.Helpers exposing (rotate, segments)
+module Collage.Sketchy.Helpers exposing (rotateList, segments)
 
 import Collage exposing (Point)
 
 
 segments : Bool -> List Point -> List ( Point, Point )
 segments closed ps =
-    List.map2 Tuple.pair ps (rotate ps)
+    List.map2 Tuple.pair ps (rotateList ps)
         |> (if closed then
                 identity
 
@@ -14,8 +14,8 @@ segments closed ps =
            )
 
 
-rotate : List a -> List a
-rotate list =
+rotateList : List a -> List a
+rotateList list =
     case list of
         head :: tail ->
             tail ++ [ head ]

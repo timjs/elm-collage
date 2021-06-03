@@ -14,12 +14,14 @@ type alias Edge =
     , islope: Float
     }
 
+hachureAngle = -45
 
-hachureLines : Float -> List Point -> List (Point, Point)
+hachureLines : Float -> List Point -> List (List Point)
 hachureLines thickness vertices =
     let
         edges =
-            segments True vertices
+            rotatePoints (degrees hachureAngle) vertices
+                |> segments True
                 |> List.filterMap segmentToEdge
                 |> List.sortWith sortEdges
 
@@ -41,9 +43,10 @@ hachureLines thickness vertices =
     in
     yValues
         |> List.concatMap (horizontalLine edges)
+        |> List.map (rotatePoints (degrees -hachureAngle))
 
 
-horizontalLine : List Edge -> Float -> List (Point, Point)
+horizontalLine : List Edge -> Float -> List (List Point)
 horizontalLine edges y =
     List.map (\e -> { e | x = e.x + (y - e.ymin) * e.islope }) edges
         |> List.filter (\e -> e.ymin <= y && e.ymax > y)
@@ -54,7 +57,7 @@ horizontalLine edges y =
                     []
 
                 [ a, b ] ->
-                    [ ((a.x, y), (b.x, y)) ]
+                    [ [ (a.x, y), (b.x, y) ] ]
 
                 _ ->
                     Debug.todo "complex polygon"
@@ -88,4 +91,14 @@ sortEdges a b =
     else
         compare a.ymax b.ymax
 
+
+rotatePoints : Float -> List Point -> List Point
+rotatePoints radians ps =
+    List.map
+        (\(x, y) ->
+            ( x * cos radians - y * sin radians
+            , x * sin radians + y * cos radians
+            )
+        )
+        ps
 

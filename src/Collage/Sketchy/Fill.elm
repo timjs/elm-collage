@@ -15,8 +15,8 @@ type alias Edge =
     }
 
 
-hachureLines : List Point -> List (Point, Point)
-hachureLines vertices =
+hachureLines : Float -> List Point -> List (Point, Point)
+hachureLines thickness vertices =
     let
         edges =
             segments True vertices
@@ -36,7 +36,7 @@ hachureLines vertices =
 
         yValues =
             List.range (round ymin) (round ymax)
-                |> List.filter (\i -> modBy 1 i == 0)
+                |> List.filter (\i -> modBy (ceiling thickness) i == 0)
                 |> List.map toFloat
     in
     yValues

@@ -34,7 +34,7 @@ type alias Config =
 -}
 defaultConfig : Config
 defaultConfig =
-    { roughness = 3, bowing = 1, seed = 0 }
+    { roughness = 2, bowing = 1, seed = 0 }
 
 
 {-| Helper for incrementing the seed value to generate a new randomized Sketchy collage.
@@ -76,10 +76,13 @@ sketchy config collage =
                     sketchLines True config ps
                         |> List.map (\segment -> Collage.curve segment |> Collage.traced line)
 
+                hachureThickness =
+                    max 1 (line.thickness - 1)
+
                 sketchFill ps =
-                    Fill.hachureLines ps
-                        |> List.indexedMap (\i (a, b) -> sketchPoints { config | seed = config.seed + i, roughness = 2 } [a, b] |> Collage.curve)
-                        |> List.map (Collage.solid Collage.verythin fill |> Collage.traced)
+                    Fill.hachureLines hachureThickness ps
+                        |> List.indexedMap (\i (a, b) -> sketchPoints { config | seed = config.seed + i, roughness = 1 } [a, b] |> Collage.curve)
+                        |> List.map (Collage.solid hachureThickness fill |> Collage.traced)
 
                 sketchEllipse ps =
                     sketchPoints { config | bowing = 0 } (ps ++ rotate ps)

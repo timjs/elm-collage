@@ -9,8 +9,8 @@ module Collage.Sketchy exposing (Config, defaultConfig, sketchy, nextSeed)
 import Array
 import Collage exposing (Collage, Point)
 import Collage.Core as Core
-import Collage.Sketchy.Helpers exposing (segments, rotate)
 import Collage.Sketchy.Fill as Fill
+import Collage.Sketchy.Helpers exposing (rotate, segments)
 
 
 {-| Configure how rough results should look.
@@ -57,40 +57,37 @@ sketchy : Config -> Collage msg -> Collage msg
 sketchy config collage =
     case collage.basic of
         Core.Path style path ->
+            let
+                sketchPath ps =
+                    sketchLines False config ps
+                        |> List.map (\segment -> Collage.curve segment |> Collage.traced style)
+            in
             case path of
                 Core.Polyline ps ->
-                    (\points1 points2 ->
-                        Collage.group
-                            [ { collage | basic = Core.Path style (Core.Curve points1) }
-                            , { collage | basic = Core.Path style (Core.Curve points2) }
-                            ]
-                    )
-                        (sketchPoints config ps)
-                        (sketchPoints (nextSeed config) ps)
+                    { collage | basic = Core.Group (sketchPath ps) }
 
                 Core.Curve ps ->
-                    (\points1 points2 ->
-                        Collage.group
-                            [ { collage | basic = Core.Path style (Core.Curve points1) }
-                            , { collage | basic = Core.Path style (Core.Curve points2) }
-                            ]
-                    )
-                        (sketchPoints config ps)
-                        (sketchPoints (nextSeed config) ps)
+                    { collage | basic = Core.Group (sketchPath ps) }
 
         Core.Shape ( fill, line ) path ->
             -- FIXME: Use hachures for fills or at least curve shape edges.
+            let
+                sketchPolygon ps =
+                    sketchLines True config ps
+                        |> List.map (\segment -> Collage.curve segment |> Collage.traced line)
+
+                sketchFill ps =
+                    Fill.hachureLines ps
+                        |> List.map (Collage.solid Collage.thin fill |> Collage.traced)
+
+                sketchEllipse ps =
+                    sketchPoints { config | bowing = 0 } (ps ++ rotate ps)
+                        |> Collage.curve
+                        |> Collage.traced line
+            in
             case path of
                 Core.Polygon ps ->
-                    (\points lines ->
-                        { collage | basic =
-                            Core.Group <|
-                                (List.map (\segment -> Core.Curve segment |> Collage.traced line) lines
-                                    ++ (Fill.hachureLines ps |> List.map (Collage.traced (Collage.solid Collage.thin fill))))
-                        }
-                    )
-                        (sketchPoints config ps)
-                        (sketchLines (nextSeed config) ps)
+                    { collage | basic = Core.Group <| sketchPolygon ps ++ sketchFill ps }
 
                 Core.Rectangle w h r ->
                     let
@@ -101,43 +98,21 @@ sketchy config collage =
                             , ( -w / 2, h / 2 )
                             ]
                     in
-                    (\points lines ->
-                        { collage | basic =
-                            Core.Group <|
-                                (List.map (\segment -> Core.Curve segment |> Collage.traced line) lines
-                                    ++ (Fill.hachureLines ps |> List.map (Collage.traced (Collage.solid Collage.thin fill))))
-                        }
-                    )
-                        (sketchPoints config ps)
-                        (sketchLines config ps)
+                    { collage | basic = Core.Group <| sketchPolygon ps ++ sketchFill ps }
 
                 Core.Circle r ->
                     let
                         ps =
                             ellipsePoints r r
                     in
-                    (\points1 points2 ->
-                        Collage.group <|
-                            [ { collage | basic = Core.Path line (Core.Curve (points1 ++ rotate points2)) }
-                            ]
-                                ++ [ { collage | basic = Core.Shape ( fill, Collage.invisible ) (Core.Circle r) } ]
-                    )
-                        (sketchPoints { config | bowing = 0 } ps)
-                        (sketchPoints (nextSeed { config | bowing = 0 }) ps)
+                    { collage | basic = Core.Group <| [ sketchEllipse ps ] ++ sketchFill ps }
 
                 Core.Ellipse rx ry ->
                     let
                         ps =
                             ellipsePoints rx ry
                     in
-                    (\points1 points2 ->
-                        Collage.group <|
-                            [ { collage | basic = Core.Path line (Core.Curve (points1 ++ rotate points2)) }
-                            ]
-                                ++ [ { collage | basic = Core.Shape ( fill, Collage.invisible ) (Core.Ellipse rx ry) } ]
-                    )
-                        (sketchPoints { config | bowing = 0 } ps)
-                        (sketchPoints (nextSeed { config | bowing = 0 }) ps)
+                    { collage | basic = Core.Group <| [ sketchEllipse ps ] ++ sketchFill ps }
 
                 _ ->
                     collage
@@ -159,9 +134,9 @@ sketchy config collage =
 -- INTERNAL
 
 
-sketchLines : Config -> List Point -> List (List Point)
-sketchLines config ps =
-    segments True ps
+sketchLines : Bool -> Config -> List Point -> List (List Point)
+sketchLines closed config ps =
+    segments closed ps
         |> List.concatMap (\( a, b ) -> [ sketchPoints config [ a, b ], sketchPoints (nextSeed config) [ a, b ] ])
 
 

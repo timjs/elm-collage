@@ -18,7 +18,7 @@ collage =
             (thicknesses
                 |> List.concatMap (\t -> [ spacer 10 10, diamond t ])
             )
-        , vertical 
+        , vertical
             (thicknesses
                 |> List.concatMap (\t -> [ spacer 10 15, zigzag t ])
             )

@@ -66,7 +66,7 @@ update config msg model =
                 |> render
 
         ClickedSketchy ->
-            { model | renderer = Sketchy, sketchyConfig = (Sketchy.nextSeed model.sketchyConfig) }
+            { model | renderer = Sketchy, sketchyConfig = Sketchy.nextSeed model.sketchyConfig }
                 |> render
 
         ChildMsg cMsg ->

@@ -4,7 +4,7 @@ module Collage.Sketchy.Fill exposing (hachureLines)
 import Collage.Core as Core exposing (FillStyle(..))
 import Collage exposing (..)
 import Color exposing (..)
-import Collage.Sketchy.Helpers exposing (segments)
+import Collage.Sketchy.Helpers exposing (segments, rotateList)
 
 
 type alias Edge =
@@ -59,8 +59,9 @@ horizontalLine edges y =
                 [ a, b ] ->
                     [ [ (a.x, y), (b.x, y) ] ]
 
-                _ ->
-                    Debug.todo "complex polygon"
+                list ->
+                    pairs list
+                        |> List.map (\(a, b) -> [ (a.x, y), (b.x, y) ])
             )
 
 
@@ -102,3 +103,11 @@ rotatePoints radians ps =
         )
         ps
 
+
+pairs : List a -> List (a, a)
+pairs list =
+    List.map2 Tuple.pair list (rotateList list)
+        |> List.indexedMap Tuple.pair
+        |> List.filter (\(i, _) -> modBy 2 i == 0)
+        |> List.unzip
+        |> Tuple.second

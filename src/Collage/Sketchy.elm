@@ -110,7 +110,7 @@ sketchy config collage =
                             ellipsePoints 8 r r
 
                         fillPs =
-                            ellipsePoints (r / 2 |> round) r r
+                            ellipsePoints 16 r r
                     in
                     { collage | basic = Core.Group <| [ sketchEllipse ps ] ++ sketchFill fillPs }
 
@@ -120,7 +120,7 @@ sketchy config collage =
                             ellipsePoints 8 rx ry
 
                         fillPs =
-                            ellipsePoints (min rx ry / 2 |> round) rx ry
+                            ellipsePoints 16 rx ry
                     in
                     { collage | basic = Core.Group <| [ sketchEllipse ps ] ++ sketchFill fillPs }
 

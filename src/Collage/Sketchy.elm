@@ -107,16 +107,22 @@ sketchy config collage =
                 Core.Circle r ->
                     let
                         ps =
-                            ellipsePoints r r
+                            ellipsePoints 8 r r
+
+                        fillPs =
+                            ellipsePoints (r / 2 |> round) r r
                     in
-                    { collage | basic = Core.Group <| [ sketchEllipse ps ] ++ sketchFill ps }
+                    { collage | basic = Core.Group <| [ sketchEllipse ps ] ++ sketchFill fillPs }
 
                 Core.Ellipse rx ry ->
                     let
                         ps =
-                            ellipsePoints rx ry
+                            ellipsePoints 8 rx ry
+
+                        fillPs =
+                            ellipsePoints (min rx ry / 2 |> round) rx ry
                     in
-                    { collage | basic = Core.Group <| [ sketchEllipse ps ] ++ sketchFill ps }
+                    { collage | basic = Core.Group <| [ sketchEllipse ps ] ++ sketchFill fillPs }
 
                 _ ->
                     collage
@@ -195,22 +201,17 @@ sketchPoints config ps =
         bowedPs
 
 
-ellipsePoints : Float -> Float -> List Point
-ellipsePoints rx ry =
-    let
-        m r =
-            r ^ 2 / 2 |> sqrt
-    in
-    [ ( 0, ry )
-    , ( -(m rx), m ry )
-    , ( -rx, 0 )
-    , ( -(m rx), -(m ry) )
-    , ( 0, -ry )
-    , ( m rx, -(m ry) )
-    , ( rx, 0 )
-    , ( m rx, m ry )
-    , ( 0, ry )
-    ]
+ellipsePoints : Int -> Float -> Float -> List Point
+ellipsePoints count rx ry =
+    List.range 0 count
+        |> List.map
+            (\i ->
+                toFloat i
+                    |> (*) (360 / toFloat count)
+                    |> (-) 90
+                    |> degrees
+                    |> (\angle -> ( rx * cos angle, ry * sin angle ))
+            )
 
 
 {-| Faster and easier way to shift points randomly.

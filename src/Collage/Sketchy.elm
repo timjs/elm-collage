@@ -58,22 +58,27 @@ sketchy config collage =
     case collage.basic of
         Core.Path style path ->
             let
-                sketchPath ps =
-                    sketchLines False config ps
+                sketchPolyline ps =
+                    sketchSegments False config ps
                         |> List.map (\segment -> Collage.curve segment |> Collage.traced style)
+
+                sketchCurve ps =
+                    [ sketchPoints config ps
+                    , sketchPoints (nextSeed config) ps
+                    ]
+                        |> List.map (\c -> Collage.curve c |> Collage.traced style)
             in
             case path of
                 Core.Polyline ps ->
-                    { collage | basic = Core.Group (sketchPath ps) }
+                    { collage | basic = Core.Group (sketchPolyline ps) }
 
                 Core.Curve ps ->
-                    { collage | basic = Core.Group (sketchPath ps) }
+                    { collage | basic = Core.Group (sketchCurve ps) }
 
         Core.Shape ( fill, line ) path ->
-            -- FIXME: Use hachures for fills or at least curve shape edges.
             let
                 sketchPolygon ps =
-                    sketchLines True config ps
+                    sketchSegments True config ps
                         |> List.map (\segment -> Collage.curve segment |> Collage.traced line)
 
                 hachureThickness =
@@ -144,8 +149,8 @@ sketchy config collage =
 -- INTERNAL
 
 
-sketchLines : Bool -> Config -> List Point -> List (List Point)
-sketchLines closed config ps =
+sketchSegments : Bool -> Config -> List Point -> List (List Point)
+sketchSegments closed config ps =
     segments closed ps
         |> List.concatMap (\( a, b ) -> [ sketchPoints config [ a, b ], sketchPoints (nextSeed config) [ a, b ] ])
 

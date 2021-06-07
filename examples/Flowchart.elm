@@ -2,7 +2,7 @@ module Flowchart exposing (main)
 
 import Example
 import Collage exposing (..)
-import Collage.Layout exposing (..)
+import Collage.Layout as Layout exposing (..)
 import Collage.Text as Text exposing (Shape(..), fromString)
 import Color exposing (..)
 import Html exposing (Html)
@@ -81,7 +81,8 @@ diamond label =
         text =
             fromString label
                 |> Text.shape Italic
-                |> Text.size Text.large
+                |> Text.size Text.huge
+                |> Text.weight Text.Black
                 |> Text.typeface (Text.Font fontFamily)
                 |> rendered
 
@@ -107,6 +108,7 @@ diamond label =
                     , thinline
                     )
                 |> center
+                |> name ("diamond" ++ label)
     in
     impose text shape
 
@@ -117,7 +119,7 @@ box label =
         text =
             fromString label
                 |> Text.typeface (Text.Font fontFamily)
-                |> Text.size Text.large
+                |> Text.size Text.huge
                 |> rendered
 
         w =
@@ -244,10 +246,12 @@ render flow =
             vertical
                 [ arrow unit
                 , inner
-                    |> connect [ ( "leftBranch", top ), ( "rightBranch", top ) ] thinline
-                    |> connect [ ( "leftBranch", bottom ), ( "rightBranch", bottom ) ] thinline
                     |> at top (diamond condition)
                     |> at bottom (diamond "")
+                    |> connect [ ( "leftBranch", top ), ( "diamonddiff is as wished", Layout.left ) ] thinline
+                    |> connect [ ( "diamonddiff is as wished", Layout.right ), ( "rightBranch", Layout.top ) ] thinline
+                    |> connect [ ( "leftBranch", bottom ), ( "diamond", Layout.left ) ] thinline
+                    |> connect [ ( "diamond", Layout.right ), ( "rightBranch", Layout.bottom ) ] thinline
                 ]
 
         Parallel flows ->

@@ -95,7 +95,7 @@ render collage =
         Core.Curve ps ->
             Svg.path
                 ([ Attrs.id name
-                 , Attrs.d (bezierCurvePath (ps |> List.map (\(x1, y1) -> (x1, -y1))))
+                 , Attrs.d (decodeCurve (ps |> List.map (\(x1, y1) -> (x1, -y1))))
                  ]
                   ++ attrs collage
                   ++ events collage.handlers
@@ -345,9 +345,12 @@ decodeDashing ds =
 
 
 -- BASED ON https://github.com/rough-stuff/rough/blob/e9b0fdf36952a7a0f02e8015f4abac1ad39981c5/src/renderer.ts#L367
-bezierCurvePath : List Point -> String
-bezierCurvePath ps =
+decodeCurve : List Point -> String
+decodeCurve ps =
     let
+        toString =
+            (round >> String.fromInt)
+
         neighbors arr index =
             Maybe.map4
                 (\m1 p1 i p2 ->
@@ -362,12 +365,12 @@ bezierCurvePath ps =
         [] ->
             ""
 
-        [ p ] ->
+        [ _ ] ->
             ""
 
         [ (x1, y1), (x2, y2) ] ->
-            [ "M", [ x1, y1 ] |> List.map (String.fromFloat) |> String.join " "
-            , "L", [ x2, y2 ] |> List.map (String.fromFloat) |> String.join " "
+            [ "M", String.fromFloat x1, String.fromFloat y1
+            , "L", String.fromFloat x2, String.fromFloat y2
             ] |> String.join " "
 
         (x1, y1) :: tail ->
@@ -378,15 +381,15 @@ bezierCurvePath ps =
                     Array.indexedMap (\i p ->
                        case (neighbors arr i) of
                             Just (((m1x, m1y), (p1x, p1y)), ((ix, iy), (p2x, p2y))) ->
-                                [ "C", [ ix + (p1x - m1x) / 6, iy + (p1y - m1y) / 6  ]
-                                    |> List.map (String.fromInt << round)
-                                    |> String.join " "
-                                , ",", [ p1x + (ix - p2x) / 6, p1y + (iy - p2y) / 6  ]
-                                    |> List.map (String.fromInt << round)
-                                    |> String.join " "
-                                , ",", [ p1x, p1y ]
-                                    |> List.map (String.fromInt << round)
-                                    |> String.join " "
+                                [ "C"
+                                , ix + (p1x - m1x) / 6 |> toString
+                                , iy + (p1y - m1y) / 6 |> toString
+                                , ","
+                                , p1x + (ix - p2x) / 6 |> toString
+                                , p1y + (iy - p2y) / 6 |> toString
+                                , ","
+                                , p1x |> toString
+                                , p1y |> toString
                                 ] |> String.join " "
                             Nothing ->
                                 ""

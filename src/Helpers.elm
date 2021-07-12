@@ -1,10 +1,12 @@
 module Helpers exposing
-  ( foldrLazy
-  , orLazy
-  , values
+  ( orLazy
+  , segments
   )
 
 {-| -}
+
+import Helpers.List exposing (rotate)
+
 
 -- Maybe -----------------------------------------------------------------------
 
@@ -18,28 +20,12 @@ orLazy ma fmb =
     Just _ -> ma
 
 
-{-| Convert a list of `Maybe a` to a list of `a` only for the values different from `Nothing`.
+segments : Bool -> List ( Float, Float ) -> List ( ( Float, Float ), ( Float, Float ) )
+segments closed ps =
+    List.map2 Tuple.pair ps (rotate ps)
+        |> (if closed then
+                identity
 
-    values [ Just 1, Nothing, Just 2 ] == [ 1, 2 ]
-
--}
-values : List (Maybe a) -> List a
-values = List.foldr foldrValues []
-
-
-foldrValues : Maybe a -> List a -> List a
-foldrValues item list =
-  case item of
-    Nothing -> list
-    Just v -> v :: list
-
-
-
--- List ------------------------------------------------------------------------
-
-
-foldrLazy : (e -> (() -> a) -> a) -> a -> List e -> a
-foldrLazy f acc list =
-  case list of
-    [] -> acc
-    x :: xs -> f x (\() -> foldrLazy f acc xs)
+            else
+                List.take (List.length ps - 1)
+           )

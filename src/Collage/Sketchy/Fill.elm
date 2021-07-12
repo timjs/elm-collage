@@ -2,7 +2,8 @@ module Collage.Sketchy.Fill exposing (hachureLines)
 
 import Collage exposing (..)
 import Collage.Core as Core exposing (FillStyle(..))
-import Collage.Sketchy.Helpers exposing (rotateList, segments)
+import Helpers exposing (segments)
+import Helpers.List
 import Color exposing (..)
 
 
@@ -116,7 +117,7 @@ rotatePoints radians ps =
 
 pairs : List a -> List ( a, a )
 pairs list =
-    List.map2 Tuple.pair list (rotateList list)
+    List.map2 Tuple.pair list (Helpers.List.rotate list)
         |> List.indexedMap Tuple.pair
         |> List.filter (\( i, _ ) -> modBy 2 i == 0)
         |> List.unzip

@@ -20,8 +20,8 @@ import Maybe exposing (withDefault)
 import String exposing (fromFloat, fromInt)
 import Svg exposing (Attribute, Svg)
 import Array exposing (Array)
-import Svg.Attributes as SvgA
-import Svg.Events as SvgE
+import Svg.Attributes as Attrs
+import Svg.Events as Events
 import Tuple
 
 
@@ -66,9 +66,9 @@ svgAbsolute ( width, height ) collage =
   Html.div
     []
     [ Svg.svg
-        [ SvgA.width w
-        , SvgA.height h
-        , SvgA.version "1.1"
+        [ Attrs.width w
+        , Attrs.height h
+        , Attrs.version "1.1"
         ]
         [ render collage ]
     ]
@@ -84,8 +84,8 @@ render collage =
       case path of
         Core.Polyline ps ->
           Svg.polyline
-            ([ SvgA.id name
-             , SvgA.points <| decodePoints ps
+            ([ Attrs.id name
+             , Attrs.points <| decodePoints ps
              ]
               ++ attrs collage
               ++ events collage.handlers
@@ -94,8 +94,8 @@ render collage =
 
         Core.Curve ps ->
             Svg.path
-                ([ SvgA.id name
-                 , SvgA.d (bezierCurvePath (ps |> List.map (\(x1, y1) -> (x1, -y1))))
+                ([ Attrs.id name
+                 , Attrs.d (bezierCurvePath (ps |> List.map (\(x1, y1) -> (x1, -y1))))
                  ]
                   ++ attrs collage
                   ++ events collage.handlers
@@ -106,8 +106,8 @@ render collage =
       case shape of
         Core.Polygon ps ->
           Svg.polygon
-            ([ SvgA.id name
-             , SvgA.points <| decodePoints ps
+            ([ Attrs.id name
+             , Attrs.points <| decodePoints ps
              ]
               ++ attrs collage
               ++ events collage.handlers
@@ -115,8 +115,8 @@ render collage =
             []
         Core.Circle r ->
           Svg.circle
-            ([ SvgA.id name
-             , SvgA.r <| fromFloat r
+            ([ Attrs.id name
+             , Attrs.r <| fromFloat r
              ]
               ++ attrs collage
               ++ events collage.handlers
@@ -124,9 +124,9 @@ render collage =
             []
         Core.Ellipse rx ry ->
           Svg.ellipse
-            ([ SvgA.id name
-             , SvgA.rx <| fromFloat rx
-             , SvgA.ry <| fromFloat ry
+            ([ Attrs.id name
+             , Attrs.rx <| fromFloat rx
+             , Attrs.ry <| fromFloat ry
              ]
               ++ attrs collage
               ++ events collage.handlers
@@ -134,9 +134,9 @@ render collage =
             []
         Core.Rectangle w h r ->
           Svg.rect
-            ([ SvgA.id name
-             , SvgA.rx <| fromFloat r
-             , SvgA.ry <| fromFloat r
+            ([ Attrs.id name
+             , Attrs.rx <| fromFloat r
+             , Attrs.ry <| fromFloat r
              ]
               ++ box w h
               ++ attrs collage
@@ -148,15 +148,15 @@ render collage =
           render { collage | basic = Core.Path line path }
     Core.Text _ (Core.Chunk style str) ->
       Svg.text_
-        ([ SvgA.id name ]
+        ([ Attrs.id name ]
           ++ attrs collage
           ++ events collage.handlers
         )
         [ Svg.text str ]
     Core.Image ( w, h ) url ->
       Svg.image
-        ([ SvgA.id name
-         , SvgA.xlinkHref url
+        ([ Attrs.id name
+         , Attrs.xlinkHref url
          ]
           ++ box w h
           ++ attrs collage
@@ -165,7 +165,7 @@ render collage =
         []
     Core.Html ( w, h ) extraAttrs html ->
       Svg.foreignObject
-        ([ SvgA.id name ]
+        ([ Attrs.id name ]
           ++ box w h
           ++ attrs collage
           ++ events collage.handlers
@@ -174,7 +174,7 @@ render collage =
         [ html ]
     Core.Group collages ->
       --NOTE: Order of collages is reversed here! Svg renders group elements from back to front.
-      Svg.g (SvgA.id name :: attrs collage ++ events collage.handlers) <|
+      Svg.g (Attrs.id name :: attrs collage ++ events collage.handlers) <|
         List.foldl (\col res -> render col :: res) [] collages
     Core.Subcollage fore back ->
       --NOTE: Rendering a subcollage is the same as rendering a group, only layout calculations in `Collage.Layout` differ.
@@ -183,56 +183,56 @@ render collage =
 
 box : Float -> Float -> List (Attribute msg)
 box w h =
-  [ SvgA.width <| fromFloat w
-  , SvgA.height <| fromFloat h
-  , SvgA.x <| fromFloat (-w / 2)
-  , SvgA.y <| fromFloat (-h / 2)
+  [ Attrs.width <| fromFloat w
+  , Attrs.height <| fromFloat h
+  , Attrs.x <| fromFloat (-w / 2)
+  , Attrs.y <| fromFloat (-h / 2)
   ]
 
 
 events : List ( String, Json.Decoder msg ) -> List (Attribute msg)
 events handlers =
-  List.map (uncurry SvgE.on) handlers
+  List.map (uncurry Events.on) handlers
 
 
 attrs : Collage msg -> List (Attribute msg)
 attrs collage =
   case collage.basic of
     Core.Path line _ ->
-      [ SvgA.stroke <| decodeFill line.fill
-      , SvgA.strokeOpacity <| decodeFillOpacity line.fill
-      , SvgA.strokeWidth <| fromFloat line.thickness
-      , SvgA.strokeLinecap <| decodeCap line.cap
-      , SvgA.strokeLinejoin <| decodeJoin line.join
-      , SvgA.fill <| "none"
-      , SvgA.opacity <| fromFloat collage.opacity
-      , SvgA.transform <| decodeTransform collage
-      , SvgA.strokeDashoffset <| fromInt line.dashPhase
-      , SvgA.strokeDasharray <| decodeDashing line.dashPattern
+      [ Attrs.stroke <| decodeFill line.fill
+      , Attrs.strokeOpacity <| decodeFillOpacity line.fill
+      , Attrs.strokeWidth <| fromFloat line.thickness
+      , Attrs.strokeLinecap <| decodeCap line.cap
+      , Attrs.strokeLinejoin <| decodeJoin line.join
+      , Attrs.fill <| "none"
+      , Attrs.opacity <| fromFloat collage.opacity
+      , Attrs.transform <| decodeTransform collage
+      , Attrs.strokeDashoffset <| fromInt line.dashPhase
+      , Attrs.strokeDasharray <| decodeDashing line.dashPattern
       ]
     Core.Shape ( fill, line ) _ ->
-      [ SvgA.fill <| decodeFill fill
-      , SvgA.fillOpacity <| decodeFillOpacity fill
-      , SvgA.stroke <| decodeFill line.fill
-      , SvgA.strokeOpacity <| decodeFillOpacity line.fill
-      , SvgA.strokeWidth <| fromFloat line.thickness
-      , SvgA.strokeLinecap <| decodeCap line.cap
-      , SvgA.strokeLinejoin <| decodeJoin line.join
-      , SvgA.opacity <| fromFloat collage.opacity
-      , SvgA.transform <| decodeTransform collage
-      , SvgA.strokeDashoffset <| fromInt line.dashPhase
-      , SvgA.strokeDasharray <| decodeDashing line.dashPattern
+      [ Attrs.fill <| decodeFill fill
+      , Attrs.fillOpacity <| decodeFillOpacity fill
+      , Attrs.stroke <| decodeFill line.fill
+      , Attrs.strokeOpacity <| decodeFillOpacity line.fill
+      , Attrs.strokeWidth <| fromFloat line.thickness
+      , Attrs.strokeLinecap <| decodeCap line.cap
+      , Attrs.strokeLinejoin <| decodeJoin line.join
+      , Attrs.opacity <| fromFloat collage.opacity
+      , Attrs.transform <| decodeTransform collage
+      , Attrs.strokeDashoffset <| fromInt line.dashPhase
+      , Attrs.strokeDasharray <| decodeDashing line.dashPattern
       ]
     Core.Text _ (Core.Chunk style str) ->
-      [ SvgA.fill <| decodeFill (Core.Uniform style.color)
-      , SvgA.fontFamily <|
+      [ Attrs.fill <| decodeFill (Core.Uniform style.color)
+      , Attrs.fontFamily <|
           case style.typeface of
             Text.Serif -> "serif"
             Text.Sansserif -> "sans-serif"
             Text.Monospace -> "monospace"
             Text.Font name -> name
-      , SvgA.fontSize <| fromInt style.size
-      , SvgA.fontWeight <|
+      , Attrs.fontSize <| fromInt style.size
+      , Attrs.fontWeight <|
           case style.weight of
             Text.Thin -> "200"
             Text.Light -> "300"
@@ -241,30 +241,30 @@ attrs collage =
             Text.SemiBold -> "600"
             Text.Bold -> "bold"
             Text.Black -> "800"
-      , SvgA.fontStyle <|
+      , Attrs.fontStyle <|
           case style.shape of
             Text.Upright -> "normal"
             Text.SmallCaps -> "normal"
             Text.Slanted -> "oblique"
             Text.Italic -> "italic"
-      , SvgA.fontVariant <|
+      , Attrs.fontVariant <|
           case style.shape of
             Text.SmallCaps -> "small-caps"
             _ -> "normal"
-      , SvgA.textDecoration <|
+      , Attrs.textDecoration <|
           case style.line of
             Text.None -> "none"
             Text.Under -> "underline"
             Text.Over -> "overline"
             Text.Through -> "line-through"
-      , SvgA.textAnchor <| "middle"
-      , SvgA.dominantBaseline "middle"
-      , SvgA.opacity <| fromFloat collage.opacity
-      , SvgA.transform <| decodeTransform collage
+      , Attrs.textAnchor <| "middle"
+      , Attrs.dominantBaseline "middle"
+      , Attrs.opacity <| fromFloat collage.opacity
+      , Attrs.transform <| decodeTransform collage
       ]
     _ ->
-      [ SvgA.opacity <| fromFloat collage.opacity
-      , SvgA.transform <| decodeTransform collage
+      [ Attrs.opacity <| fromFloat collage.opacity
+      , Attrs.transform <| decodeTransform collage
       ]
 
 

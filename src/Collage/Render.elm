@@ -349,7 +349,7 @@ decodeCurve : List Point -> String
 decodeCurve ps =
     let
         toString =
-            (round >> String.fromInt)
+            (round >> fromInt)
 
         neighbors i xs =
               let
@@ -369,8 +369,8 @@ decodeCurve ps =
             ""
 
         [ (x1, y1), (x2, y2) ] ->
-            [ "M", String.fromFloat x1, String.fromFloat y1
-            , "L", String.fromFloat x2, String.fromFloat y2
+            [ "M", fromFloat x1, fromFloat y1
+            , "L", fromFloat x2, fromFloat y2
             ] |> String.join " "
 
         (x1, y1) :: tail ->
@@ -396,4 +396,4 @@ decodeCurve ps =
                         |> Array.toList
 
            in
-           ([ "M", String.fromFloat x1, String.fromFloat y1 ] ++ curves) |> String.join " "
+           ([ "M", fromFloat x1, fromFloat y1 ] ++ curves) |> String.join " "

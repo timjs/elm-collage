@@ -351,15 +351,15 @@ decodeCurve ps =
         toString =
             (round >> String.fromInt)
 
-        neighbors arr index =
-            Maybe.map4
-                (\m1 p1 i p2 ->
-                    ((m1, p1), (i, p2))
-                )
-                (Array.get (index - 1) arr)
-                (Array.get (index + 1) arr)
-                (Array.get index arr)
-                (Array.get (index + 2) arr)
+        neighbors i xs =
+              let
+                l = Array.length xs - 1
+              in
+              Maybe.map4 (\m1 p0 p1 p2 -> (m1, p0, (p1, p2)))
+                  (Array.get (max (i - 1) 0) xs)
+                  (Array.get i xs)
+                  (Array.get (i + 1) xs)
+                  (Array.get (min (i + 2) l) xs)
     in
     case ps of
         [] ->
@@ -375,18 +375,17 @@ decodeCurve ps =
 
         (x1, y1) :: tail ->
            let
-               last = List.reverse tail |> List.take 1
-               arr = Array.fromList ((x1, y1) :: (x1, y1) :: tail ++ last)
+               arr = Array.fromList ps
                curves =
                     Array.indexedMap (\i p ->
-                       case (neighbors arr i) of
-                            Just (((m1x, m1y), (p1x, p1y)), ((ix, iy), (p2x, p2y))) ->
+                       case (neighbors i arr) of
+                            Just ((m1x, m1y), (p0x, p0y), ((p1x, p1y), (p2x, p2y))) ->
                                 [ "C"
-                                , ix + (p1x - m1x) / 6 |> toString
-                                , iy + (p1y - m1y) / 6 |> toString
+                                , p0x + (p1x - m1x) / 6 |> toString
+                                , p0y + (p1y - m1y) / 6 |> toString
                                 , ","
-                                , p1x + (ix - p2x) / 6 |> toString
-                                , p1y + (iy - p2y) / 6 |> toString
+                                , p1x + (p0x - p2x) / 6 |> toString
+                                , p1y + (p0y - p2y) / 6 |> toString
                                 , ","
                                 , p1x |> toString
                                 , p1y |> toString

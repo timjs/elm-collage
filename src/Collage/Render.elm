@@ -355,11 +355,11 @@ decodeCurve ps =
               let
                 l = Array.length xs - 1
               in
-              Maybe.map4 (\m1 p0 p1 p2 -> (m1, p0, (p1, p2)))
-                  (Array.get (max (i - 1) 0) xs)
+              Maybe.map4 (\m1 p0 p1 p2 -> (m1, p0, (p1, p2))) -- use tuples so we can destructure ( x, y )
+                  (Array.get (max (i - 1) 0) xs) -- previous with first element as lower bound
                   (Array.get i xs)
-                  (Array.get (i + 1) xs)
-                  (Array.get (min (i + 2) l) xs)
+                  (Array.get (i + 1) xs) -- if sequent doesnt exist, we're ready and results in Nothing
+                  (Array.get (min (i + 2) l) xs) -- subsequent with last element as upper bound
     in
     case ps of
         [] ->

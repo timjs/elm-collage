@@ -1,11 +1,8 @@
 module Helpers exposing
   ( orLazy
-  , segments
   )
 
 {-| -}
-
-import Helpers.List exposing (rotate)
 
 
 -- Maybe -----------------------------------------------------------------------
@@ -18,14 +15,3 @@ orLazy ma fmb =
   case ma of
     Nothing -> fmb ()
     Just _ -> ma
-
-
-segments : Bool -> List ( Float, Float ) -> List ( ( Float, Float ), ( Float, Float ) )
-segments closed ps =
-    List.map2 Tuple.pair ps (rotate ps)
-        |> (if closed then
-                identity
-
-            else
-                List.take (List.length ps - 1)
-           )

@@ -2,6 +2,7 @@ module Helpers.List exposing
     ( values
     , foldrLazy
     , rotate
+    , segments
     )
 
 
@@ -36,3 +37,14 @@ rotate list =
 
         _ ->
             list
+
+
+segments : Bool -> List a -> List ( a, a )
+segments closed ps =
+    List.map2 Tuple.pair ps (rotate ps)
+        |> (if closed then
+                identity
+
+            else
+                List.take (List.length ps - 1)
+           )

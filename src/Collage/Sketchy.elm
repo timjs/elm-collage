@@ -10,8 +10,7 @@ import Array
 import Collage exposing (Collage, Point)
 import Collage.Core as Core
 import Collage.Sketchy.Fill as Fill
-import Helpers exposing (segments)
-import Helpers.List exposing (rotate)
+import Helpers.List exposing (rotate, segments)
 
 
 {-| Configure how rough results should look.

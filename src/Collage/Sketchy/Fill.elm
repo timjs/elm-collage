@@ -2,7 +2,6 @@ module Collage.Sketchy.Fill exposing (hachureLines)
 
 import Collage exposing (..)
 import Collage.Core as Core exposing (FillStyle(..))
-import Helpers exposing (segments)
 import Helpers.List
 import Color exposing (..)
 
@@ -28,7 +27,7 @@ hachureLines thickness vertices =
     let
         edges =
             rotatePoints (degrees hachureAngle) vertices
-                |> segments True
+                |> Helpers.List.segments True
                 |> List.filterMap segmentToEdge
                 |> List.sortWith sortEdges
 

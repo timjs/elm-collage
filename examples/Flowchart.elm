@@ -3,7 +3,7 @@ module Flowchart exposing (main)
 import Example
 import Collage exposing (..)
 import Collage.Layout as Layout exposing (..)
-import Collage.Text as Text exposing (Shape(..), fromString)
+import Collage.Text as Text exposing (Shape(..), fromString, Typeface(..))
 import Color exposing (..)
 import Html exposing (Html)
 import Html.Attributes
@@ -49,6 +49,12 @@ fontFamily : String
 fontFamily =
     "Caveat"
 
+
+font : Typeface
+font =
+    Font fontFamily
+
+
 unit : Float
 unit =
     50
@@ -83,7 +89,7 @@ diamond label =
                 |> Text.shape Italic
                 |> Text.size Text.huge
                 |> Text.weight Text.Black
-                |> Text.typeface (Text.Font fontFamily)
+                |> Text.typeface font
                 |> rendered
 
         w =

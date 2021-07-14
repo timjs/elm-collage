@@ -14,7 +14,7 @@ main =
         [ Html.button []
             [ text "Hello Html!" ]
         ]
-        |> html ( 100, 100 )
+        |> html ( 100, 100 ) []
     , rectangle 100 100
         |> filled (uniform Color.lightGreen)
     ]

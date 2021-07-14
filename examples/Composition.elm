@@ -1,14 +1,11 @@
 module Composition exposing (main)
 
-import Browser
 import Collage exposing (..)
 import Collage.Events exposing (onClick)
 import Collage.Layout exposing (..)
-import Collage.Render exposing (svg)
 import Collage.Text exposing (fromString)
 import Color exposing (..)
-import Html exposing (Html)
-
+import Example
 
 
 -- Model -----------------------------------------------------------------------
@@ -18,22 +15,19 @@ type alias Model =
   { active : Bool }
 
 
-init : Model
-init = { active = False }
-
-
 
 -- Update ----------------------------------------------------------------------
 
 
 type Msg
-  = Switch
+    = Switch
 
 
 update : Msg -> Model -> Model
 update msg model =
   case msg of
-    Switch -> { model | active = not model.active }
+    Switch ->
+        { model | active = not model.active }
 
 
 
@@ -59,12 +53,12 @@ txt =
 -- Shapes --
 
 
-elps : Model -> Collage Msg
-elps model =
+elps : Bool -> Collage Msg
+elps active =
   ellipse 100 50
     |> styled
         ( uniform <|
-            if model.active then
+            if active then
               lightPurple
             else
               lightBlue
@@ -105,9 +99,7 @@ alignments =
 
 -- Main ------------------------------------------------------------------------
 
-
-view : Model -> Html Msg
-view model =
+render model =
   vertical
     [ horizontal
         [ rect
@@ -118,11 +110,15 @@ view model =
             |> center
         , debug penta
         ]
-    , stack [ showEnvelope txt, elps model ]
+    , stack [ showEnvelope txt, elps model.active ]
     ]
-    |> debug
-    |> svg
 
 
-main : Program () Model Msg
-main = Browser.sandbox { init = init, view = view, update = update }
+main : Platform.Program () (Example.Model Msg Model) (Example.Msg Msg)
+main =
+    Example.example
+        { init = Model False
+        , update = update
+        , render = render
+        , view = identity
+        }

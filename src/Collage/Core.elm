@@ -6,6 +6,7 @@ Constructors are however not exposed to the user.
 
 import Color exposing (Color)
 import Helpers
+import Helpers.List
 import Html exposing (Html)
 import Json.Decode as Json
 
@@ -108,7 +109,7 @@ foldr f acc col =
 foldrLazy : (Collage fill line text msg -> (() -> a) -> a) -> a -> Collage fill line text msg -> a
 foldrLazy f acc col =
   let
-    foldrOf = Helpers.foldrLazy (\c a -> foldrLazy f (a ()) c) acc
+    foldrOf = Helpers.List.foldrLazy (\c a -> foldrLazy f (a ()) c) acc
     recurse () =
       case col.basic of
         Group cols -> foldrOf cols
@@ -213,6 +214,7 @@ type Shape
 
 type Path
   = Polyline (List Point)
+  | Curve (List Point)
 
 
 type Text style

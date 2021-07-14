@@ -123,6 +123,7 @@ import Collage.Super exposing (..)
 import Color
 import Dict exposing (Dict)
 import Helpers
+import Helpers.List
 import Maybe exposing (withDefault)
 
 
@@ -269,6 +270,8 @@ handleBasic basic =
           thickness
         )
         ps
+    Core.Path attrs (Core.Curve ps) ->
+      handleBasic (Core.Path attrs (Core.Polyline ps))
     -- Boxes --
     Core.Text dims _ ->
       handleBox 0 dims
@@ -791,7 +794,7 @@ locate string anchor this =
         firstOf =
           --NOTE: This saves us recursing down when we found what we're looking for!
           --FIXME: This is depth first!!!
-          Helpers.foldrLazy (Helpers.orLazy << recurse) Nothing
+          Helpers.List.foldrLazy (Helpers.orLazy << recurse) Nothing
       in
       if match then
         Just <| anchor col
@@ -869,7 +872,7 @@ connect locations line col =
     positions =
       locations
         |> List.map (\( n, a ) -> locate n a col)
-        |> Helpers.values
+        |> Helpers.List.values
   in
   impose (path positions |> traced line) col
 

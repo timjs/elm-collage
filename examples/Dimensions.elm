@@ -1,8 +1,8 @@
 module Dimensions exposing (diamond, main)
 
+import Example
 import Collage exposing (..)
 import Collage.Layout exposing (..)
-import Collage.Render exposing (..)
 import Collage.Text as Text exposing (Shape(..), Text, fromString)
 import Color exposing (Color)
 import Html exposing (Html)
@@ -42,11 +42,20 @@ diamond label =
     ]
 
 
-main : Html msg
-main =
+collage =
   vertical
     [ diamond "a very long piece of text"
     , gap
     , diamond "short text"
     ]
-    |> svg
+
+
+main : Platform.Program () (Example.Model () (Collage ())) (Example.Msg ())
+main =
+    Example.example
+        { init = collage
+        , update = (\_ _ -> collage)
+        , render = (\_ -> collage)
+        , view = identity
+        }
+

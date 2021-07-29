@@ -1,14 +1,14 @@
 module Collage.Text exposing
-  ( Text
-  , fromString, empty
-  , Typeface(..), typeface, color
-  , size, tiny, small, normal, large, huge, enormous
-  , Shape(..), shape, Weight(..), weight
-  , Line(..), line
-  , Style, style, defaultStyle
-  , width, height
-  {- (.) -}
-  )
+    ( Text
+    , fromString, empty
+    , Typeface(..), typeface, color
+    , size, tiny, small, normal, large, huge, enormous
+    , Shape(..), shape, Weight(..), weight
+    , Line(..), line
+    , Style, style, defaultStyle
+    , width, height
+    {- (.) -}
+    )
 
 {-| A library for styling and displaying text.
 
@@ -116,7 +116,7 @@ import Color exposing (Color)
 {-| Opaque type representing styled text.
 -}
 type alias Text =
-  Core.Text Style
+    Core.Text Style
 
 
 
@@ -128,23 +128,26 @@ type alias Text =
 To show the string "Hello World!" on screen in large, dark red, italics, you could say:
 
     fromString "Hello World!"
-      |> size large
-      |> color Color.darkRed
-      |> shape Italic
-      |> Collage.rendered
+        |> size large
+        |> color Color.darkRed
+        |> shape Italic
+        |> Collage.rendered
 
 -}
 fromString : String -> Text
-fromString = Core.Chunk defaultStyle
+fromString =
+    Core.Chunk defaultStyle
 
 
 {-| Text with nothing in it.
 
-    empty = fromString ""
+    empty =
+        fromString ""
 
 -}
 empty : Text
-empty = fromString ""
+empty =
+    fromString ""
 
 
 
@@ -154,13 +157,13 @@ empty = fromString ""
 {-| Specifies the styling (color, typeface, weight, etc.) of text.
 -}
 type alias Style =
-  { typeface : Typeface
-  , size : Int
-  , color : Color
-  , shape : Shape
-  , weight : Weight
-  , line : Line
-  }
+    { typeface : Typeface
+    , size : Int
+    , color : Color
+    , shape : Shape
+    , weight : Weight
+    , line : Line
+    }
 
 
 {-| Give some text a predefined style.
@@ -183,7 +186,7 @@ you could apply it to text like this:
 -}
 style : Style -> Text -> Text
 style newstyle (Core.Chunk _ str) =
-  Core.Chunk newstyle str
+    Core.Chunk newstyle str
 
 
 {-| Plain black text.
@@ -192,24 +195,24 @@ It uses the browsers default typeface and text height.
 No decorations are used.
 
     defaultStyle =
-      { typeface = Sansserif
-      , size = normal
-      , color = Color.black
-      , shape = Upright
-      , weight = Regular
-      , line = None
-      }
+        { typeface = Sansserif
+        , size = normal
+        , color = Color.black
+        , shape = Upright
+        , weight = Regular
+        , line = None
+        }
 
 -}
 defaultStyle : Style
 defaultStyle =
-  { typeface = Sansserif
-  , size = normal
-  , color = Color.black
-  , shape = Upright
-  , weight = Regular
-  , line = None
-  }
+    { typeface = Sansserif
+    , size = normal
+    , color = Color.black
+    , shape = Upright
+    , weight = Regular
+    , line = None
+    }
 
 
 
@@ -223,21 +226,21 @@ Use `Font` to specify a concrete typeface.
 
 -}
 type Typeface
-  = Serif
-  | Sansserif
-  | Monospace
-  | Font String
+    = Serif
+    | Sansserif
+    | Monospace
+    | Font String
 
 
 {-| Set the typeface of some text.
 
     fromString "Text in my favorite font"
-      |> typeface (Font "Lato")
+        |> typeface (Font "Lato")
 
 -}
 typeface : Typeface -> Text -> Text
 typeface newface (Core.Chunk sty str) =
-  Core.Chunk { sty | typeface = newface } str
+    Core.Chunk { sty | typeface = newface } str
 
 
 {-| Set the color of some text.
@@ -245,12 +248,12 @@ typeface newface (Core.Chunk sty str) =
 Use the Color module to specify colors.
 
     fromString "Nice blue text"
-      |> color Color.blue
+        |> color Color.blue
 
 -}
 color : Color -> Text -> Text
 color newcolor (Core.Chunk sty str) =
-  Core.Chunk { sty | color = newcolor } str
+    Core.Chunk { sty | color = newcolor } str
 
 
 
@@ -260,48 +263,54 @@ color newcolor (Core.Chunk sty str) =
 {-| Set the size of some text.
 
     fromString "Big text"
-      |> size huge
+        |> size huge
 
 -}
 size : Int -> Text -> Text
 size newsize (Core.Chunk sty str) =
-  Core.Chunk { sty | size = newsize } str
+    Core.Chunk { sty | size = newsize } str
 
 
 {-| 11 px
 -}
 tiny : Int
-tiny = 11
+tiny =
+    11
 
 
 {-| 13 px
 -}
 small : Int
-small = 13
+small =
+    13
 
 
 {-| 16 px
 -}
 normal : Int
-normal = 16
+normal =
+    16
 
 
 {-| 19 px
 -}
 large : Int
-large = 19
+large =
+    19
 
 
 {-| 23 px
 -}
 huge : Int
-huge = 23
+huge =
+    23
 
 
 {-| 27 px
 -}
 enormous : Int
-enormous = 27
+enormous =
+    27
 
 
 
@@ -311,50 +320,50 @@ enormous = 27
 {-| Possible shapes for a piece of text.
 -}
 type Shape
-  = Upright
-  | SmallCaps
-  | Slanted
-  | Italic
+    = Upright
+    | SmallCaps
+    | Slanted
+    | Italic
 
 
 {-| Set the shape of some text.
 
     fromString "Italic text"
-      |> shape Italic
+        |> shape Italic
 
 -}
 shape : Shape -> Text -> Text
 shape newshape (Core.Chunk sty str) =
-  Core.Chunk { sty | shape = newshape } str
+    Core.Chunk { sty | shape = newshape } str
 
 
 {-| Possible weights for a piece of text.
 -}
 type Weight
-  = Thin
-  | Light
-  | Regular
-  | Medium
-  | SemiBold
-  | Bold
-  | Black
+    = Thin
+    | Light
+    | Regular
+    | Medium
+    | SemiBold
+    | Bold
+    | Black
 
 
 {-| Set the weight of some text.
 
     fromString "Bold text"
-      |> weight Bold
+        |> weight Bold
 
 -}
 weight : Weight -> Text -> Text
 weight newweight (Core.Chunk sty str) =
-  Core.Chunk { sty | weight = newweight } str
+    Core.Chunk { sty | weight = newweight } str
 
 
 type Stretch
-  = Condensed
-  | Normal
-  | Expanded
+    = Condensed
+    | Normal
+    | Expanded
 
 
 
@@ -369,10 +378,10 @@ type Stretch
 {-| Styles for lines on or over some text.
 -}
 type Line
-  = None
-  | Under
-  | Over
-  | Through
+    = None
+    | Under
+    | Over
+    | Through
 
 
 {-| Put lines on text.
@@ -390,7 +399,7 @@ This allows you to add an underline, an overline, or strike out text:
 -}
 line : Line -> Text -> Text
 line newline (Core.Chunk sty str) =
-  Core.Chunk { sty | line = newline } str
+    Core.Chunk { sty | line = newline } str
 
 
 
@@ -426,8 +435,8 @@ line newline (Core.Chunk sty str) =
 -}
 width : Text -> Float
 width ((Core.Chunk sty str) as text) =
-  --FIXME: Native.Text.width (toCssFontSpec sty) str
-  height text / 2 * toFloat (String.length str)
+    --FIXME: Native.Text.width (toCssFontSpec sty) str
+    height text / 2 * toFloat (String.length str)
 
 
 {-| The height of the text when displayed on the user screen.
@@ -435,16 +444,16 @@ width ((Core.Chunk sty str) as text) =
 This is equal to the text size:
 
     fromString "Hello World!"
-      |> size 16
-      |> height
-      == 16
+        |> size 16
+        |> height
+        == 16
 
 (Now you know why newlines are a bad idea...)
 
 -}
 height : Text -> Float
 height (Core.Chunk sty _) =
-  toFloat sty.size
+    toFloat sty.size
 
 
 {-| Example:
@@ -457,36 +466,66 @@ font: italic small-caps bolder condensed 16px/3 cursive;
 -}
 toCssFontSpec : Style -> String
 toCssFontSpec sty =
-  let
-    --NOTE: adding font-stretch makes spec not parse...
-    spec =
-      [ -- font-style
-        case sty.shape of
-          Upright -> "normal"
-          SmallCaps -> "normal"
-          Slanted -> "oblique"
-          Italic -> "italic"
-      , -- font-variant
-        case sty.shape of
-          SmallCaps -> "small-caps"
-          _ -> "normal"
-      , -- font-weight
-        case sty.weight of
-          Thin -> "200"
-          Light -> "300"
-          Regular -> "normal"
-          Medium -> "500"
-          SemiBold -> "600"
-          Bold -> "bold"
-          Black -> "800"
-      , -- font-size
-        String.fromInt sty.size ++ "px"
-      , -- font-family
-        case sty.typeface of
-          Serif -> "serif"
-          Sansserif -> "sans-serif"
-          Monospace -> "monospace"
-          Font name -> name
-      ]
-  in
-  String.concat <| List.intersperse " " <| spec
+    let
+        --NOTE: adding font-stretch makes spec not parse...
+        spec =
+            [ -- font-style
+              case sty.shape of
+                Upright ->
+                    "normal"
+
+                SmallCaps ->
+                    "normal"
+
+                Slanted ->
+                    "oblique"
+
+                Italic ->
+                    "italic"
+            , -- font-variant
+              case sty.shape of
+                SmallCaps ->
+                    "small-caps"
+
+                _ ->
+                    "normal"
+            , -- font-weight
+              case sty.weight of
+                Thin ->
+                    "200"
+
+                Light ->
+                    "300"
+
+                Regular ->
+                    "normal"
+
+                Medium ->
+                    "500"
+
+                SemiBold ->
+                    "600"
+
+                Bold ->
+                    "bold"
+
+                Black ->
+                    "800"
+            , -- font-size
+              String.fromInt sty.size ++ "px"
+            , -- font-family
+              case sty.typeface of
+                Serif ->
+                    "serif"
+
+                Sansserif ->
+                    "sans-serif"
+
+                Monospace ->
+                    "monospace"
+
+                Font name ->
+                    name
+            ]
+    in
+    String.concat <| List.intersperse " " <| spec

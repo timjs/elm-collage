@@ -9,4 +9,4 @@ import Collage.Text as Text
 Only for internal usage.
 -}
 type alias BasicCollage msg =
-  Core.BasicCollage Core.FillStyle Collage.LineStyle Text.Style msg
+    Core.BasicCollage Core.FillStyle Collage.LineStyle Text.Style msg

@@ -1,20 +1,20 @@
 module Collage exposing
-  ( Point, opposite, Collage
-  , shift, shiftX, shiftY, scale, scaleX, scaleY, rotate, opacity
-  , group
-  , Shape, rectangle, square, roundedRectangle, roundedSquare, ellipse, circle, polygon, ngon, triangle
-  , filled, outlined, styled
-  , Path, line, segment, path
-  , traced, close
-  , rendered
-  , image, html
-  , Style
-  , FillStyle, transparent, uniform
-  , LineStyle, invisible, defaultLineStyle
-  , solid, broken, dot, dash, longdash, dashdot
-  , ultrathin, verythin, thin, semithick, thick, verythick, ultrathick
-  , LineCap(..), LineJoin(..)
-  )
+    ( Point, opposite, Collage
+    , shift, shiftX, shiftY, scale, scaleX, scaleY, rotate, opacity
+    , group
+    , Shape, rectangle, square, roundedRectangle, roundedSquare, ellipse, circle, polygon, ngon, triangle
+    , filled, outlined, styled
+    , Path, line, segment, path
+    , traced, close
+    , rendered
+    , image, html
+    , Style
+    , FillStyle, transparent, uniform
+    , LineStyle, invisible, defaultLineStyle
+    , solid, broken, dot, dash, longdash, dashdot
+    , ultrathin, verythin, thin, semithick, thick, verythick, ultrathick
+    , LineCap(..), LineJoin(..)
+    )
 
 {-| The collage module is here to help you create freeform graphics.
 You can style all sorts of forms including shapes, paths, text, and images,
@@ -236,7 +236,7 @@ import Html exposing (Html)
 a point in the center of the canvas.
 -}
 type alias Point =
-  ( Float, Float )
+    ( Float, Float )
 
 
 {-| Calculate the point at the opposite side of the origin.
@@ -244,12 +244,12 @@ type alias Point =
 Simply negates the coordinates:
 
     opposite ( x, y ) =
-      ( -x, -y )
+        ( -x, -y )
 
 -}
 opposite : Point -> Point
 opposite ( x, y ) =
-  ( -x, -y )
+    ( -x, -y )
 
 
 
@@ -260,7 +260,7 @@ opposite ( x, y ) =
 A collage could be a red circle, a dotted line, a chunk of text, or an arbitrary Html element.
 -}
 type alias Collage msg =
-  Core.Collage Core.FillStyle LineStyle Text.Style msg
+    Core.Collage Core.FillStyle LineStyle Text.Style msg
 
 
 
@@ -271,12 +271,13 @@ type alias Collage msg =
 which again can be shifted, rotated, scaled, etc.
 
     group [ drawing1, drawing2, drawing3 ]
-      |> scale 3
-      |> rotate (degrees 90)
+        |> scale 3
+        |> rotate (degrees 90)
 
 -}
 group : List (Collage msg) -> Collage msg
-group = Core.collage << Core.Group
+group =
+    Core.collage << Core.Group
 
 
 
@@ -292,7 +293,7 @@ This is a relative translation,
 so
 
     collage
-      |> shift ( 5, 10 )
+        |> shift ( 5, 10 )
 
 would shift `collage` five pixels to the right and ten pixels up.
 
@@ -303,30 +304,33 @@ Shifting a collage with `(5,10)` is equivalent to moving its local origin with `
 -}
 shift : ( Float, Float ) -> Collage msg -> Collage msg
 shift ( dx, dy ) collage =
-  let
-    ( x, y ) = collage.shift
-  in
-  { collage | shift = ( x + dx, y + dy ) }
+    let
+        ( x, y ) =
+            collage.shift
+    in
+    { collage | shift = ( x + dx, y + dy ) }
 
 
 {-| Shift a collage by the given amount on the X axis within its local space.
 -}
 shiftX : Float -> Collage msg -> Collage msg
 shiftX dx collage =
-  let
-    ( x, y ) = collage.shift
-  in
-  { collage | shift = ( x + dx, y ) }
+    let
+        ( x, y ) =
+            collage.shift
+    in
+    { collage | shift = ( x + dx, y ) }
 
 
 {-| Shift a collage by the given amount on the Y axis within its local space.
 -}
 shiftY : Float -> Collage msg -> Collage msg
 shiftY dy collage =
-  let
-    ( x, y ) = collage.shift
-  in
-  { collage | shift = ( x, y + dy ) }
+    let
+        ( x, y ) =
+            collage.shift
+    in
+    { collage | shift = ( x, y + dy ) }
 
 
 {-| Scale a collage by a given factor.
@@ -336,7 +340,7 @@ Scaling by 2 doubles both dimensions and quadruples the area.
 -}
 scale : Float -> Collage msg -> Collage msg
 scale s collage =
-  scaleXY ( s, s ) collage
+    scaleXY ( s, s ) collage
 
 
 {-| Scale a collage horizontally (in its local space) by a given factor.
@@ -346,7 +350,7 @@ Scaling by 2 doubles the width and doubles the area.
 -}
 scaleX : Float -> Collage msg -> Collage msg
 scaleX s collage =
-  scaleXY ( s, 1 ) collage
+    scaleXY ( s, 1 ) collage
 
 
 {-| Scale a collage vertically (in its local space) by a given factor.
@@ -356,15 +360,16 @@ Scaling by 2 doubles the height and doubles the area.
 -}
 scaleY : Float -> Collage msg -> Collage msg
 scaleY s collage =
-  scaleXY ( 1, s ) collage
+    scaleXY ( 1, s ) collage
 
 
 scaleXY : ( Float, Float ) -> Collage msg -> Collage msg
 scaleXY ( sx, sy ) collage =
-  let
-    ( sx0, sy0 ) = collage.scale
-  in
-  { collage | scale = ( sx0 * sx, sy0 * sy ) }
+    let
+        ( sx0, sy0 ) =
+            collage.scale
+    in
+    { collage | scale = ( sx0 * sx, sy0 * sy ) }
 
 
 {-| Rotate a collage by a given angle.
@@ -375,12 +380,12 @@ and turns things **counterclockwise**.
 So to turn `collage` 30&deg; to the left you would say:
 
     collage
-      |> rotate (degrees 30)
+        |> rotate (degrees 30)
 
 -}
 rotate : Float -> Collage msg -> Collage msg
 rotate t collage =
-  { collage | rotation = collage.rotation + t }
+    { collage | rotation = collage.rotation + t }
 
 
 {-| Set the opacity of a collage.
@@ -390,7 +395,7 @@ The default is 1, and 0 is totally transparent.
 -}
 opacity : Float -> Collage msg -> Collage msg
 opacity a collage =
-  { collage | opacity = a }
+    { collage | opacity = a }
 
 
 
@@ -404,7 +409,7 @@ Position, color, thickness, etc. are all specified later.
 
 -}
 type alias Shape =
-  Core.Shape
+    Core.Shape
 
 
 
@@ -422,7 +427,8 @@ so the given list of points does not need to start and end with the same positio
 
 -}
 polygon : List Point -> Shape
-polygon = Core.Polygon
+polygon =
+    Core.Polygon
 
 
 {-| A regular polygon with _n_ sides.
@@ -439,13 +445,17 @@ Some ngon's with radius 50:
 -}
 ngon : Int -> Float -> Shape
 ngon n r =
-  let
-    m = toFloat n
-    t = 2 * pi / m
-    f i =
-      ( r * cos (t * toFloat i + pi / 2), r * sin (t * toFloat i + pi / 2) )
-  in
-  polygon <| List.map f (List.range 0 n)
+    let
+        m =
+            toFloat n
+
+        t =
+            2 * pi / m
+
+        f i =
+            ( r * cos (t * toFloat i + pi / 2), r * sin (t * toFloat i + pi / 2) )
+    in
+    polygon <| List.map f (List.range 0 n)
 
 
 {-| An equilateral triangle pointing upwards with given base.
@@ -464,18 +474,21 @@ however:
 -}
 triangle : Float -> Shape
 triangle b =
-  let
-    x = b / 2
-    y = sqrt 3 / 2 * x
-  in
-  polygon [ ( -x, -y ), ( x, -y ), ( 0, y ) ]
+    let
+        x =
+            b / 2
+
+        y =
+            sqrt 3 / 2 * x
+    in
+    polygon [ ( -x, -y ), ( x, -y ), ( 0, y ) ]
 
 
 {-| A rectangle of given width and height.
 -}
 rectangle : Float -> Float -> Shape
 rectangle w h =
-  roundedRectangle w h 0
+    roundedRectangle w h 0
 
 
 {-| A square of given size.
@@ -487,7 +500,7 @@ Of course this is equal to using `rectangle` with the same width and height:
 -}
 square : Float -> Shape
 square size =
-  rectangle size size
+    rectangle size size
 
 
 {-| A rectangle with rounded corners.
@@ -497,7 +510,8 @@ last is the radius of the corners.
 
 -}
 roundedRectangle : Float -> Float -> Float -> Shape
-roundedRectangle = Core.Rectangle
+roundedRectangle =
+    Core.Rectangle
 
 
 {-| A square with rounded corners.
@@ -509,7 +523,7 @@ Of course this is equal to using `roundedRectangle` with the same width and heig
 -}
 roundedSquare : Float -> Float -> Shape
 roundedSquare size =
-  roundedRectangle size size
+    roundedRectangle size size
 
 
 {-| An ellipse with given horizontal and vertical radii.
@@ -523,7 +537,8 @@ roundedSquare size =
 
 -}
 ellipse : Float -> Float -> Shape
-ellipse = Core.Ellipse
+ellipse =
+    Core.Ellipse
 
 
 {-| A circle of given radius.
@@ -534,7 +549,8 @@ As with a square, using `circle` is the same as using `ellipse` with the same x 
 
 -}
 circle : Float -> Shape
-circle = Core.Circle
+circle =
+    Core.Circle
 
 
 
@@ -548,14 +564,14 @@ The **outline is left invisible**.
 To draw a red circle of radius 50 you say:
 
     circle 50
-      |> filled (uniform red)
+        |> filled (uniform red)
 
 See below for possible fill styles.
 
 -}
 filled : FillStyle -> Shape -> Collage msg
 filled fill =
-  styled ( fill, invisible )
+    styled ( fill, invisible )
 
 
 {-| Adds an outline to a shape, turning it into a collage.
@@ -565,14 +581,14 @@ The **fill is left transparent**.
 To draw a square with edge length 30 with a thin black dashed outline you say:
 
     square 30
-      |> outlined (dot thin (uniform black))
+        |> outlined (dot thin (uniform black))
 
 See below for the possible line styles.
 
 -}
 outlined : LineStyle -> Shape -> Collage msg
 outlined linestyle =
-  styled ( transparent, linestyle )
+    styled ( transparent, linestyle )
 
 
 {-| Adds a fill and an outline to a shape, turning it into a collage.
@@ -581,10 +597,10 @@ The tuple argument contains a fill style and a line style.
 To draw a thick black outlined green triangle with base 30 you say:
 
     triangle 30
-      |> styled
-          ( uniform green
-          , solid thick (uniform black)
-          )
+        |> styled
+            ( uniform green
+            , solid thick (uniform black)
+            )
 
 The tuple form helps in defining your own reusable styles.
 For example, if you want more of you shapes to have a thick black outline,
@@ -601,7 +617,7 @@ See below for all possible fill and line styles.
 -}
 styled : ( FillStyle, LineStyle ) -> Shape -> Collage msg
 styled style =
-  Core.collage << Core.Shape style
+    Core.collage << Core.Shape style
 
 
 
@@ -623,7 +639,7 @@ which can be filled and outlined.
 
 -}
 type alias Path =
-  Core.Path
+    Core.Path
 
 
 
@@ -637,12 +653,12 @@ The origin of the line will be `(0,0)`.
 Here is a thick dotted yellow horizontal line of length 20:
 
     line 20
-      |> traced (dot thick (uniform yellow))
+        |> traced (dot thick (uniform yellow))
 
 -}
 line : Float -> Path
 line l =
-  path [ ( -l / 2, 0 ), ( l / 2, 0 ) ]
+    path [ ( -l / 2, 0 ), ( l / 2, 0 ) ]
 
 
 {-| Create a path along a given line segment.
@@ -651,7 +667,7 @@ Takes the start and end points of the segment as arguments.
 To draw a sloped blue line from (0,5) to (5,0) you say:
 
     segment ( 0, 5 ) ( 5, 0 )
-      |> traced (uniform blue)
+        |> traced (uniform blue)
 
   - Note:
     If you like to automatically position lines,
@@ -662,7 +678,7 @@ To draw a sloped blue line from (0,5) to (5,0) you say:
 -}
 segment : Point -> Point -> Path
 segment a b =
-  path [ a, b ]
+    path [ a, b ]
 
 
 {-| Create a path that follows a sequence of points.
@@ -671,7 +687,8 @@ It can be thought of as drawing a “connect-the-dots” line through a list of 
 
 -}
 path : List Point -> Path
-path = Core.Polyline
+path =
+    Core.Polyline
 
 
 
@@ -710,7 +727,7 @@ path = Core.Polyline
 Here is a red zig-zag:
 
     path [ ( 0, 5 ), ( 5, 0 ), ( 5, 5 ) ]
-      |> traced (solid thin (uniform red))
+        |> traced (solid thin (uniform red))
 
 Paths can only be traced.
 If you like to fill a path,
@@ -719,7 +736,7 @@ you have to turn it into a shape by _closing_ it first.
 -}
 traced : LineStyle -> Path -> Collage msg
 traced linestyle p =
-  Core.collage <| Core.Path linestyle p
+    Core.collage <| Core.Path linestyle p
 
 
 {-| Close a path so that it also can be filled.
@@ -733,7 +750,8 @@ If you really want this, you have two options:
 
 -}
 close : Path -> Shape
-close = Core.Loop
+close =
+    Core.Loop
 
 
 
@@ -743,16 +761,16 @@ close = Core.Loop
 {-| Render a chunk of styled text and turn it into a collage.
 
     Text.fromString "Hello Collage!"
-      |> Text.shape Text.Italic
-      |> Text.size huge
-      |> rendered
+        |> Text.shape Text.Italic
+        |> Text.size huge
+        |> rendered
 
 See the Collage.Text module for all the possibilities to create and style text.
 
 -}
 rendered : Text -> Collage msg
 rendered text =
-  Core.collage <| Core.Text ( Text.width text, Text.height text ) text
+    Core.collage <| Core.Text ( Text.width text, Text.height text ) text
 
 
 
@@ -766,7 +784,7 @@ rendered text =
 -}
 image : ( Float, Float ) -> String -> Collage msg
 image dims =
-  Core.collage << Core.Image dims
+    Core.collage << Core.Image dims
 
 
 {-| Create a collage from an arbitrary Html element.
@@ -776,7 +794,7 @@ The resulting collage is subject to all of the regular transformations.
 -}
 html : ( Float, Float ) -> List (Html.Attribute msg) -> Html msg -> Collage msg
 html dims attrs =
-  Core.collage << Core.Html dims attrs
+    Core.collage << Core.Html dims attrs
 
 
 
@@ -786,7 +804,7 @@ html dims attrs =
 {-| Convenience shorthand for styling.
 -}
 type alias Style =
-  ( FillStyle, LineStyle )
+    ( FillStyle, LineStyle )
 
 
 
@@ -799,19 +817,21 @@ For now, it can only be a uniform color or no fill at all.
 
 -}
 type alias FillStyle =
-  Core.FillStyle
+    Core.FillStyle
 
 
 {-| Uniform color fill.
 -}
 uniform : Color -> FillStyle
-uniform = Core.Uniform
+uniform =
+    Core.Uniform
 
 
 {-| Transparent fill.
 -}
 transparent : FillStyle
-transparent = Core.Transparent
+transparent =
+    Core.Transparent
 
 
 
@@ -835,13 +855,13 @@ To define a red, dashed line style with a thickness of 5px:
 
 -}
 type alias LineStyle =
-  { fill : FillStyle
-  , thickness : Float
-  , cap : LineCap
-  , join : LineJoin
-  , dashPattern : List ( Int, Int )
-  , dashPhase : Int
-  }
+    { fill : FillStyle
+    , thickness : Float
+    , cap : LineCap
+    , join : LineJoin
+    , dashPattern : List ( Int, Int )
+    , dashPhase : Int
+    }
 
 
 {-| The default line style, which is solid black with flat caps and sharp joints.
@@ -854,25 +874,27 @@ For example, to make a thicker line, you could say:
 -}
 defaultLineStyle : LineStyle
 defaultLineStyle =
-  { fill = uniform Color.black
-  , thickness = thin
-  , cap = Flat
-  , join = Sharp
-  , dashPattern = []
-  , dashPhase = 0
-  }
+    { fill = uniform Color.black
+    , thickness = thin
+    , cap = Flat
+    , join = Sharp
+    , dashPattern = []
+    , dashPhase = 0
+    }
 
 
 {-| Invisible line.
 -}
 invisible : LineStyle
-invisible = solid 0 transparent
+invisible =
+    solid 0 transparent
 
 
 {-| A line style representing a solid line of given thickness and color.
 -}
 solid : Float -> FillStyle -> LineStyle
-solid = broken []
+solid =
+    broken []
 
 
 {-| A custom line defined by a list of `(on, off)` dash length:
@@ -884,11 +906,11 @@ solid = broken []
 -}
 broken : List ( Int, Int ) -> Float -> FillStyle -> LineStyle
 broken dashes thickness fill =
-  { defaultLineStyle
-    | fill = fill
-    , thickness = thickness
-    , dashPattern = dashes
-  }
+    { defaultLineStyle
+        | fill = fill
+        , thickness = thickness
+        , dashPattern = dashes
+    }
 
 
 {-| A dotted line type with the given thickness.
@@ -898,10 +920,11 @@ Calculates the length of the dots based on the given line thickness.
 -}
 dot : Float -> FillStyle -> LineStyle
 dot thickness =
-  let
-    d = round thickness
-  in
-  broken [ ( d, d ) ] thickness
+    let
+        d =
+            round thickness
+    in
+    broken [ ( d, d ) ] thickness
 
 
 {-| A dashed line type with the given thickness.
@@ -911,10 +934,11 @@ Calculates the length of the dashes based on the given line thickness.
 -}
 dash : Float -> FillStyle -> LineStyle
 dash thickness =
-  let
-    d = round thickness
-  in
-  broken [ ( d * 5, d * 2 ) ] thickness
+    let
+        d =
+            round thickness
+    in
+    broken [ ( d * 5, d * 2 ) ] thickness
 
 
 {-| A dashed line type with the given thickness, where the dashes are longer than normal.
@@ -924,10 +948,11 @@ Calculates the length of the dashes based on the given line thickness.
 -}
 longdash : Float -> FillStyle -> LineStyle
 longdash thickness =
-  let
-    d = round thickness
-  in
-  broken [ ( d * 12, d * 6 ) ] thickness
+    let
+        d =
+            round thickness
+    in
+    broken [ ( d * 12, d * 6 ) ] thickness
 
 
 {-| A dashed line type with the given thickness, including alternating dots and dashes.
@@ -937,10 +962,11 @@ Calculates the length of the dashes based on the given line thickness.
 -}
 dashdot : Float -> FillStyle -> LineStyle
 dashdot thickness =
-  let
-    d = round thickness
-  in
-  broken [ ( d * 5, d ), ( d, d ) ] thickness
+    let
+        d =
+            round thickness
+    in
+    broken [ ( d * 5, d ), ( d, d ) ] thickness
 
 
 
@@ -950,43 +976,50 @@ dashdot thickness =
 {-| 0.5 px
 -}
 ultrathin : Float
-ultrathin = 0.5
+ultrathin =
+    0.5
 
 
 {-| 1 px
 -}
 verythin : Float
-verythin = 1.0
+verythin =
+    1.0
 
 
 {-| 2 px
 -}
 thin : Float
-thin = 2.0
+thin =
+    2.0
 
 
 {-| 3 px
 -}
 semithick : Float
-semithick = 3.0
+semithick =
+    3.0
 
 
 {-| 4 px
 -}
 thick : Float
-thick = 4.0
+thick =
+    4.0
 
 
 {-| 6 px
 -}
 verythick : Float
-verythick = 6.0
+verythick =
+    6.0
 
 
 {-| 8 px
 -}
 ultrathick : Float
-ultrathick = 8.0
+ultrathick =
+    8.0
 
 
 
@@ -1003,9 +1036,9 @@ In TikZ and Css these options are called butt, rect, and round.
 
 -}
 type LineCap
-  = Flat
-  | Round
-  | Padded
+    = Flat
+    | Round
+    | Padded
 
 
 
@@ -1018,6 +1051,6 @@ In TikZ and Css these options have the nondescriptive names round, miter, and be
 
 -}
 type LineJoin
-  = Smooth
-  | Sharp
-  | Clipped
+    = Smooth
+    | Sharp
+    | Clipped

@@ -9,14 +9,14 @@ import Html exposing (Html, text)
 
 main : Html msg
 main =
-  stack
-    [ Html.div []
-        [ Html.button []
-            [ text "Hello Html!" ]
+    stack
+        [ Html.div []
+            [ Html.button []
+                [ text "Hello Html!" ]
+            ]
+            |> html ( 100, 100 )
+        , rectangle 100 100
+            |> filled (uniform Color.lightGreen)
         ]
-        |> html ( 100, 100 )
-    , rectangle 100 100
-        |> filled (uniform Color.lightGreen)
-    ]
-    |> rotate (degrees 30)
-    |> svg
+        |> rotate (degrees 30)
+        |> svg

@@ -1,8 +1,8 @@
 module Helpers exposing
-  ( foldrLazy
-  , orLazy
-  , values
-  )
+    ( foldrLazy
+    , orLazy
+    , values
+    )
 
 {-| -}
 
@@ -13,9 +13,12 @@ module Helpers exposing
 -}
 orLazy : Maybe a -> (() -> Maybe a) -> Maybe a
 orLazy ma fmb =
-  case ma of
-    Nothing -> fmb ()
-    Just _ -> ma
+    case ma of
+        Nothing ->
+            fmb ()
+
+        Just _ ->
+            ma
 
 
 {-| Convert a list of `Maybe a` to a list of `a` only for the values different from `Nothing`.
@@ -24,14 +27,18 @@ orLazy ma fmb =
 
 -}
 values : List (Maybe a) -> List a
-values = List.foldr foldrValues []
+values =
+    List.foldr foldrValues []
 
 
 foldrValues : Maybe a -> List a -> List a
 foldrValues item list =
-  case item of
-    Nothing -> list
-    Just v -> v :: list
+    case item of
+        Nothing ->
+            list
+
+        Just v ->
+            v :: list
 
 
 
@@ -40,6 +47,9 @@ foldrValues item list =
 
 foldrLazy : (e -> (() -> a) -> a) -> a -> List e -> a
 foldrLazy f acc list =
-  case list of
-    [] -> acc
-    x :: xs -> f x (\() -> foldrLazy f acc xs)
+    case list of
+        [] ->
+            acc
+
+        x :: xs ->
+            f x (\() -> foldrLazy f acc xs)

@@ -1,20 +1,20 @@
 module Collage.Events exposing
-  ( onClick, onDoubleClick, onMouseDown, onMouseUp, onMouseMove, onMouseEnter, onMouseLeave, onMouseOver, onMouseOut
-  , onFocusIn, onFocusOut
-  , on
-  )
+    ( onClick, onDoubleClick, onMouseDown, onMouseUp, onMouseMove, onMouseEnter, onMouseLeave, onMouseOver, onMouseOut
+    , onFocusIn, onFocusOut
+    , on
+    )
 
 {-| Use this module to make your graphics interactive.
 It is as easy as you think it is.
 
     collage
-      |> onClick Clicked
+        |> onClick Clicked
 
 Will send the message `Clicked` to your update function where you can handle it.
 You will probably need some way to identify your objects to keep track of _which_ object the user clicked on:
 
     drawing.collage
-      |> onClick (ClickedOn drawing.id)
+        |> onClick (ClickedOn drawing.id)
 
 where `drawing : { r | collage : Collage, id : Id }`
 
@@ -60,79 +60,90 @@ the resulting message will be passed along to your `update` function.
 
     onClick : msg -> Collage msg -> Collage msg
     onClick msg =
-      on "click" (Json.succeed msg)
+        on "click" (Json.succeed msg)
 
 -}
 on : String -> Json.Decoder msg -> Collage msg -> Collage msg
 on event decoder collage =
-  { collage | handlers = ( event, decoder ) :: collage.handlers }
+    { collage | handlers = ( event, decoder ) :: collage.handlers }
 
 
 simpleOn : String -> msg -> Collage msg -> Collage msg
 simpleOn event =
-  on event << Json.succeed
+    on event << Json.succeed
 
 
 mouseOn : String -> (Point -> msg) -> Collage msg -> Collage msg
 mouseOn event msg =
-  on event <|
-    Json.map msg <|
-      Json.map2
-        (\x y -> ( x, y ))
-        (field "clientX" Json.float)
-        (field "clientY" Json.float)
+    on event <|
+        Json.map msg <|
+            Json.map2
+                (\x y -> ( x, y ))
+                (field "clientX" Json.float)
+                (field "clientY" Json.float)
 
 
 {-| -}
 onClick : msg -> Collage msg -> Collage msg
-onClick = simpleOn "click"
+onClick =
+    simpleOn "click"
 
 
 {-| -}
 onDoubleClick : msg -> Collage msg -> Collage msg
-onDoubleClick = simpleOn "dblclick"
+onDoubleClick =
+    simpleOn "dblclick"
 
 
 {-| -}
 onMouseDown : (Point -> msg) -> Collage msg -> Collage msg
-onMouseDown = mouseOn "mousedown"
+onMouseDown =
+    mouseOn "mousedown"
 
 
 {-| -}
 onMouseUp : (Point -> msg) -> Collage msg -> Collage msg
-onMouseUp = mouseOn "mouseup"
+onMouseUp =
+    mouseOn "mouseup"
 
 
 {-| -}
 onMouseEnter : (Point -> msg) -> Collage msg -> Collage msg
-onMouseEnter = mouseOn "mouseenter"
+onMouseEnter =
+    mouseOn "mouseenter"
 
 
 {-| -}
 onMouseLeave : (Point -> msg) -> Collage msg -> Collage msg
-onMouseLeave = mouseOn "mouseleave"
+onMouseLeave =
+    mouseOn "mouseleave"
 
 
 {-| -}
 onMouseOver : (Point -> msg) -> Collage msg -> Collage msg
-onMouseOver = mouseOn "mouseover"
+onMouseOver =
+    mouseOn "mouseover"
 
 
 {-| -}
 onMouseOut : (Point -> msg) -> Collage msg -> Collage msg
-onMouseOut = mouseOn "mouseout"
+onMouseOut =
+    mouseOn "mouseout"
 
 
 {-| -}
 onMouseMove : (Point -> msg) -> Collage msg -> Collage msg
-onMouseMove = mouseOn "mousemove"
+onMouseMove =
+    mouseOn "mousemove"
 
 
 {-| -}
 onFocusIn : msg -> Collage msg -> Collage msg
-onFocusIn = simpleOn "focusin"
+onFocusIn =
+    simpleOn "focusin"
 
 
 {-| -}
 onFocusOut : msg -> Collage msg -> Collage msg
-onFocusOut = simpleOn "focusout"
+onFocusOut =
+    simpleOn "focusout"

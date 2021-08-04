@@ -1,12 +1,12 @@
 module Collage.Layout exposing
-  ( envelope, Direction(..), facing, distances, Distances, width, height
-  , horizontal, vertical, stack, impose, beside, place
-  , spacer, empty
-  , align, at, center
-  , Anchor, top, topRight, right, bottomRight, bottom, bottomLeft, left, topLeft, base
-  , name, locate, connect, names
-  , showOrigin, showEnvelope, debug
-  )
+    ( envelope, Direction(..), facing, distances, Distances, width, height
+    , horizontal, vertical, stack, impose, beside, place
+    , spacer, empty
+    , align, at, center
+    , Anchor, top, topRight, right, bottomRight, bottom, bottomLeft, left, topLeft, base
+    , name, locate, connect, names
+    , showOrigin, showEnvelope, debug
+    )
 
 {-| With this module, you can compose collages in a more automatic way.
 Instead of shifting collages manually,
@@ -133,10 +133,10 @@ import Maybe exposing (withDefault)
 {-| The four different directions in which we can calculate an envelope.
 -}
 type Direction
-  = Up
-  | Down
-  | Right
-  | Left
+    = Up
+    | Down
+    | Right
+    | Left
 
 
 {-| Calculate the facing direction.
@@ -148,11 +148,18 @@ type Direction
 -}
 facing : Direction -> Direction
 facing dir =
-  case dir of
-    Up -> Down
-    Down -> Up
-    Right -> Left
-    Left -> Right
+    case dir of
+        Up ->
+            Down
+
+        Down ->
+            Up
+
+        Right ->
+            Left
+
+        Left ->
+            Right
 
 
 
@@ -181,14 +188,22 @@ The same holds for the other three directions.
 -}
 envelope : Direction -> Collage msg -> Float
 envelope dir col =
-  let
-    { toTop, toBottom, toLeft, toRight } = distances col
-  in
-  case dir of
-    Up -> toTop
-    Down -> toBottom
-    Right -> toRight
-    Left -> toLeft
+    let
+        { toTop, toBottom, toLeft, toRight } =
+            distances col
+    in
+    case dir of
+        Up ->
+            toTop
+
+        Down ->
+            toBottom
+
+        Right ->
+            toRight
+
+        Left ->
+            toLeft
 
 
 
@@ -198,22 +213,22 @@ envelope dir col =
 {-| Type alias collecting envelope distances in all four directions.
 -}
 type alias Distances =
-  { toTop : Float
-  , toBottom : Float
-  , toRight : Float
-  , toLeft : Float
-  }
+    { toTop : Float
+    , toBottom : Float
+    , toRight : Float
+    , toLeft : Float
+    }
 
 
 {-| Unpack a distances record in a list of points representing the corners of the envelope.
 -}
 unpack : Distances -> List Point
 unpack { toTop, toBottom, toRight, toLeft } =
-  [ ( -toLeft, -toBottom )
-  , ( toRight, -toBottom )
-  , ( toRight, toTop )
-  , ( -toLeft, toTop )
-  ]
+    [ ( -toLeft, -toBottom )
+    , ( toRight, -toBottom )
+    , ( toRight, toTop )
+    , ( -toLeft, toTop )
+    ]
 
 
 {-| Calculate the envelope in all four directions at once.
@@ -227,101 +242,121 @@ Use this function if you need envelopes in multiple directions at the same time.
 -}
 distances : Collage msg -> Distances
 distances col =
-  let
-    points = handleBasic col.basic
-    ( xs, ys ) =
-      points
-        |> List.map (Core.apply col)
-        |> List.unzip
-  in
-  --FIXME: maybe not very efficent to do this here?
-  { toTop = List.maximum ys |> withDefault 0
-  , toBottom = -(List.minimum ys |> withDefault 0)
-  , toRight = List.maximum xs |> withDefault 0
-  , toLeft = -(List.minimum xs |> withDefault 0)
-  }
+    let
+        points =
+            handleBasic col.basic
+
+        ( xs, ys ) =
+            points
+                |> List.map (Core.apply col)
+                |> List.unzip
+    in
+    --FIXME: maybe not very efficent to do this here?
+    { toTop = List.maximum ys |> withDefault 0
+    , toBottom = -(List.minimum ys |> withDefault 0)
+    , toRight = List.maximum xs |> withDefault 0
+    , toLeft = -(List.minimum xs |> withDefault 0)
+    }
 
 
 handleBasic : BasicCollage msg -> List Point
 handleBasic basic =
-  case basic of
-    -- Shapes --
-    Core.Shape ( _, { thickness } ) (Core.Circle r) ->
-      let
-        d = 2 * r
-      in
-      handleBox thickness ( d, d )
-    Core.Shape ( _, { thickness } ) (Core.Ellipse rx ry) ->
-      handleBox thickness ( 2 * rx, 2 * ry )
-    Core.Shape ( _, { thickness } ) (Core.Rectangle w h _) ->
-      handleBox thickness ( w, h )
-    Core.Shape ( _, { thickness } ) (Core.Polygon ps) ->
-      handlePoints thickness ps
-    Core.Shape ( _, line ) (Core.Loop path) ->
-      --NOTE: Use the same calculations as for paths
-      handleBasic (Core.Path line path)
-    -- Paths --
-    Core.Path { thickness, cap } (Core.Polyline ps) ->
-      handlePoints
-        (if cap == Flat then
-          0
-         else
-          thickness
-        )
-        ps
-    -- Boxes --
-    Core.Text dims _ ->
-      handleBox 0 dims
-    Core.Image dims _ ->
-      handleBox 0 dims
-    Core.Html dims _ _ ->
-      handleBox 0 dims
-    -- Groups --
-    Core.Group cols ->
-      cols
-        |> List.map (distances >> unpack)
-        |> List.concat
-        |> handlePoints 0
-    Core.Subcollage _ back ->
-      --NOTE: We ignore the foreground and only calculate the distances of the background
-      --NOTE: We have to handle the rotation, this is done by `distances`
-      distances back
-        |> unpack
-        |> handlePoints 0
+    case basic of
+        -- Shapes --
+        Core.Shape ( _, { thickness } ) (Core.Circle r) ->
+            let
+                d =
+                    2 * r
+            in
+            handleBox thickness ( d, d )
+
+        Core.Shape ( _, { thickness } ) (Core.Ellipse rx ry) ->
+            handleBox thickness ( 2 * rx, 2 * ry )
+
+        Core.Shape ( _, { thickness } ) (Core.Rectangle w h _) ->
+            handleBox thickness ( w, h )
+
+        Core.Shape ( _, { thickness } ) (Core.Polygon ps) ->
+            handlePoints thickness ps
+
+        Core.Shape ( _, line ) (Core.Loop path) ->
+            --NOTE: Use the same calculations as for paths
+            handleBasic (Core.Path line path)
+
+        -- Paths --
+        Core.Path { thickness, cap } (Core.Polyline ps) ->
+            handlePoints
+                (if cap == Flat then
+                    0
+
+                 else
+                    thickness
+                )
+                ps
+
+        -- Boxes --
+        Core.Text dims _ ->
+            handleBox 0 dims
+
+        Core.Image dims _ ->
+            handleBox 0 dims
+
+        Core.Html dims _ _ ->
+            handleBox 0 dims
+
+        -- Groups --
+        Core.Group cols ->
+            cols
+                |> List.map (distances >> unpack)
+                |> List.concat
+                |> handlePoints 0
+
+        Core.Subcollage _ back ->
+            --NOTE: We ignore the foreground and only calculate the distances of the background
+            --NOTE: We have to handle the rotation, this is done by `distances`
+            distances back
+                |> unpack
+                |> handlePoints 0
 
 
 handlePoints : Float -> List Point -> List Point
 handlePoints thickness =
-  let
-    thicken ( x, y ) =
-      let
-        t = thickness / 2
-      in
-      ( if x < 0 then
-          x - t
-        else
-          x + t
-      , if y < 0 then
-          y - t
-        else
-          y + t
-      )
-  in
-  List.map thicken
+    let
+        thicken ( x, y ) =
+            let
+                t =
+                    thickness / 2
+            in
+            ( if x < 0 then
+                x - t
+
+              else
+                x + t
+            , if y < 0 then
+                y - t
+
+              else
+                y + t
+            )
+    in
+    List.map thicken
 
 
 handleBox : Float -> ( Float, Float ) -> List Point
 handleBox thickness ( w, h ) =
-  let
-    x = w / 2
-    y = h / 2
-  in
-  handlePoints thickness
-    [ ( -x, -y )
-    , ( x, -y )
-    , ( x, y )
-    , ( -x, y )
-    ]
+    let
+        x =
+            w / 2
+
+        y =
+            h / 2
+    in
+    handlePoints thickness
+        [ ( -x, -y )
+        , ( x, -y )
+        , ( x, y )
+        , ( -x, y )
+        ]
 
 
 
@@ -337,10 +372,11 @@ The width is equivalent to the envelopes in the left and right directions:
 -}
 width : Collage msg -> Float
 width col =
-  let
-    { toLeft, toRight } = distances col
-  in
-  toLeft + toRight
+    let
+        { toLeft, toRight } =
+            distances col
+    in
+    toLeft + toRight
 
 
 {-| Calculates the height of a collage.
@@ -352,10 +388,11 @@ The height is equivalent to the envelopes in the up and down directions:
 -}
 height : Collage msg -> Float
 height col =
-  let
-    { toTop, toBottom } = distances col
-  in
-  toTop + toBottom
+    let
+        { toTop, toBottom } =
+            distances col
+    in
+    toTop + toBottom
 
 
 
@@ -378,7 +415,7 @@ This is useful for getting your spacing right and for making borders.
 -}
 spacer : Float -> Float -> Collage msg
 spacer w h =
-  rectangle w h |> styled ( transparent, invisible )
+    rectangle w h |> styled ( transparent, invisible )
 
 
 {-| A collage that takes up no space. Good for things that appear conditionally:
@@ -393,7 +430,8 @@ spacer w h =
 
 -}
 empty : Collage msg
-empty = spacer 0 0
+empty =
+    spacer 0 0
 
 
 
@@ -410,16 +448,25 @@ Use this to position a collage next to another collage without actually composin
 -}
 place : Direction -> Collage msg -> Collage msg -> Collage msg
 place dir a b =
-  let
-    len = envelope dir a + envelope (facing dir) b
-    move =
-      case dir of
-        Up -> ( 0, len )
-        Down -> ( 0, -len )
-        Right -> ( len, 0 )
-        Left -> ( -len, 0 )
-  in
-  shift move b
+    let
+        len =
+            envelope dir a + envelope (facing dir) b
+
+        move =
+            case dir of
+                Up ->
+                    ( 0, len )
+
+                Down ->
+                    ( 0, -len )
+
+                Right ->
+                    ( len, 0 )
+
+                Left ->
+                    ( -len, 0 )
+    in
+    shift move b
 
 
 {-| Place a collage _beside_ another one in the given direction and combine them into a new one.
@@ -435,7 +482,7 @@ The new origin will be the origin of the first argument.
 -}
 beside : Direction -> Collage msg -> Collage msg -> Collage msg
 beside dir a b =
-  stack [ a, place dir a b ]
+    stack [ a, place dir a b ]
 
 
 
@@ -458,7 +505,8 @@ The new origin will be the origin of the first element in the list.
 
 -}
 horizontal : List (Collage msg) -> Collage msg
-horizontal = List.foldr (beside Right) empty
+horizontal =
+    List.foldr (beside Right) empty
 
 
 {-| Place a list of collages next to each other,
@@ -481,7 +529,8 @@ The new origin will be the origin of the first element in the list.
 
 -}
 vertical : List (Collage msg) -> Collage msg
-vertical = List.foldr (beside Down) empty
+vertical =
+    List.foldr (beside Down) empty
 
 
 {-| Place a list of collages on top of each other, with their origin points stacked on the "out of page" axis.
@@ -504,14 +553,15 @@ The new origin will be the origin of the first element in the list.
   - Note: when we create an operator `(<>)` like
 
         (<>) a b =
-          stack [ a, b ]
+            stack [ a, b ]
 
     then `(<>)` forms a monoid together with `empty`.
     `(<>)` is called `atop` in Diagrams.
 
 -}
 stack : List (Collage msg) -> Collage msg
-stack = Collage.group
+stack =
+    Collage.group
 
 
 {-| Impose a collage on a background.
@@ -537,7 +587,7 @@ The new origin will be the origin of the background.
 -}
 impose : Collage msg -> Collage msg -> Collage msg
 impose front back =
-  Core.collage <| Core.Subcollage front back
+    Core.collage <| Core.Subcollage front back
 
 
 
@@ -563,7 +613,7 @@ Anchors are created by the functions from the section below.
 -}
 align : Anchor msg -> Collage msg -> Collage msg
 align anchor col =
-  shift (Collage.opposite <| anchor col) col
+    shift (Collage.opposite <| anchor col) col
 
 
 {-| Stack a collage on top of a specified anchor of a host.
@@ -581,24 +631,24 @@ Makes placing objects on a collage a lot easier:
 instead of:
 
     stack
-      [ dot
-      , align upperRight <|
-          stack
-            [ dot
-            , align bottom collage
-            ]
-      ]
+        [ dot
+        , align upperRight <|
+            stack
+                [ dot
+                , align bottom collage
+                ]
+        ]
 
 This does not change the origin of `collage`.
 
 -}
 at : Anchor msg -> Collage msg -> Collage msg -> Collage msg
 at anchor fore back =
-  stack
-    [ fore
-        |> shift (anchor back)
-    , back
-    ]
+    stack
+        [ fore
+            |> shift (anchor back)
+        , back
+        ]
 
 
 {-| Shift a collage such that the envelope in all directions is equal.
@@ -609,7 +659,8 @@ This is the same as aligning on the base anchor:
 
 -}
 center : Collage msg -> Collage msg
-center = align base
+center =
+    align base
 
 
 
@@ -619,7 +670,7 @@ center = align base
 {-| Anchors are functions which calculate a point relative to the origin of a given collage.
 -}
 type alias Anchor msg =
-  Collage msg -> Point
+    Collage msg -> Point
 
 
 {-|
@@ -631,10 +682,11 @@ type alias Anchor msg =
 -}
 top : Anchor msg
 top col =
-  let
-    { toTop } = distances col
-  in
-  ( 0, toTop )
+    let
+        { toTop } =
+            distances col
+    in
+    ( 0, toTop )
 
 
 {-|
@@ -646,10 +698,11 @@ top col =
 -}
 topRight : Anchor msg
 topRight col =
-  let
-    { toRight, toTop } = distances col
-  in
-  ( toRight, toTop )
+    let
+        { toRight, toTop } =
+            distances col
+    in
+    ( toRight, toTop )
 
 
 {-|
@@ -661,10 +714,11 @@ topRight col =
 -}
 right : Anchor msg
 right col =
-  let
-    { toRight } = distances col
-  in
-  ( toRight, 0 )
+    let
+        { toRight } =
+            distances col
+    in
+    ( toRight, 0 )
 
 
 {-|
@@ -676,10 +730,11 @@ right col =
 -}
 bottomRight : Anchor msg
 bottomRight col =
-  let
-    { toRight, toBottom } = distances col
-  in
-  ( toRight, -toBottom )
+    let
+        { toRight, toBottom } =
+            distances col
+    in
+    ( toRight, -toBottom )
 
 
 {-|
@@ -691,10 +746,11 @@ bottomRight col =
 -}
 bottom : Anchor msg
 bottom col =
-  let
-    { toBottom } = distances col
-  in
-  ( 0, -toBottom )
+    let
+        { toBottom } =
+            distances col
+    in
+    ( 0, -toBottom )
 
 
 {-|
@@ -706,10 +762,11 @@ bottom col =
 -}
 bottomLeft : Anchor msg
 bottomLeft col =
-  let
-    { toLeft, toBottom } = distances col
-  in
-  ( -toLeft, -toBottom )
+    let
+        { toLeft, toBottom } =
+            distances col
+    in
+    ( -toLeft, -toBottom )
 
 
 {-|
@@ -721,10 +778,11 @@ bottomLeft col =
 -}
 left : Anchor msg
 left col =
-  let
-    { toLeft } = distances col
-  in
-  ( -toLeft, 0 )
+    let
+        { toLeft } =
+            distances col
+    in
+    ( -toLeft, 0 )
 
 
 {-|
@@ -736,10 +794,11 @@ left col =
 -}
 topLeft : Anchor msg
 topLeft col =
-  let
-    { toLeft, toTop } = distances col
-  in
-  ( -toLeft, toTop )
+    let
+        { toLeft, toTop } =
+            distances col
+    in
+    ( -toLeft, toTop )
 
 
 {-|
@@ -751,12 +810,17 @@ topLeft col =
 -}
 base : Anchor msg
 base col =
-  let
-    { toTop, toBottom, toLeft, toRight } = distances col
-    tx = (toRight - toLeft) / 2
-    ty = (toTop - toBottom) / 2
-  in
-  ( tx, ty )
+    let
+        { toTop, toBottom, toLeft, toRight } =
+            distances col
+
+        tx =
+            (toRight - toLeft) / 2
+
+        ty =
+            (toTop - toBottom) / 2
+    in
+    ( tx, ty )
 
 
 
@@ -767,7 +831,7 @@ base col =
 -}
 name : String -> Collage msg -> Collage msg
 name string col =
-  { col | name = Just string }
+    { col | name = Just string }
 
 
 {-| Locate a named part of a collage and calculate the coordinates using the given anchor in the new coordinate system.
@@ -784,25 +848,33 @@ we display a message on the console for your convenience.
 -}
 locate : String -> Anchor msg -> Collage msg -> Maybe Point
 locate string anchor this =
-  let
-    recurse col =
-      let
-        match = Maybe.map ((==) string) col.name |> withDefault False
-        firstOf =
-          --NOTE: This saves us recursing down when we found what we're looking for!
-          --FIXME: This is depth first!!!
-          Helpers.foldrLazy (Helpers.orLazy << recurse) Nothing
-      in
-      if match then
-        Just <| anchor col
-      else
-        Maybe.map (Core.apply col) <|
-          case col.basic of
-            Core.Group cols -> firstOf cols
-            Core.Subcollage fore back -> firstOf [ fore, back ]
-            _ -> Nothing
-  in
-  recurse this
+    let
+        recurse col =
+            let
+                match =
+                    Maybe.map ((==) string) col.name |> withDefault False
+
+                firstOf =
+                    --NOTE: This saves us recursing down when we found what we're looking for!
+                    --FIXME: This is depth first!!!
+                    Helpers.foldrLazy (Helpers.orLazy << recurse) Nothing
+            in
+            if match then
+                Just <| anchor col
+
+            else
+                Maybe.map (Core.apply col) <|
+                    case col.basic of
+                        Core.Group cols ->
+                            firstOf cols
+
+                        Core.Subcollage fore back ->
+                            firstOf [ fore, back ]
+
+                        _ ->
+                            Nothing
+    in
+    recurse this
 
 
 {-| Breadth-first search on collages
@@ -816,45 +888,55 @@ and after that going deeper down, descending into subcollages.
 -}
 locate_ : String -> Anchor msg -> Collage msg -> Maybe Point
 locate_ string anchor this =
-  let
-    recurse queue =
-      case queue of
-        [] ->
-          Nothing
-        col :: rest ->
-          let
-            match = Maybe.map ((==) string) col.name |> withDefault False
-            update = List.map (Core.combine col)
-          in
-          if match then
-            --NOTE: We found it!
-            Just <| anchor col
-          else
-            --NOTE: We go on with our search and keep track of the transformations
-            case col.basic of
-              Core.Group cols ->
-                --NOTE: First recurse on the rest of the queue, then go for the group contents
-                recurse (rest ++ update cols)
-              Core.Subcollage fore back ->
-                recurse (rest ++ update [ fore, back ])
-              _ ->
-                recurse rest
-  in
-  recurse [ this ]
+    let
+        recurse queue =
+            case queue of
+                [] ->
+                    Nothing
+
+                col :: rest ->
+                    let
+                        match =
+                            Maybe.map ((==) string) col.name |> withDefault False
+
+                        update =
+                            List.map (Core.combine col)
+                    in
+                    if match then
+                        --NOTE: We found it!
+                        Just <| anchor col
+
+                    else
+                        --NOTE: We go on with our search and keep track of the transformations
+                        case col.basic of
+                            Core.Group cols ->
+                                --NOTE: First recurse on the rest of the queue, then go for the group contents
+                                recurse (rest ++ update cols)
+
+                            Core.Subcollage fore back ->
+                                recurse (rest ++ update [ fore, back ])
+
+                            _ ->
+                                recurse rest
+    in
+    recurse [ this ]
 
 
 {-| Return a dictionary with all named parts of given collage.
 -}
 names : Collage msg -> Dict String (Collage msg)
 names =
-  let
-    recurse col res =
-      case col.name of
-        Just n -> Dict.insert n col res
-        Nothing -> res
-  in
-  --NOTE: We use `foldr` here so named collages "higher up" will overwrite those down in the hierarchy.
-  Core.foldr recurse Dict.empty
+    let
+        recurse col res =
+            case col.name of
+                Just n ->
+                    Dict.insert n col res
+
+                Nothing ->
+                    res
+    in
+    --NOTE: We use `foldr` here so named collages "higher up" will overwrite those down in the hierarchy.
+    Core.foldr recurse Dict.empty
 
 
 {-| Connect a list of points which are located inside a collage.
@@ -865,13 +947,13 @@ the result will be _ignored_.
 -}
 connect : List ( String, Anchor msg ) -> LineStyle -> Collage msg -> Collage msg
 connect locations line col =
-  let
-    positions =
-      locations
-        |> List.map (\( n, a ) -> locate n a col)
-        |> Helpers.values
-  in
-  impose (path positions |> traced line) col
+    let
+        positions =
+            locations
+                |> List.map (\( n, a ) -> locate n a col)
+                |> Helpers.values
+    in
+    impose (path positions |> traced line) col
 
 
 
@@ -882,30 +964,31 @@ connect locations line col =
 -}
 showOrigin : Collage msg -> Collage msg
 showOrigin col =
-  let
-    origin =
-      circle 3
-        |> filled (uniform Color.red)
-        |> name "_origin_"
-  in
-  impose origin col
+    let
+        origin =
+            circle 3
+                |> filled (uniform Color.red)
+                |> name "_origin_"
+    in
+    impose origin col
 
 
 {-| Draw a red dotted box around the collage representing the envelope.
 -}
 showEnvelope : Collage msg -> Collage msg
 showEnvelope col =
-  let
-    outline =
-      rectangle (width col) (height col)
-        |> outlined (dot 2 (uniform Color.red))
-        |> shift (base col)
-        |> name "_envelope_"
-  in
-  impose outline col
+    let
+        outline =
+            rectangle (width col) (height col)
+                |> outlined (dot 2 (uniform Color.red))
+                |> shift (base col)
+                |> name "_envelope_"
+    in
+    impose outline col
 
 
 {-| Show both the envelope and the origin of a collage.
 -}
 debug : Collage msg -> Collage msg
-debug = showEnvelope >> showOrigin
+debug =
+    showEnvelope >> showOrigin
